@@ -526,6 +526,10 @@ main { display:flex; flex-direction:column; overflow:hidden; background: var(--b
 /* ── Print / PDF ─────────────────────────────────────────── */
 #print-view { display: none; grid-column: 1 / -1; }
 
+@page {
+  margin: 1.2cm 1cm;
+  size: A4 portrait;
+}
 @media print {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body > *:not(#print-view) { display: none !important; }
@@ -552,7 +556,7 @@ main { display:flex; flex-direction:column; overflow:hidden; background: var(--b
   }
   .pv-entry:last-child { border-bottom: none; }
   .pv-img {
-    width: 110px; height: 110px; border-radius: 50%;
+    width: 90px; height: 90px; border-radius: 50%;
     overflow: hidden; flex-shrink: 0;
     border: 3px solid #111111;
     box-shadow: 4px 4px 0 #111111;
