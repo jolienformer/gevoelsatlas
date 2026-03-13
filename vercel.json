@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/img/:path*",
+      "destination": "https://digitaldriftnew.netlify.app/images/:path*"
+    }
+  ]
+}
