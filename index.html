@@ -945,6 +945,7 @@ var STEPS = [
   { label: 'Wens',        question: 'Hoe zou je je willen voelen?',                  hint: 'Ik zou mij willen voelen…' },
 ];
 var currentStep = 0;
+var returnToStep = -1;
 var currentPromptHint = STEPS[0].hint;
 
 function renderCats() {
@@ -1152,13 +1153,16 @@ function renderProgress() {
   currentPromptHint = step.hint;
   if (!selectedImg) renderChosen();
 
-  var pct = (currentStep / STEPS.length) * 100;
+  var doneMask = {};
+  sessionLog.forEach(function(e) { doneMask[e.stepIndex] = true; });
+  var doneCount = Object.keys(doneMask).length;
+  var pct = (doneCount / STEPS.length) * 100;
   document.getElementById('stepFill').style.width = pct + '%';
   document.getElementById('stepMeta').textContent = 'Stap ' + (currentStep + 1) + ' van ' + STEPS.length;
 
   var html = '';
   STEPS.forEach(function(s, i) {
-    var isDone   = i < currentStep;
+    var isDone   = !!doneMask[i] && i !== currentStep;
     var isActive = i === currentStep;
     var cls = isDone ? 'done' : (isActive ? 'active' : '');
     var click = isDone ? ' onclick="goToStep(' + i + ')" title="Klik om te wijzigen"' : '';
@@ -1169,13 +1173,15 @@ function renderProgress() {
   });
   document.getElementById('stepPills').innerHTML = html;
 
-  var isLast = currentStep === STEPS.length - 1;
+  var isEditing = returnToStep !== -1;
+  var isLast = !isEditing && doneCount === STEPS.length - 1;
   var btn = document.getElementById('btnSave');
-  if (btn) btn.textContent = isLast ? 'Vastleggen & afronden' : 'Vastleggen & verder';
+  if (btn) btn.textContent = isEditing ? 'Wijziging opslaan' : (isLast ? 'Vastleggen & afronden' : 'Vastleggen & verder');
 }
 
 function goToStep(i) {
-  sessionLog = sessionLog.filter(function(e) { return e.stepIndex < i; });
+  returnToStep = currentStep;
+  sessionLog = sessionLog.filter(function(e) { return e.stepIndex !== i; });
   currentStep = i;
   selectedImg = null;
   activeCats.clear();
@@ -1229,8 +1235,13 @@ function logMoment() {
   var gridWrap = document.querySelector('.grid-wrap');
   if (gridWrap) gridWrap.scrollTop = 0;
 
-  currentStep++;
-  if (currentStep >= STEPS.length) {
+  if (returnToStep !== -1) {
+    currentStep = returnToStep;
+    returnToStep = -1;
+  } else {
+    currentStep++;
+  }
+  if (sessionLog.length >= STEPS.length) {
     showClosingScreen();
   } else {
     renderProgress();
