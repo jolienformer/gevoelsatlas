@@ -778,7 +778,7 @@ main { display:flex; flex-direction:column; overflow:hidden; background: var(--b
 <link rel="icon" type="image/jpeg" href="/images/1258_groen_intelligent.jpg">
 <meta property="og:title" content="GevoelsAtlas">
 <meta property="og:description" content="Hoe voel jij je vandaag? Kies een gezichtje en maak jouw eigen GevoelsAtlas.">
-<meta property="og:image" content="https://gevoelsatlas.vercel.app/images/1258_groen_intelligent.jpg">
+<meta property="og:image" content="https://www.gevoelsatlas.nl/images/1258_groen_intelligent.jpg">
 <meta property="og:type" content="website">
 </head>
 <body>
@@ -1427,7 +1427,7 @@ function shareOrDownloadCanvas(canvas, filename) {
   canvas.toBlob(function(blob) {
     var file = new File([blob], filename, { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: 'GevoelsAtlas', url: 'https://gevoelsatlas.netlify.app' })
+      navigator.share({ files: [file], title: 'GevoelsAtlas', url: 'https://www.gevoelsatlas.nl' })
         .catch(function() { downloadCanvas(canvas, filename); });
     } else {
       downloadCanvas(canvas, filename);
@@ -1576,7 +1576,7 @@ function drawAtlasCard(ctx, W, H, entries, imgs) {
   // Branding — rood, Amatic SC
   ctx.fillStyle = '#FF5C35'; ctx.font = '700 48px "Amatic SC"';
   ctx.textAlign = 'center';
-  ctx.fillText('gevoelsatlas.netlify.app', W/2, H-38);
+  ctx.fillText('www.gevoelsatlas.nl', W/2, H-38);
 }
 
 renderProgress(); renderCats(); renderColors(); renderGrid();
