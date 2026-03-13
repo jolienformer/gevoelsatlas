@@ -895,7 +895,7 @@ var IMAGES = RAW.map(function(r) {
     color: r[1],
     emotion: decodeURIComponent(r[2]),
     cat: r[3],
-    url: BASE + encodeURIComponent(r[0])
+    url: BASE + encodeURIComponent(decodeURIComponent(r[0]).normalize('NFC'))
   };
 });
 
