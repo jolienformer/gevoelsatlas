@@ -61,19 +61,19 @@ nav {
 .btn-start-link:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
 
 /* ── SELECTIE BALK ───────────────────────────────────────────── */
-.selectie-sectie { max-width: 680px; margin: 0 auto 32px; padding: 0 24px; }
+.selectie-sectie { max-width: 680px; margin: 0 auto 32px; padding: 0 24px; width: 100%; }
 .selectie-kop {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
 }
 .selectie-titel { font-family: 'Amatic SC', cursive; font-size: 1.5rem; font-weight: 700; }
 .selectie-acties { display: flex; gap: 8px; }
 .btn-sel {
-  background: none; border: 2px solid var(--ink); border-radius: 8px;
-  padding: 4px 12px; font-family: 'Nunito', sans-serif; font-size: 0.65rem;
-  font-weight: 800; color: var(--ink); cursor: pointer; transition: all 0.12s;
-  box-shadow: 2px 2px 0 var(--ink);
+  background: none; border: 1.5px solid var(--muted); border-radius: 6px;
+  padding: 3px 10px; font-family: 'Nunito', sans-serif; font-size: 0.62rem;
+  font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.12s;
 }
-.btn-sel:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.btn-sel:hover { border-color: var(--ink); color: var(--ink); }
+.btn-sel.actief { border-color: var(--ink); color: var(--ink); background: var(--bg); }
 
 .selectie-scroll {
   display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px;
@@ -124,7 +124,7 @@ nav {
 .chip-solo:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ── WOLK SECTIE ─────────────────────────────────────────────── */
-.wolk-sectie { max-width: 680px; margin: 0 auto 40px; padding: 0 24px; }
+.wolk-sectie { max-width: 680px; margin: 0 auto 40px; padding: 0 24px; width: 100%; }
 .wolk-kop {
   display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px;
 }
@@ -227,7 +227,7 @@ nav {
 .legenda-dot.neu { background: rgba(195,155,0,0.6);  filter: drop-shadow(0 0 4px rgba(195,155,0,0.9)); }
 
 /* ── TIJDLIJN ────────────────────────────────────────────────── */
-.tijdlijn-sectie { max-width: 680px; margin: 0 auto; padding: 0 24px 24px; }
+.tijdlijn-sectie { max-width: 680px; margin: 0 auto; padding: 0 24px 24px; width: 100%; }
 .tijdlijn-kop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .tijdlijn-label { font-family: 'Amatic SC', cursive; font-size: 1.5rem; font-weight: 700; }
 .sessie-kaart {
@@ -505,6 +505,7 @@ function buildSelectieBalk(sessies) {
   btnAlles.textContent = 'Alles aan';
   btnAlles.addEventListener('click', function() {
     sessies.forEach(function(s) { selectedKeys[s.datum] = true; });
+    btnAlles.classList.add('actief'); btnGeen.classList.remove('actief');
     render();
   });
 
@@ -513,8 +514,10 @@ function buildSelectieBalk(sessies) {
   btnGeen.textContent = 'Alles uit';
   btnGeen.addEventListener('click', function() {
     sessies.forEach(function(s) { selectedKeys[s.datum] = false; });
+    btnGeen.classList.add('actief'); btnAlles.classList.remove('actief');
     render();
   });
+  btnAlles.classList.add('actief');
 
   acties.appendChild(btnAlles);
   acties.appendChild(btnGeen);
