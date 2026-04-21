@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Verken de GevoelsAtlas</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/jpeg" href="images/1258_groen_intelligent.jpg">
+<style>
+:root {
+  --bg:     #F7F5EE;
+  --paper:  #FFFCF5;
+  --ink:    #111111;
+  --soft:   #555555;
+  --muted:  #BBBBBB;
+  --accent: #FF5C35;
+  --yellow: #FFD93D;
+  --radius: 10px;
+  --border: 2.5px solid #111111;
+  --shadow: 4px 4px 0 #111111;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--ink); }
+
+/* ── NAV ─────────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink); padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 54px; border-bottom: 3px solid var(--accent); overflow: hidden;
+}
+.nav-logo { font-family: 'Amatic SC', cursive; font-size: 1.6rem; font-weight: 700; line-height: 1; color: white; text-decoration: none; }
+.nav-logo em { color: var(--yellow); font-style: normal; }
+.nav-start {
+  background: var(--accent); color: white;
+  border: 2px solid white; border-radius: 8px;
+  padding: 6px 16px; line-height: 1;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.72rem; font-weight: 900;
+  text-decoration: none; letter-spacing: 0.04em;
+  transition: all 0.12s;
+}
+.nav-start:hover { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+.nav-start::after { content: ''; display: inline-block; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); margin-left: 6px; vertical-align: middle; position: relative; top: -1px; }
+.nav-dagboek { color: rgba(255,255,255,0.65); font-size: 0.72rem; font-weight: 800; text-decoration: none; letter-spacing: 0.04em; transition: color 0.12s; }
+.nav-dagboek:hover { color: var(--yellow); }
+
+/* ── HEADER ──────────────────────────────────────────────────── */
+.page-header {
+  max-width: 720px; margin: 0 auto;
+  padding: 44px 24px 32px;
+  text-align: center;
+}
+.page-tag {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--accent); margin-bottom: 12px;
+}
+.page-title {
+  font-family: 'Amatic SC', cursive;
+  font-size: clamp(2.4rem, 8vw, 3.8rem);
+  font-weight: 700; line-height: 1.1;
+  margin-bottom: 16px;
+}
+.page-title em { color: var(--accent); font-style: normal; }
+.page-intro {
+  font-size: 0.9rem; font-weight: 600;
+  color: var(--soft); line-height: 1.7;
+  max-width: 480px; margin: 0 auto 28px;
+}
+
+/* ── FILTER SECTION ──────────────────────────────────────────── */
+.filter-section {
+  max-width: 860px; margin: 0 auto;
+  padding: 0 20px 20px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px;
+}
+.search-wrap {
+  max-width: 200px; width: 100%;
+}
+.search-input {
+  width: 100%;
+  padding: 7px 16px;
+  border: 2px solid var(--muted);
+  border-radius: 8px;
+  background: transparent;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 700;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.12s;
+}
+.search-input::placeholder { color: var(--muted); font-style: italic; font-weight: 600; }
+.search-input:focus { border-color: var(--ink); }
+
+/* ── VERRAS ME STICKER ───────────────────────────────────────── */
+.verras-wrap { display: inline-block; margin-bottom: 8px; position: relative; }
+
+.verras-sticker {
+  position: relative;
+  width: 90px; height: 90px;
+  transform: rotate(-6deg);
+  transition: transform 0.15s;
+}
+.verras-sticker:hover { transform: rotate(-6deg) scale(1.1); }
+
+.verras-sticker::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background: var(--ink);
+  clip-path: polygon(50.0% 0.0%, 57.8% 10.8%, 69.1% 3.8%, 72.2% 16.7%, 85.4% 14.6%, 83.3% 27.8%, 96.2% 30.9%, 89.2% 42.2%, 100.0% 50.0%, 89.2% 57.8%, 96.2% 69.1%, 83.3% 72.2%, 85.4% 85.4%, 72.2% 83.3%, 69.1% 96.2%, 57.8% 89.2%, 50.0% 100.0%, 42.2% 89.2%, 30.9% 96.2%, 27.8% 83.3%, 14.6% 85.4%, 16.7% 72.2%, 3.8% 69.1%, 10.8% 57.8%, 0.0% 50.0%, 10.8% 42.2%, 3.8% 30.9%, 16.7% 27.8%, 14.6% 14.6%, 27.8% 16.7%, 30.9% 3.8%, 42.2% 10.8%);
+  transform: scale(1.08);
+}
+.verras-sticker::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  background: var(--ink);
+  clip-path: polygon(50.0% 0.0%, 57.8% 10.8%, 69.1% 3.8%, 72.2% 16.7%, 85.4% 14.6%, 83.3% 27.8%, 96.2% 30.9%, 89.2% 42.2%, 100.0% 50.0%, 89.2% 57.8%, 96.2% 69.1%, 83.3% 72.2%, 85.4% 85.4%, 72.2% 83.3%, 69.1% 96.2%, 57.8% 89.2%, 50.0% 100.0%, 42.2% 89.2%, 30.9% 96.2%, 27.8% 83.3%, 14.6% 85.4%, 16.7% 72.2%, 3.8% 69.1%, 10.8% 57.8%, 0.0% 50.0%, 10.8% 42.2%, 3.8% 30.9%, 16.7% 27.8%, 14.6% 14.6%, 27.8% 16.7%, 30.9% 3.8%, 42.2% 10.8%);
+  transform: translate(4px, 4px);
+}
+
+.btn-verras {
+  position: relative; z-index: 1;
+  width: 90px; height: 90px;
+  clip-path: polygon(50.0% 0.0%, 57.8% 10.8%, 69.1% 3.8%, 72.2% 16.7%, 85.4% 14.6%, 83.3% 27.8%, 96.2% 30.9%, 89.2% 42.2%, 100.0% 50.0%, 89.2% 57.8%, 96.2% 69.1%, 83.3% 72.2%, 85.4% 85.4%, 72.2% 83.3%, 69.1% 96.2%, 57.8% 89.2%, 50.0% 100.0%, 42.2% 89.2%, 30.9% 96.2%, 27.8% 83.3%, 14.6% 85.4%, 16.7% 72.2%, 3.8% 69.1%, 10.8% 57.8%, 0.0% 50.0%, 10.8% 42.2%, 3.8% 30.9%, 16.7% 27.8%, 14.6% 14.6%, 27.8% 16.7%, 30.9% 3.8%, 42.2% 10.8%);
+  background: var(--yellow);
+  border: none; cursor: pointer;
+  font-family: 'Amatic SC', cursive;
+  font-size: 1.4rem; font-weight: 700;
+  color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; line-height: 1.2;
+}
+.btn-verras:hover { background: var(--yellow); }
+
+@keyframes wiggle {
+  0%   { transform: scale(1.1) rotate(-4deg); }
+  25%  { transform: scale(1.15) rotate(4deg); }
+  50%  { transform: scale(1.1) rotate(-3deg); }
+  75%  { transform: scale(1.13) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.btn-verras.wiggle { animation: wiggle 0.45s ease forwards; }
+
+.verras-bubble {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%; transform: translateX(-50%);
+  z-index: 50;
+  background: var(--paper);
+  border: var(--border); border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  white-space: nowrap;
+  animation: cardIn 0.2s ease forwards;
+}
+.verras-bubble.hiding { animation: cardOut 0.18s ease forwards; }
+
+@keyframes cardIn  { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@keyframes cardOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
+
+.verras-face { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: var(--border); box-shadow: 3px 3px 0 var(--ink); display: block; margin: 0 auto 12px; }
+.verras-emotion { font-family: 'Amatic SC', cursive; font-size: 1.6rem; font-weight: 700; color: var(--ink); text-transform: capitalize; }
+
+.verras-close {
+  position: absolute; top: 6px; right: 8px;
+  background: none; border: none; cursor: pointer;
+  font-size: 1rem; font-weight: 900; color: var(--muted);
+  line-height: 1; padding: 0;
+}
+.verras-close:hover { color: var(--ink); }
+
+.verras-speech {
+  background: var(--yellow);
+  border: var(--border); border-radius: var(--radius);
+  padding: 7px 12px;
+  font-family: 'Amatic SC', cursive;
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--ink); line-height: 1.3;
+  margin-bottom: 12px;
+  box-shadow: 2px 2px 0 var(--ink);
+  position: relative;
+}
+.verras-speech::after {
+  content: '';
+  position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+}
+
+@keyframes speechFade {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-6px) scale(0.95); }
+}
+.speech-fade { animation: speechFade 0.4s ease forwards; }
+
+/* ── KLEURFILTER ─────────────────────────────────────────────── */
+.filter-bar {
+  max-width: 860px; margin: 0 auto;
+  padding: 0 20px 28px;
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+.filter-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: var(--border);
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  transition: all 0.12s;
+  flex-shrink: 0;
+}
+.filter-btn:hover  { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.filter-btn.active { box-shadow: none; transform: none; outline: 3px solid var(--accent); outline-offset: 3px; }
+.filter-btn.alles  { background: conic-gradient(#89B4CC 0% 9%, #9B7653 9% 18%, #FFD93D 18% 27%, #BBBBBB 27% 36%, #7BC67E 36% 45%, #FF8C42 45% 54%, #9B72CF 54% 63%, #E05C5C 63% 72%, #F4A7B9 72% 81%, #EEEEEE 81% 90%, #444444 90% 100%); }
+
+/* ── GRID ────────────────────────────────────────────────────── */
+.grid-wrap {
+  max-width: 860px; margin: 0 auto;
+  padding: 0 16px 60px;
+}
+.face-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 16px;
+}
+.face-item {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: visible;
+  border: var(--border);
+  box-shadow: 2px 2px 0 var(--ink);
+  aspect-ratio: 1;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.face-item:hover { transform: scale(1.06) rotate(-1deg); }
+.face-item img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  border-radius: calc(var(--radius) - 2px);
+}
+.face-tooltip {
+  position: absolute; bottom: calc(100% + 8px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--yellow);
+  animation: bubbleIn 0.3s ease forwards;
+  border: var(--border); border-radius: var(--radius);
+  padding: 4px 10px;
+  font-family: 'Amatic SC', cursive;
+  font-size: 1rem; font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  pointer-events: none; z-index: 10;
+  text-transform: capitalize;
+}
+.face-tooltip.hiding { animation: bubbleOut 0.2s ease forwards; }
+@keyframes bubbleIn  { from { opacity: 0; transform: translateX(-50%) scale(0.85); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
+@keyframes bubbleOut { from { opacity: 1; transform: translateX(-50%) scale(1); } to { opacity: 0; transform: translateX(-50%) scale(0.85); } }
+.face-tooltip::after {
+  content: '';
+  position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+}
+
+/* Laad meer */
+.load-more-wrap { text-align: center; padding: 24px 0 0; }
+.btn-meer {
+  background: var(--paper); color: var(--ink);
+  border: var(--border); border-radius: var(--radius);
+  padding: 10px 24px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.8rem; font-weight: 900;
+  cursor: pointer; box-shadow: var(--shadow);
+  transition: all 0.12s;
+}
+.btn-meer:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+.count-label {
+  font-size: 0.68rem; font-weight: 700;
+  color: var(--muted); text-align: center;
+  padding-top: 12px;
+}
+
+/* ── VERRAS ME OVERLAY ───────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(17,17,17,0.75);
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+.overlay.open { display: flex; }
+.overlay-card {
+  background: var(--paper);
+  border: var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px 28px;
+  text-align: center;
+  max-width: 300px; width: 100%;
+  position: relative;
+  animation: cardIn 0.3s ease forwards;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: scale(0.85) rotate(-3deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.overlay-img {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: var(--border);
+  box-shadow: 4px 4px 0 var(--ink);
+  margin-bottom: 18px;
+}
+.overlay-emotion {
+  font-family: 'Amatic SC', cursive;
+  font-size: 2.2rem; font-weight: 700;
+  text-transform: capitalize;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.overlay-close {
+  margin-top: 20px;
+  background: var(--ink); color: white;
+  border: none; border-radius: var(--radius);
+  padding: 10px 22px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem; font-weight: 900;
+  cursor: pointer; letter-spacing: 0.04em;
+}
+.overlay-close:hover { background: var(--accent); }
+.overlay-again {
+  margin-top: 10px;
+  background: var(--yellow); color: var(--ink);
+  border: var(--border); border-radius: var(--radius);
+  padding: 8px 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem; font-weight: 900;
+  cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
+}
+.overlay-again:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+
+/* ── FAVORIETEN ──────────────────────────────────────────────── */
+.fav-btn {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(255,255,255,0.88); border: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 0.8rem; line-height: 22px; text-align: center;
+  cursor: pointer; z-index: 5; padding: 0;
+  opacity: 0; transition: opacity 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.face-item:hover .fav-btn { opacity: 1; }
+.fav-btn.actief { opacity: 1; background: var(--accent); color: white; }
+
+.search-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.bewaard-toggle {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--paper); color: var(--ink);
+  border: var(--border); border-radius: 8px;
+  padding: 6px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.75rem; font-weight: 900;
+  cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
+  white-space: nowrap; transition: all 0.12s;
+  letter-spacing: 0.02em;
+}
+.bewaard-toggle:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.bewaard-toggle.actief { background: var(--accent); color: white; box-shadow: 2px 2px 0 var(--ink); }
+
+.lege-bewaard {
+  grid-column: 1 / -1; text-align: center;
+  padding: 60px 20px;
+  font-family: 'Amatic SC', cursive; font-size: 1.8rem; color: var(--muted);
+}
+
+/* ── LIGHTBOX ────────────────────────────────────────────────── */
+.lightbox {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(17,17,17,0.72);
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+.lightbox.open { display: flex; }
+.lightbox-card {
+  background: var(--paper);
+  border: var(--border); border-radius: var(--radius);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 24px 20px 20px;
+  text-align: center; position: relative;
+  max-width: 320px; width: 100%;
+  animation: snapIn 0.14s ease forwards;
+}
+@keyframes snapIn {
+  from { transform: scale(0.88); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.lightbox-img {
+  width: 240px; height: 240px; object-fit: cover;
+  border: var(--border); border-radius: var(--radius);
+  box-shadow: 4px 4px 0 var(--ink);
+  display: block; margin: 0 auto 16px;
+}
+.lightbox-speech {
+  display: inline-block;
+  background: var(--yellow);
+  border: 2.5px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 6px 14px 5px;
+  font-family: 'Amatic SC', cursive;
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 14px;
+  line-height: 1.3;
+  position: relative;
+}
+.lightbox-speech::after {
+  content: '';
+  position: absolute;
+  bottom: -10px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid var(--ink);
+}
+.lightbox-speech::before {
+  content: '';
+  position: absolute;
+  bottom: -7px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--yellow);
+  z-index: 1;
+}
+.lightbox-speech:empty { display: none; }
+.lightbox-name {
+  font-family: 'Amatic SC', cursive;
+  font-size: 2rem; font-weight: 700;
+  text-transform: capitalize;
+  color: var(--ink); margin-bottom: 16px;
+}
+.lightbox-close {
+  position: absolute; top: -48px; right: 0;
+  width: 38px; height: 38px;
+  background: var(--ink); color: white;
+  border: 2.5px solid white; border-radius: 8px;
+  font-size: 1.3rem; font-weight: 900;
+  cursor: pointer; line-height: 33px; text-align: center;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}
+.lightbox-close:hover { background: var(--accent); border-color: var(--accent); }
+.lightbox-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.lightbox-fav-btn, .lightbox-deel-btn {
+  background: var(--paper); color: var(--ink);
+  border: var(--border); border-radius: 8px;
+  padding: 7px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem; font-weight: 800;
+  cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
+  transition: all 0.12s;
+}
+.lightbox-fav-btn:hover, .lightbox-deel-btn:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.lightbox-fav-btn.actief { background: var(--accent); color: white; border-color: var(--accent); }
+.lightbox-deel-btn { background: var(--ink); color: white; }
+.lightbox-deel-btn::after {
+  content: '';
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-top: 2px solid white;
+  border-right: 2px solid white;
+  transform: rotate(45deg) translateY(-1px);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+footer {
+  background: var(--ink); color: rgba(255,255,255,0.5);
+  text-align: center; padding: 20px;
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+footer a { color: var(--yellow); text-decoration: none; }
+.hamburger { background: none; border: none; cursor: pointer; padding: 6px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+.hamburger span { display: block; width: 20px; height: 2px; background: white; border-radius: 1px; }
+.nav-menu { display: none; position: fixed; top: 57px; right: 20px; background: var(--ink); min-width: 180px; z-index: 200; border-top: 3px solid var(--accent); border-bottom: 1px solid rgba(255,255,255,0.12); box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+.nav-menu.open { display: block; }
+.nav-menu a { display: block; padding: 12px 24px; color: rgba(255,255,255,0.65); text-decoration: none; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 800; letter-spacing: 0.04em; transition: color 0.12s; }
+.nav-menu a:hover, .nav-menu a.actief { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Gevoels<em>Atlas</em></a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="index.html" class="nav-start">Start de atlas</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-menu" id="navMenu">
+  <a href="verken.html" class="actief">Verkennen</a>
+  <a href="dagboek.html">Dagboek</a>
+  <a href="about.html">Over de atlas</a>
+</div>
+
+<div class="page-header">
+  <div class="page-tag">1870 gezichtjes</div>
+  <h1 class="page-title">Verken de <em>atlas</em></h1>
+  <p class="page-intro">Blader door alle gezichtjes. Filter op kleur, of laat je verrassen.</p>
+  <div id="verrasWrap" class="verras-wrap">
+    <div class="verras-sticker">
+      <button class="btn-verras" id="btnVerras">verras<br>me!</button>
+    </div>
+  </div>
+</div>
+
+<div class="filter-section">
+  <div class="search-row">
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" type="text" placeholder="zoek een gevoel…" autocomplete="off">
+    </div>
+    <button class="bewaard-toggle" id="bewaardToggle">♡ Bewaard</button>
+  </div>
+  <div class="filter-bar" id="filterBar"></div>
+</div>
+
+<div class="grid-wrap">
+  <div class="face-grid" id="faceGrid"></div>
+  <div class="count-label" id="countLabel"></div>
+</div>
+
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-card" id="lightboxCard">
+    <button class="lightbox-close" id="lightboxClose">×</button>
+    <div class="lightbox-speech" id="lightboxSpeech"></div>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <div class="lightbox-name" id="lightboxName"></div>
+    <div class="lightbox-actions">
+      <button class="lightbox-fav-btn" id="lightboxFav"></button>
+      <button class="lightbox-deel-btn" id="lightboxDeel">Deel</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  GevoelsAtlas 2026 · <a href="https://jolienbeeldendwerk.nl" target="_blank" rel="noopener">Jolien Beeldendwerk</a> · Kampen
+</footer>
+
+<script src="faces-data.js"></script>
+<script>
+/* ── KLEUREN ─────────────────────────────────────────────────── */
+var KLEUR_CSS = {
+  blauw:  '#89B4CC', bruin:  '#9B7653', geel:   '#FFD93D',
+  grijs:  '#BBBBBB', groen:  '#7BC67E', oranje: '#FF8C42',
+  paars:  '#9B72CF', rood:   '#E05C5C', roze:   '#F4A7B9',
+  wit:    '#EEEEEE', zwart:  '#444444'
+};
+
+var activeColor = 'alles';
+var searchQuery = '';
+var filtered = [];
+var toonBewaard = false;
+var hasHover = window.matchMedia('(hover: hover)').matches;
+
+/* ── FAVORIETEN ──────────────────────────────────────────────── */
+var favorieten = new Set(JSON.parse(localStorage.getItem('gevoelsatlas_favorieten') || '[]'));
+
+function saveFavorieten() {
+  localStorage.setItem('gevoelsatlas_favorieten', JSON.stringify(Array.from(favorieten)));
+}
+
+function toggleFavoriet(filename, btn) {
+  if (favorieten.has(filename)) {
+    favorieten.delete(filename);
+    if (btn) { btn.textContent = '♡'; btn.classList.remove('actief'); btn.title = 'Bewaar'; }
+  } else {
+    favorieten.add(filename);
+    if (btn) { btn.textContent = '♥'; btn.classList.add('actief'); btn.title = 'Verwijder uit bewaard'; }
+  }
+  saveFavorieten();
+  updateBewaardToggle();
+  if (toonBewaard) renderGrid();
+}
+
+function updateBewaardToggle() {
+  var btn = document.getElementById('bewaardToggle');
+  var n = favorieten.size;
+  btn.textContent = (toonBewaard ? '♥' : '♡') + ' Bewaard' + (n > 0 ? ' (' + n + ')' : '');
+  btn.classList.toggle('actief', toonBewaard);
+}
+
+/* ── FILTER BAR ──────────────────────────────────────────────── */
+var bar = document.getElementById('filterBar');
+var kleuren = ['alles'].concat(Object.keys(KLEUR_CSS));
+kleuren.forEach(function(k) {
+  var btn = document.createElement('button');
+  btn.className = 'filter-btn' + (k === 'alles' ? ' active alles' : '');
+  btn.dataset.kleur = k;
+  btn.title = k === 'alles' ? 'Alle kleuren' : k;
+  if (k !== 'alles') btn.style.background = KLEUR_CSS[k];
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    activeColor = k;
+    toonBewaard = false;
+    updateBewaardToggle();
+    renderGrid();
+  });
+  bar.appendChild(btn);
+});
+
+/* ── GRID ────────────────────────────────────────────────────── */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function showTooltip(item, emotion) {
+  var existing = item.querySelector('.face-tooltip');
+  if (existing) {
+    if (!existing.classList.contains('hiding')) return;
+    existing.remove();
+  }
+  document.querySelectorAll('.face-tooltip').forEach(function(t) { t.remove(); });
+  var tooltip = document.createElement('div');
+  tooltip.className = 'face-tooltip';
+  tooltip.textContent = emotion;
+  item.appendChild(tooltip);
+}
+
+function hideTooltip(item) {
+  var t = item.querySelector('.face-tooltip');
+  if (!t || t.classList.contains('hiding')) return;
+  t.classList.add('hiding');
+  setTimeout(function() { if (t.parentNode) t.remove(); }, 220);
+}
+
+function renderGrid() {
+  filtered = IMAGES.filter(function(f) {
+    var kleurOk  = activeColor === 'alles' || f.color === activeColor;
+    var zoekOk   = searchQuery === '' || f.emotion.indexOf(searchQuery) !== -1;
+    var bewaardOk = !toonBewaard || favorieten.has(f.filename);
+    return kleurOk && zoekOk && bewaardOk;
+  });
+  if (searchQuery === '') filtered = shuffle(filtered);
+  var grid = document.getElementById('faceGrid');
+  grid.innerHTML = '';
+
+  if (toonBewaard && filtered.length === 0) {
+    var leeg = document.createElement('div');
+    leeg.className = 'lege-bewaard';
+    leeg.textContent = 'Nog niks bewaard. Druk op ♡ bij een gezichtje';
+    grid.appendChild(leeg);
+    document.getElementById('countLabel').textContent = '';
+    return;
+  }
+
+  filtered.forEach(function(face) {
+    var item = document.createElement('div');
+    item.className = 'face-item';
+
+    var img = document.createElement('img');
+    img.src = face.url;
+    img.alt = face.emotion;
+    img.loading = 'lazy';
+    item.appendChild(img);
+
+    var favBtn = document.createElement('button');
+    favBtn.className = 'fav-btn' + (favorieten.has(face.filename) ? ' actief' : '');
+    favBtn.textContent = favorieten.has(face.filename) ? '♥' : '♡';
+    favBtn.title = favorieten.has(face.filename) ? 'Verwijder uit bewaard' : 'Bewaar';
+    favBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleFavoriet(face.filename, favBtn);
+    });
+    item.appendChild(favBtn);
+
+    var faceTimer = null;
+    if (hasHover) {
+      item.addEventListener('mouseenter', function() {
+        clearTimeout(faceTimer);
+        showTooltip(item, face.emotion);
+      });
+      item.addEventListener('mouseleave', function() {
+        faceTimer = setTimeout(function() { hideTooltip(item); }, 200);
+      });
+    }
+    item.dataset.filename = face.filename;
+    item.addEventListener('click', function() {
+      openLightbox(face);
+    });
+
+    grid.appendChild(item);
+  });
+  document.getElementById('countLabel').textContent = filtered.length + ' gezichtjes';
+}
+
+document.getElementById('bewaardToggle').addEventListener('click', function() {
+  toonBewaard = !toonBewaard;
+  if (toonBewaard) {
+    activeColor = 'alles';
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    var allBtn = document.querySelector('.filter-btn[data-kleur="alles"]');
+    if (allBtn) allBtn.classList.add('active');
+  }
+  updateBewaardToggle();
+  renderGrid();
+});
+
+/* ── ZINNETJES PER CATEGORIE ─────────────────────────────────── */
+var ZINNETJES = {
+  blij:          ["Haha, ja! Dit is echt goed.", "Ik ga iedereen knuffelen.", "Best day ever.", "Waarom ben ik zo blij? Gewoon.", "Dit gevoel wil ik opslaan.", "Ik zing gewoon even mee.", "Alles voelt licht vandaag.", "Zelfs de regen is oké nu.", "Ik wil dit vasthouden."],
+  zelfverzekerd: ["Ik heb dit.", "Vandaag doe ik alles goed.", "Probeer me maar.", "Gewoon even weten: ik ben top.", "Niemand kan me iets maken.", "Ik loop gewoon naar binnen.", "Dit is mijn moment.", "Nee, ik twijfel niet. Niet nu.", "Ze zien het vanzelf wel."],
+  rustig:        ["Alles is goed. Écht.", "Ssssst.", "Geen paniek hier.", "Laat maar komen.", "Ik ben er gewoon.", "Diep ademhalen. Klaar.", "Niks hoeft vandaag.", "Ik laat het gewoon zijn.", "Stilte is ook fijn."],
+  nieuwsgierig:  ["Maar wat IS dat eigenlijk?", "Ik wil het weten.", "Hm. Interessant.", "Vertel me meer.", "Wacht, hoe werkt dat?", "Ik ga dit even uitzoeken.", "Dat heb ik nog nooit gezien.", "Ooh, en dan?", "Mag ik ook proberen?"],
+  speels:        ["Hahaha oeps.", "Ik doe gewoon even gek.", "Dit is echt te leuk.", "Kijk me nou.", "Serieus doen is zo saai.", "Ik kan er niks aan doen.", "Hup, nog een keer.", "Wiebelen maar.", "Pff wie lacht er nou niet."],
+  boos:          ["UGH. Laat me even.", "Nee. Gewoon nee.", "Ik tel tot tien. Eén.", "Dit. Is. Niet. Oké.", "Raak me nu even niet aan.", "Waarom altijd dit.", "Ik zeg het toch duidelijk?", "Stoom afblazen werkt echt.", "Oké. Ik adem. Maar ik bén boos."],
+  bang:          ["Mijn buik doet raar...", "Kan iemand erbij komen?", "Ik wil dit eigenlijk niet.", "Is dit normaal? Voelt niet normaal.", "Adem. Gewoon adem.", "Kan ik even wachten?", "Wat als het misgaat?", "Ik wil hier eigenlijk niet zijn.", "Houd mijn hand even vast."],
+  verdrietig:    ["Het voelt zwaar vandaag.", "Ik wil even niks.", "Huilen helpt toch?", "Laat me maar even.", "Ik mis iets. Weet niet wat.", "Niet vragen hoe het gaat.", "Gewoon even stil zijn.", "Morgen is beter. Misschien.", "Ik voel het gewoon zo."],
+  verward:       ["Wacht wat?", "Ik snap er niks van.", "Kan iemand dit uitleggen?", "Mijn hoofd draait.", "Dit klopt niet. Of wel?", "Ik dacht dat ik het begreep.", "Hoe kan dit nou.", "Even opnieuw beginnen.", "Iedereen snapt het wel behalve ik."],
+  moe:           ["Zzz.", "Nee, ik ga echt niet meer.", "Mijn bed roept.", "Eén minuutje... nee, vijf.", "Alles is te veel vandaag.", "Ik doe mijn ogen even dicht.", "Kan ik blijven zitten?", "Moe van niks doen ook.", "Morgen. Alles morgen."],
+  onzeker:       ["Doe ik dit wel goed?", "Wat als ze het raar vinden?", "Misschien had ik beter...", "Ik weet het even niet.", "Kijken ze naar mij?", "Iedereen lijkt zo zeker.", "Ik had iets anders moeten zeggen.", "Straks denken ze...", "Ik doe gewoon alsof."],
+  ongemakkelijk: ["Dit is zo raar.", "Waar moet ik kijken?", "Kan ik nu weg?", "Ik wil door de grond zakken.", "Nee, dit is te gek voor woorden.", "Ik weet niet hoe ik moet staan.", "Waarom zeg ik dit nu.", "Iedereen kijkt. Toch?", "Gewoon doen alsof je cool bent."],
+  uiterlijk:     ["Hmm. Spiegel check.", "Valt het op?", "Ik zie er vandaag... uit.", "Whatever. Ik ben het.", "Haren doen of niet.", "Dit is gewoon mijn gezicht.", "Ik voel me anders van binnen.", "Zit dit goed zo?", "Ik ben meer dan dit."],
+  overig:        ["Ja. Dit.", "Tja.", "Geen woorden voor.", "Vraag me niet.", "Het is wat het is.", "Weet ik ook niet.", "Ergens tussenin.", "Laat maar.", "Komt wel goed. Denk ik."]
+};
+
+function pickZin(cat) {
+  var lijst = ZINNETJES[cat] || ZINNETJES['overig'];
+  return lijst[Math.floor(Math.random() * lijst.length)];
+}
+
+/* ── VERRAS ME ───────────────────────────────────────────────── */
+document.getElementById('btnVerras').addEventListener('click', function(e) {
+  e.stopPropagation();
+  var btn = this;
+  var wrap = document.getElementById('verrasWrap');
+
+  btn.classList.remove('wiggle');
+  void btn.offsetWidth;
+  btn.classList.add('wiggle');
+  btn.addEventListener('animationend', function() { btn.classList.remove('wiggle'); }, { once: true });
+
+  var pool = activeColor === 'alles' ? IMAGES : IMAGES.filter(function(f) { return f.color === activeColor; });
+  var face = pool[Math.floor(Math.random() * pool.length)];
+  var zin  = pickZin(face.cat);
+  openLightbox(face, zin);
+
+});
+
+/* ── LIGHTBOX ────────────────────────────────────────────────── */
+var lightboxFace = null;
+
+function openLightbox(face, zin) {
+  lightboxFace = face;
+  document.getElementById('lightboxImg').src = face.url;
+  document.getElementById('lightboxImg').alt = face.emotion;
+  document.getElementById('lightboxName').textContent = face.emotion;
+  document.getElementById('lightboxSpeech').textContent = zin || '';
+  updateLightboxFav();
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function updateLightboxFav() {
+  var btn = document.getElementById('lightboxFav');
+  var isFav = lightboxFace && favorieten.has(lightboxFace.filename);
+  btn.textContent = isFav ? '♥ Bewaard' : '♡ Bewaar';
+  btn.classList.toggle('actief', isFav);
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  lightboxFace = null;
+}
+
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+document.getElementById('lightboxFav').addEventListener('click', function() {
+  if (!lightboxFace) return;
+  toggleFavoriet(lightboxFace.filename, null);
+  updateLightboxFav();
+  var gridItem = document.querySelector('[data-filename="' + lightboxFace.filename + '"]');
+  if (gridItem) {
+    var gridFav = gridItem.querySelector('.fav-btn');
+    if (gridFav) {
+      var nowFav = favorieten.has(lightboxFace.filename);
+      gridFav.textContent = nowFav ? '♥' : '♡';
+      gridFav.classList.toggle('actief', nowFav);
+      gridFav.title = nowFav ? 'Verwijder uit bewaard' : 'Bewaar';
+    }
+  }
+});
+
+document.getElementById('lightboxDeel').addEventListener('click', function() {
+  if (!lightboxFace) return;
+  var btn = this;
+  btn.textContent = '…';
+  btn.disabled = true;
+
+  fetch(lightboxFace.url)
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var file = new File([blob], lightboxFace.emotion + '.png', { type: blob.type || 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], title: lightboxFace.emotion });
+      } else if (navigator.share) {
+        return navigator.share({ title: lightboxFace.emotion, url: lightboxFace.url });
+      } else {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = lightboxFace.emotion + '.png';
+        a.click();
+        setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+      }
+    })
+    .catch(function() {
+      window.open(lightboxFace.url, '_blank');
+    })
+    .finally(function() {
+      btn.textContent = 'Deel';
+      btn.disabled = false;
+    });
+});
+
+/* ── ZOEKEN ──────────────────────────────────────────────────── */
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchQuery = this.value.trim().toLowerCase();
+  if (searchQuery !== '' && toonBewaard) {
+    toonBewaard = false;
+    updateBewaardToggle();
+  }
+  renderGrid();
+});
+
+/* ── START ───────────────────────────────────────────────────── */
+updateBewaardToggle();
+renderGrid();
+document.getElementById('hamburger').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('navMenu').classList.toggle('open');
+});
+document.addEventListener('click', function() {
+  document.getElementById('navMenu').classList.remove('open');
+});
+</script>
+</body>
+</html>

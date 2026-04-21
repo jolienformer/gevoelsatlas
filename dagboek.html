@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mijn GevoelsDagboek</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/jpeg" href="images/1258_groen_intelligent.jpg">
+<style>
+:root {
+  --bg:     #F7F5EE;
+  --paper:  #FFFCF5;
+  --ink:    #111111;
+  --soft:   #555555;
+  --muted:  #BBBBBB;
+  --accent: #FF5C35;
+  --yellow: #FFD93D;
+  --radius: 10px;
+  --border: 2.5px solid #111111;
+  --shadow: 4px 4px 0 #111111;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--ink); }
+
+/* ── NAV ─────────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink); padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 54px; border-bottom: 3px solid var(--accent); overflow: hidden;
+}
+.nav-logo { font-family: 'Amatic SC', cursive; font-size: 1.6rem; font-weight: 700; line-height: 1; color: white; text-decoration: none; }
+.nav-logo em { color: var(--yellow); font-style: normal; }
+.nav-start { background: var(--accent); color: white; border: 2px solid white; border-radius: 8px; padding: 6px 16px; line-height: 1; font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 900; text-decoration: none; letter-spacing: 0.04em; transition: all 0.12s; }
+.nav-start:hover { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+.nav-start::after { content: ''; display: inline-block; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); margin-left: 6px; vertical-align: middle; position: relative; top: -1px; }
+.btn-start-link::after { content: ''; display: inline-block; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); margin-left: 7px; vertical-align: middle; position: relative; top: -1px; }
+.nav-dagboek { color: rgba(255,255,255,0.65); font-size: 0.72rem; font-weight: 800; text-decoration: none; letter-spacing: 0.04em; transition: color 0.12s; }
+.nav-dagboek:hover { color: var(--yellow); }
+
+/* ── HEADER ──────────────────────────────────────────────────── */
+.page-header { max-width: 680px; margin: 0 auto; padding: 44px 24px 28px; text-align: center; }
+.page-tag { display: inline-block; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 12px; }
+.page-title { font-family: 'Amatic SC', cursive; font-size: clamp(2.4rem, 8vw, 3.6rem); font-weight: 700; line-height: 1.1; margin-bottom: 16px; }
+.page-title em { color: var(--accent); font-style: normal; }
+
+/* ── PRIVACY NOTICE ──────────────────────────────────────────── */
+.privacy-notice { max-width: 680px; margin: 0 auto 28px; padding: 0 24px; }
+.privacy-box {
+  background: var(--yellow); border: var(--border); border-radius: var(--radius);
+  padding: 14px 18px; box-shadow: var(--shadow);
+  font-family: 'Amatic SC', cursive; font-size: 1.05rem; font-weight: 700; color: var(--ink); line-height: 1.6;
+}
+
+/* ── LEEG ─────────────────────────────────────────────────────── */
+.leeg { max-width: 680px; margin: 0 auto; padding: 0 24px 60px; text-align: center; }
+.leeg-titel { font-family: 'Amatic SC', cursive; font-size: 2rem; font-weight: 700; margin-bottom: 10px; color: var(--muted); }
+.leeg p { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 20px; }
+.btn-start-link { display: inline-block; background: var(--accent); color: white; border: var(--border); border-radius: var(--radius); padding: 12px 28px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 900; text-decoration: none; box-shadow: var(--shadow); transition: all 0.12s; }
+.btn-start-link:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+
+/* ── SELECTIE BALK ───────────────────────────────────────────── */
+.selectie-sectie { max-width: 680px; margin: 0 auto 32px; padding: 0 24px; }
+.selectie-kop {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.selectie-titel { font-family: 'Amatic SC', cursive; font-size: 1.5rem; font-weight: 700; }
+.selectie-acties { display: flex; gap: 8px; }
+.btn-sel {
+  background: none; border: 2px solid var(--ink); border-radius: 8px;
+  padding: 4px 12px; font-family: 'Nunito', sans-serif; font-size: 0.65rem;
+  font-weight: 800; color: var(--ink); cursor: pointer; transition: all 0.12s;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.btn-sel:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+
+.selectie-scroll {
+  display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+}
+.selectie-scroll::-webkit-scrollbar { height: 4px; }
+.selectie-scroll::-webkit-scrollbar-track { background: transparent; }
+.selectie-scroll::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+
+.sessie-chip {
+  flex-shrink: 0; width: 112px;
+  background: var(--paper); border: var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 10px 8px 8px;
+  position: relative; scroll-snap-align: start;
+  transition: opacity 0.2s, filter 0.2s;
+  user-select: none; cursor: pointer;
+  border-top: 3px solid var(--accent);
+}
+.sessie-chip.uitgevinkt {
+  opacity: 0.32; filter: grayscale(90%);
+  border-top-color: var(--muted);
+}
+.sessie-chip.aangevinkt {
+  opacity: 1; filter: none;
+  border-top-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.chip-datum {
+  font-size: 0.58rem; font-weight: 900; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.chip-naam {
+  font-size: 0.6rem; font-weight: 700; color: var(--soft);
+  margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-height: 0.7rem;
+}
+.chip-faces { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 8px; }
+.chip-faces-row { display: flex; gap: 4px; justify-content: center; }
+.chip-face { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ink); }
+.chip-solo {
+  display: block; width: 100%;
+  background: none; border: 1.5px solid var(--muted); border-radius: 6px;
+  font-size: 0.56rem; font-weight: 800; color: var(--muted);
+  padding: 3px 4px; cursor: pointer; font-family: 'Nunito', sans-serif;
+  transition: all 0.12s; text-align: center;
+}
+.chip-solo:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── WOLK SECTIE ─────────────────────────────────────────────── */
+.wolk-sectie { max-width: 680px; margin: 0 auto 40px; padding: 0 24px; }
+.wolk-kop {
+  display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px;
+}
+.wolk-titel { font-family: 'Amatic SC', cursive; font-size: 1.9rem; font-weight: 700; }
+.wolk-teller { font-size: 0.7rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.wolk-tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 20px; }
+@media (max-width: 480px) { .wolk-tabs { grid-template-columns: repeat(3, 1fr); } }
+.wolk-tab {
+  background: none;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 6px 8px;
+  font-family: 'Nunito', sans-serif; font-size: 0.72rem;
+  font-weight: 800; color: var(--ink); cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap; text-align: center;
+}
+.wolk-tab:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.wolk-tab.actief {
+  background: var(--accent); color: white; border-color: var(--accent);
+  box-shadow: none; transform: translate(2px,2px);
+}
+
+/* ── BUBBLE SCENE ─────────────────────────────────────────────── */
+.bubble-scene { position: relative; width: 100%; }
+
+.bubble-wrap {
+  position: absolute;
+  transform-origin: center;
+}
+.bubble-glow-wrap {
+  width: 100%; height: 100%;
+  border-radius: 50%; overflow: hidden;
+  transition: transform 0.18s;
+  cursor: pointer;
+}
+.bubble-wrap:hover .bubble-glow-wrap { transform: scale(1.1); }
+.bubble-label {
+  position: absolute;
+  bottom: -22px;
+  left: 50%; transform: translateX(-50%);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-family: 'Amatic SC', cursive;
+  font-size: 0.85rem; font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--ink);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.12s;
+  z-index: 10;
+}
+.bubble-wrap:hover .bubble-label { opacity: 1; }
+
+.bubble-img {
+  width: 100%; height: 100%;
+  border-radius: 50%; object-fit: cover;
+  border: 2.5px solid var(--ink);
+  display: block;
+}
+
+/* Glow via drop-shadow (volgt de ronde PNG-vorm) */
+@keyframes glowPos {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(40,180,60,0.9))  drop-shadow(0 0 16px rgba(40,180,60,0.55)); }
+  50%      { filter: drop-shadow(0 0 12px rgba(40,180,60,1))   drop-shadow(0 0 26px rgba(40,180,60,0.75)); }
+}
+@keyframes glowNeg {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(210,40,40,0.9))  drop-shadow(0 0 16px rgba(210,40,40,0.55)); }
+  50%      { filter: drop-shadow(0 0 12px rgba(210,40,40,1))   drop-shadow(0 0 26px rgba(210,40,40,0.75)); }
+}
+@keyframes glowNeu {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(195,155,0,0.9))  drop-shadow(0 0 16px rgba(195,155,0,0.55)); }
+  50%      { filter: drop-shadow(0 0 12px rgba(195,155,0,1))   drop-shadow(0 0 26px rgba(195,155,0,0.75)); }
+}
+.glow-positief { animation: glowPos 3s   ease-in-out infinite; }
+.glow-negatief { animation: glowNeg 2.2s ease-in-out infinite; }
+.glow-neutraal { animation: glowNeu 3.4s ease-in-out infinite; }
+
+/* Float animations */
+@keyframes flt0 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(5px,-9px)} }
+@keyframes flt1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-7px,8px)} }
+@keyframes flt2 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(6px,7px)} 67%{transform:translate(-4px,-8px)} }
+@keyframes flt3 { 0%,100%{transform:translate(0,0)} 40%{transform:translate(-8px,6px)} 80%{transform:translate(7px,-5px)} }
+@keyframes flt4 { 0%,100%{transform:translate(0,0)} 25%{transform:translate(4px,-7px)} 75%{transform:translate(-6px,5px)} }
+@keyframes flt5 { 0%,100%{transform:translate(0,0)} 60%{transform:translate(-7px,-6px)} }
+@keyframes flt6 { 0%,100%{transform:translate(0,0)} 45%{transform:translate(8px,6px)} }
+@keyframes flt7 { 0%,100%{transform:translate(0,0)} 35%{transform:translate(-5px,-8px)} 70%{transform:translate(6px,7px)} }
+
+.bubble-leeg { font-size: 0.82rem; font-weight: 600; color: var(--muted); text-align: center; padding: 48px 0; }
+
+/* Legenda */
+.wolk-legenda { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+.legenda-item { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; font-weight: 800; color: var(--soft); }
+.legenda-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.legenda-dot.pos { background: rgba(40,180,60,0.6);  filter: drop-shadow(0 0 4px rgba(40,180,60,0.9)); }
+.legenda-dot.neg { background: rgba(210,40,40,0.6);  filter: drop-shadow(0 0 4px rgba(210,40,40,0.9)); }
+.legenda-dot.neu { background: rgba(195,155,0,0.6);  filter: drop-shadow(0 0 4px rgba(195,155,0,0.9)); }
+
+/* ── TIJDLIJN ────────────────────────────────────────────────── */
+.tijdlijn-sectie { max-width: 680px; margin: 0 auto; padding: 0 24px 24px; }
+.tijdlijn-kop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.tijdlijn-label { font-family: 'Amatic SC', cursive; font-size: 1.5rem; font-weight: 700; }
+.sessie-kaart {
+  background: var(--paper); border: var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden;
+  transition: opacity 0.2s;
+}
+.sessie-kaart.gedempt { opacity: 0.35; }
+.sessie-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; cursor: pointer; transition: background 0.1s;
+}
+.sessie-header:hover { background: #F0EDE4; }
+.sessie-datum { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); white-space: nowrap; }
+.sessie-naam { font-size: 0.8rem; font-weight: 700; color: var(--soft); flex-shrink: 0; }
+.sessie-faces { display: flex; gap: 6px; flex: 1; justify-content: center; }
+.sessie-face-mini { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ink); flex-shrink: 0; }
+.sessie-chevron { font-size: 0.8rem; color: var(--muted); flex-shrink: 0; transition: transform 0.2s; }
+.sessie-kaart.open .sessie-chevron { transform: rotate(180deg); }
+.sessie-body { display: none; border-top: 2px solid var(--ink); padding: 20px 16px; }
+.sessie-kaart.open .sessie-body { display: block; }
+.sessie-body-datum { font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; }
+.sessie-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+@media (max-width: 400px) { .sessie-grid { grid-template-columns: repeat(3, 1fr); } }
+.sessie-chosen { background: var(--bg); border: var(--border); border-radius: var(--radius); box-shadow: 2px 2px 0 var(--ink); overflow: hidden; text-align: center; }
+.sessie-chosen img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-bottom: 2px solid var(--ink); }
+.sessie-chosen-lbl { padding: 3px 4px; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+.sessie-chosen-emotion { padding: 2px 4px 5px; font-family: 'Amatic SC', cursive; font-size: 0.9rem; font-weight: 700; text-transform: capitalize; color: var(--ink); line-height: 1.1; }
+.sessie-chosen-note { padding: 4px 6px 6px; font-size: 0.62rem; font-style: italic; color: var(--soft); line-height: 1.4; border-top: 1px solid #eee; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; cursor: pointer; }
+.sessie-chosen-note.uitgevouwen { display: block; -webkit-line-clamp: unset; }
+.sessie-chosen-note::after { content: ' ↓'; font-style: normal; font-size: 0.55rem; color: var(--muted); }
+.sessie-chosen-note.uitgevouwen::after { content: ' ↑'; }
+.sessie-notitie { background: var(--bg); border-radius: var(--radius); padding: 10px 12px; font-size: 0.8rem; font-weight: 600; color: var(--soft); font-style: italic; line-height: 1.6; margin-bottom: 14px; }
+.sessie-acties { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-verwijder { background: none; border: 2px solid var(--muted); border-radius: var(--radius); padding: 6px 14px; font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 800; color: var(--muted); cursor: pointer; transition: all 0.12s; }
+.btn-verwijder:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── BODEM ────────────────────────────────────────────────────── */
+.bodem { max-width: 680px; margin: 0 auto; padding: 8px 24px 64px; text-align: center; }
+.btn-wis { background: none; border: 2px solid var(--muted); border-radius: var(--radius); padding: 8px 18px; font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 800; color: var(--muted); cursor: pointer; transition: all 0.12s; }
+.btn-wis:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+footer { background: var(--ink); color: rgba(255,255,255,0.5); text-align: center; padding: 20px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+footer a { color: var(--yellow); text-decoration: none; }
+.hamburger { background: none; border: none; cursor: pointer; padding: 6px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+.hamburger span { display: block; width: 20px; height: 2px; background: white; border-radius: 1px; }
+.nav-menu { display: none; position: fixed; top: 57px; right: 20px; background: var(--ink); min-width: 180px; z-index: 200; border-top: 3px solid var(--accent); border-bottom: 1px solid rgba(255,255,255,0.12); box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+.nav-menu.open { display: block; }
+.nav-menu a { display: block; padding: 12px 24px; color: rgba(255,255,255,0.65); text-decoration: none; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 800; letter-spacing: 0.04em; transition: color 0.12s; }
+.nav-menu a:hover, .nav-menu a.actief { color: var(--yellow); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble-wrap, .glow-positief, .glow-negatief, .glow-neutraal { animation: none !important; }
+}
+
+/* ── DAGBOEK LIGHTBOX ────────────────────────────────────────── */
+.db-lightbox {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.db-lightbox.open { display: flex; }
+.db-lightbox-card {
+  position: relative;
+  background: var(--paper);
+  border: var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 24px 24px;
+  text-align: center;
+  max-width: 320px; width: 90%;
+}
+.db-lightbox-close {
+  position: absolute; top: -44px; right: 0;
+  background: var(--paper); border: var(--border);
+  border-radius: 8px; box-shadow: 2px 2px 0 var(--ink);
+  width: 36px; height: 36px;
+  font-size: 1.2rem; font-weight: 900; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.db-lightbox-close:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.db-lightbox-img {
+  width: 180px; height: 180px;
+  border-radius: 50%; object-fit: cover;
+  border: var(--border); box-shadow: 4px 4px 0 var(--ink);
+  display: block; margin: 0 auto 16px;
+}
+.db-lightbox-name {
+  font-family: 'Amatic SC', cursive;
+  font-size: 2rem; font-weight: 700;
+  text-transform: capitalize; color: var(--ink);
+  margin-bottom: 4px;
+}
+.db-lightbox-count {
+  font-size: 0.72rem; font-weight: 800;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Gevoels<em>Atlas</em></a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="index.html" class="nav-start">Start de atlas</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-menu" id="navMenu">
+  <a href="verken.html">Verkennen</a>
+  <a href="dagboek.html" class="actief">Dagboek</a>
+  <a href="about.html">Over de atlas</a>
+</div>
+
+<div class="page-header">
+  <div class="page-tag">Jouw momenten</div>
+  <h1 class="page-title">Mijn Gevoels<em>Dagboek</em></h1>
+</div>
+
+<div class="privacy-notice">
+  <div class="privacy-box">
+    Dit dagboek wordt alleen opgeslagen op dit apparaat, in deze browser. Gebruik je een gedeelde computer? Dan kunnen anderen het ook zien. Wis je browsergeschiedenis om alles te verwijderen.
+  </div>
+</div>
+
+<div id="inhoud"></div>
+
+<div class="db-lightbox" id="dbLightbox">
+  <div class="db-lightbox-card" id="dbLightboxCard">
+    <button class="db-lightbox-close" id="dbLightboxClose">×</button>
+    <img class="db-lightbox-img" id="dbLightboxImg" src="" alt="">
+    <div class="db-lightbox-name" id="dbLightboxName"></div>
+    <div class="db-lightbox-count" id="dbLightboxCount"></div>
+  </div>
+</div>
+
+<footer>
+  GevoelsAtlas 2026 · <a href="https://jolienbeeldendwerk.nl" target="_blank" rel="noopener">Jolien Beeldendwerk</a> · Kampen
+</footer>
+
+<script>
+/* ── CONSTANTEN ─────────────────────────────────────────────── */
+var MAANDEN = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+var THEMA_LABELS = ['Nu', 'Vanbinnen', 'School/werk', 'Thuis', 'Wens'];
+
+var CAT_VALENCE = {
+  'blij':'positief','zelfverzekerd':'positief','rustig':'positief','speels':'positief',
+  'boos':'negatief','bang':'negatief','verdrietig':'negatief','moe':'negatief',
+  'onzeker':'negatief','ongemakkelijk':'negatief',
+  'nieuwsgierig':'neutraal','verward':'neutraal','uiterlijk':'neutraal','overig':'neutraal',
+};
+
+var WOORD_CAT = {
+  'belangrijk':'zelfverzekerd','geleerd':'zelfverzekerd','groot':'zelfverzekerd','heldhaftig':'zelfverzekerd','hooghartig':'zelfverzekerd','intelligent':'zelfverzekerd','koninklijk':'zelfverzekerd','opgebouwd':'zelfverzekerd','opschepperig':'zelfverzekerd','overwinnend':'zelfverzekerd','prominent':'zelfverzekerd','rechtlijnig':'zelfverzekerd','rijk':'zelfverzekerd','robuust':'zelfverzekerd','slim':'zelfverzekerd','standvastig':'zelfverzekerd','stoer':'zelfverzekerd','vastberaden':'zelfverzekerd',
+  'goedgelovig':'onzeker','klein':'onzeker','kruiperig':'onzeker','naïef':'onzeker','onervaren':'onzeker','onnozel':'onzeker','onwetend':'onzeker','twijfelend':'onzeker','verborgen':'onzeker','verstopt':'onzeker','vertwijfeld':'onzeker',
+  'gemaakt':'ongemakkelijk','misplaatst':'ongemakkelijk','raar':'ongemakkelijk','schaamtevol':'ongemakkelijk','schuldig':'ongemakkelijk','vreemd':'ongemakkelijk',
+  'fruitig':'speels','gewiekst':'speels','grappig':'speels','guitig':'speels','jeugdig':'speels','jong':'speels','lachwekkend':'speels','lollig':'speels','melig':'speels','ondeugend':'speels','sluw':'speels','stiekem':'speels','stout':'speels',
+  'gevleugeld':'blij','joviaal':'blij','lacherig':'blij','muzikaal':'blij','opgewonden':'blij','optimistisch':'blij','sociaal':'blij','spraakzaam':'blij','verbonden':'blij','verheugd':'blij','vriendschappelijk':'blij',
+  'belerend':'boos','betuttelend':'boos','gevaarlijk':'boos','geweldadig':'boos','geïrriteerd':'boos','giftig':'boos','hebberig':'boos','koppig':'boos','luid':'boos','moralistisch':'boos','nors':'boos','ontvlambaar':'boos','opdringerig':'boos','schreeuwerig':'boos','streng':'boos','strijdbaar':'boos','vlammend':'boos','woest':'boos','stom':'boos',
+  'afschrikwekkend':'bang','gestresst':'bang','griezelig':'bang','gruwelijk':'bang','monsterachtig':'bang','monsterlijk':'bang','ongerust':'bang','spookachtig':'bang','verschrikt':'bang','versteend':'bang','zorgelijk':'bang',
+  'gebruikt':'verdrietig','getekend':'verdrietig','gevangen':'verdrietig','gewond':'verdrietig','huilend':'verdrietig','incompleet':'verdrietig','mishandeld':'verdrietig','onderdrukt':'verdrietig','teruggetrokken':'verdrietig','verafschuwd':'verdrietig','vervreemd':'verdrietig',
+  'heilig':'rustig','helder':'rustig','instemmend':'rustig','introvert':'rustig','luisterend':'rustig','minimaal':'rustig','natuurlijk':'rustig','onschuldig':'rustig','opgelucht':'rustig','serieus':'rustig','vaderlijk':'rustig','verzadigd':'rustig','verzorgend':'rustig',
+  'doorleefd':'moe','gebogen':'moe','mechanisch':'moe','ongemotiveerd':'moe','ongeïnteresseerd':'moe','onverschillig':'moe','overspannen':'moe','sloom':'moe','verveeld':'moe','verwaterd':'moe',
+  'geheimzinnig':'nieuwsgierig','geïntrigeerd':'nieuwsgierig','kunstzinnig':'nieuwsgierig','mysterieus':'nieuwsgierig','mystiek':'nieuwsgierig','observerend':'nieuwsgierig','oplettend':'nieuwsgierig','overdenkend':'nieuwsgierig','suggestief':'nieuwsgierig','verleidelijk':'nieuwsgierig','verwachtingsvol':'nieuwsgierig','wakker':'nieuwsgierig',
+  'behekst':'verward','beschonken':'verward','beïnvloed':'verward','gespiegeld':'verward','gestoord':'verward','hypnotisch':'verward','ingewikkeld':'verward','ondersteboven':'verward','onduidelijk':'verward','sprakeloos':'verward','verbouwereerd':'verward','verdeeld':'verward','verdraaid':'verward','verdubbeld':'verward','verschoven':'verward','verstomd':'verward','verwrongen':'verward',
+};
+
+/* ── STATE ───────────────────────────────────────────────────── */
+var activeTab    = 'Alles';
+var selectedKeys = {}; // datum → boolean; niet aanwezig = true (standaard geselecteerd)
+
+/* ── HELPERS ─────────────────────────────────────────────────── */
+function formatDatum(iso) {
+  var d = new Date(iso);
+  return d.getDate() + ' ' + MAANDEN[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function formatKort(iso) {
+  var d = new Date(iso);
+  return d.getDate() + ' ' + MAANDEN[d.getMonth()] + ' \'' + String(d.getFullYear()).slice(2);
+}
+
+function laadSessies() {
+  try { return JSON.parse(localStorage.getItem('gevoelsatlas_dagboek') || '[]'); } catch(e) { return []; }
+}
+function slaOpSessies(s) { localStorage.setItem('gevoelsatlas_dagboek', JSON.stringify(s)); }
+
+function isSelected(datum) { return selectedKeys[datum] !== false; }
+
+function getValence(emotion) {
+  if (!emotion) return 'neutraal';
+  var e = emotion.toLowerCase().trim();
+  if (CAT_VALENCE[e]) return CAT_VALENCE[e];
+  var cat = WOORD_CAT[e];
+  return (cat && CAT_VALENCE[cat]) ? CAT_VALENCE[cat] : 'neutraal';
+}
+
+/* ── FACES BEREKENEN (per emotienaam) ───────────────────────── */
+function berekenFaces(sessies) {
+  var counts = {};
+  sessies.forEach(function(sessie) {
+    if (!isSelected(sessie.datum)) return;
+    sessie.stappen.forEach(function(s) {
+      if (activeTab !== 'Alles' && s.label !== activeTab) return;
+      var em = s.emotion ? s.emotion.toLowerCase().trim() : 'onbekend';
+      if (!counts[em]) counts[em] = { emotion: em, count: 0, urls: {} };
+      counts[em].count++;
+      counts[em].urls[s.url] = (counts[em].urls[s.url] || 0) + 1;
+    });
+  });
+  var faces = Object.values(counts).sort(function(a,b){ return b.count - a.count; }).slice(0, 36);
+  if (!faces.length) return [];
+  var minC = faces[faces.length-1].count;
+  var maxC = faces[0].count;
+  return faces.map(function(f) {
+    var bestUrl = Object.keys(f.urls).sort(function(a,b){ return f.urls[b]-f.urls[a]; })[0];
+    var t = maxC === minC ? 0.5 : (f.count - minC) / (maxC - minC);
+    return { emotion: f.emotion, url: bestUrl, count: f.count, size: Math.round(38 + t * 30), valence: getValence(f.emotion) };
+  });
+}
+
+/* ── PLACEMENT ───────────────────────────────────────────────── */
+function plaatsBubbles(faces, W, H) {
+  var placed = [], margin = 12;
+  faces.forEach(function(f) {
+    var r = f.size / 2, best = null;
+    for (var t = 0; t < 80; t++) {
+      var spread = t < 20 ? 0.32 : 0.5;
+      var x = W/2 + (Math.random()-0.5)*W*spread*2;
+      var y = H/2 + (Math.random()-0.5)*H*spread*2;
+      x = Math.max(margin+r, Math.min(W-margin-r, x));
+      y = Math.max(margin+r, Math.min(H-margin-r, y));
+      var ok = true;
+      for (var i = 0; i < placed.length; i++) {
+        var p = placed[i], dx = x-p.x, dy = y-p.y;
+        if (dx*dx+dy*dy < Math.pow(r+p.r+10,2)) { ok=false; break; }
+      }
+      if (ok) { best={x:x,y:y}; break; }
+    }
+    if (!best) best = { x: margin+r+Math.random()*(W-2*margin-2*r), y: margin+r+Math.random()*(H-2*margin-2*r) };
+    f.x=best.x; f.y=best.y;
+    placed.push({x:best.x,y:best.y,r:r});
+  });
+}
+
+/* ── SELECTIE BALK ───────────────────────────────────────────── */
+function buildSelectieBalk(sessies) {
+  var sectie = document.createElement('div');
+  sectie.className = 'selectie-sectie';
+
+  var kop = document.createElement('div');
+  kop.className = 'selectie-kop';
+
+  var titel = document.createElement('div');
+  titel.className = 'selectie-titel';
+  titel.textContent = 'Sessies';
+  kop.appendChild(titel);
+
+  var acties = document.createElement('div');
+  acties.className = 'selectie-acties';
+
+  var btnAlles = document.createElement('button');
+  btnAlles.className = 'btn-sel';
+  btnAlles.textContent = 'Alles aan';
+  btnAlles.addEventListener('click', function() {
+    sessies.forEach(function(s) { selectedKeys[s.datum] = true; });
+    render();
+  });
+
+  var btnGeen = document.createElement('button');
+  btnGeen.className = 'btn-sel';
+  btnGeen.textContent = 'Alles uit';
+  btnGeen.addEventListener('click', function() {
+    sessies.forEach(function(s) { selectedKeys[s.datum] = false; });
+    render();
+  });
+
+  acties.appendChild(btnAlles);
+  acties.appendChild(btnGeen);
+  kop.appendChild(acties);
+  sectie.appendChild(kop);
+
+  var scroll = document.createElement('div');
+  scroll.className = 'selectie-scroll';
+
+  sessies.forEach(function(sessie, idx) {
+    var sel = isSelected(sessie.datum);
+    var chip = document.createElement('div');
+    chip.className = 'sessie-chip ' + (sel ? 'aangevinkt' : 'uitgevinkt');
+    chip.addEventListener('click', function() {
+      selectedKeys[sessie.datum] = !isSelected(sessie.datum);
+      render();
+    });
+
+    /* Datum */
+    var datum = document.createElement('div');
+    datum.className = 'chip-datum';
+    datum.textContent = formatKort(sessie.datum);
+
+    /* Gezichtjes — 3 boven, 2 onder */
+    var faces = document.createElement('div');
+    faces.className = 'chip-faces';
+    var rij1 = document.createElement('div');
+    rij1.className = 'chip-faces-row';
+    var rij2 = document.createElement('div');
+    rij2.className = 'chip-faces-row';
+    sessie.stappen.forEach(function(s, si) {
+      var img = document.createElement('img');
+      img.className = 'chip-face';
+      img.src = s.url; img.alt = s.emotion;
+      (si < 3 ? rij1 : rij2).appendChild(img);
+    });
+    faces.appendChild(rij1);
+    if (rij2.children.length) faces.appendChild(rij2);
+
+    /* Solo-knop */
+    var solo = document.createElement('button');
+    solo.className = 'chip-solo';
+    solo.textContent = 'alleen deze';
+    solo.addEventListener('click', function(e) {
+      e.stopPropagation(); e.preventDefault();
+      sessies.forEach(function(s) { selectedKeys[s.datum] = false; });
+      selectedKeys[sessie.datum] = true;
+      render();
+    });
+
+    chip.appendChild(datum);
+    chip.appendChild(faces);
+    chip.appendChild(solo);
+    scroll.appendChild(chip);
+  });
+
+  sectie.appendChild(scroll);
+  return sectie;
+}
+
+/* ── WOLK BOUWEN ─────────────────────────────────────────────── */
+function buildWolk(sessies) {
+  var aantalSel = sessies.filter(function(s){ return isSelected(s.datum); }).length;
+
+  var sectie = document.createElement('div');
+  sectie.className = 'wolk-sectie';
+
+  var kop = document.createElement('div');
+  kop.className = 'wolk-kop';
+  kop.innerHTML =
+    '<div class="wolk-titel">Gevoelswolk</div>' +
+    '<div class="wolk-teller">' + aantalSel + ' van ' + sessies.length + ' sessies</div>';
+  sectie.appendChild(kop);
+
+  var tabs = document.createElement('div');
+  tabs.className = 'wolk-tabs';
+  ['Alles'].concat(THEMA_LABELS).forEach(function(tab) {
+    var btn = document.createElement('button');
+    btn.className = 'wolk-tab' + (tab === activeTab ? ' actief' : '');
+    btn.textContent = tab;
+    btn.addEventListener('click', function() { activeTab = tab; render(); });
+    tabs.appendChild(btn);
+  });
+  sectie.appendChild(tabs);
+
+  var scene = document.createElement('div');
+  scene.className = 'bubble-scene';
+  sectie.appendChild(scene);
+
+  var legenda = document.createElement('div');
+  legenda.className = 'wolk-legenda';
+  legenda.innerHTML =
+    '<div class="legenda-item"><div class="legenda-dot pos"></div>positief gevoel</div>' +
+    '<div class="legenda-item"><div class="legenda-dot neg"></div>negatief gevoel</div>' +
+    '<div class="legenda-item"><div class="legenda-dot neu"></div>neutraal</div>';
+  sectie.appendChild(legenda);
+
+  return { sectie: sectie, scene: scene };
+}
+
+function vulScene(scene, sessies) {
+  var faces = berekenFaces(sessies);
+  if (!faces.length) {
+    scene.innerHTML = '<div class="bubble-leeg">Selecteer sessies om de gevoelswolk te zien.</div>';
+    scene.style.height = '100px';
+    return;
+  }
+  var W = scene.offsetWidth || 560;
+  var n = faces.length;
+  var H = n <= 6 ? 200 : n <= 12 ? 280 : n <= 20 ? 360 : 440;
+  scene.style.height = H + 'px';
+  plaatsBubbles(faces, W, H);
+
+  var FLT_DUR = [7,9,11,8,10,12,7.5,9.5];
+  var FLT_DEL = [-3,-1,-5,-2,-4,0,-2.5,-4.5];
+
+  faces.forEach(function(f, i) {
+    var wrap = document.createElement('div');
+    wrap.className = 'bubble-wrap';
+    wrap.style.left   = (f.x - f.size/2) + 'px';
+    wrap.style.top    = (f.y - f.size/2) + 'px';
+    wrap.style.width  = f.size + 'px';
+    wrap.style.height = f.size + 'px';
+    var fi = i % 8;
+    wrap.style.animation = 'flt'+fi+' '+FLT_DUR[fi]+'s ease-in-out '+FLT_DEL[fi]+'s infinite';
+
+    var glowWrap = document.createElement('div');
+    glowWrap.className = 'bubble-glow-wrap glow-' + f.valence;
+    glowWrap.style.animationDelay = (-i * 0.45) + 's';
+
+    var img = document.createElement('img');
+    img.className = 'bubble-img';
+    img.src   = f.url;
+    img.alt   = f.emotion;
+    img.title = f.emotion + (f.count > 1 ? ' (' + f.count + '×)' : '');
+
+    var label = document.createElement('span');
+    label.className = 'bubble-label';
+    label.textContent = f.emotion + (f.count > 1 ? ' ' + f.count + '×' : '');
+
+    wrap.style.cursor = 'pointer';
+    wrap.addEventListener('click', function() { openDbLightbox(f); });
+
+    glowWrap.appendChild(img);
+    wrap.appendChild(glowWrap);
+    wrap.appendChild(label);
+    scene.appendChild(wrap);
+  });
+}
+
+/* ── TIJDLIJN ────────────────────────────────────────────────── */
+function buildTijdlijn(sessies) {
+  var sectie = document.createElement('div');
+  sectie.className = 'tijdlijn-sectie';
+
+  var kop = document.createElement('div');
+  kop.className = 'tijdlijn-kop';
+  kop.innerHTML = '<div class="tijdlijn-label">Alle sessies</div>';
+  sectie.appendChild(kop);
+
+  sessies.forEach(function(sessie, idx) {
+    var sel = isSelected(sessie.datum);
+    var kaart = document.createElement('div');
+    kaart.className = 'sessie-kaart' + (!sel ? ' gedempt' : '');
+
+    var header = document.createElement('div');
+    header.className = 'sessie-header';
+    header.innerHTML =
+      '<div class="sessie-datum">' + formatDatum(sessie.datum) + '</div>' +
+      (sessie.naam ? '<div class="sessie-naam">' + sessie.naam + '</div>' : '') +
+      '<div class="sessie-faces">' +
+        sessie.stappen.map(function(s) {
+          return '<img class="sessie-face-mini" src="' + s.url + '" alt="' + s.emotion + '">';
+        }).join('') +
+      '</div>' +
+      '<div class="sessie-chevron">▾</div>';
+    header.addEventListener('click', function() { kaart.classList.toggle('open'); });
+
+    var body = document.createElement('div');
+    body.className = 'sessie-body';
+
+    var grid = '<div class="sessie-grid">';
+    sessie.stappen.forEach(function(s) {
+      grid += '<div class="sessie-chosen">' +
+        '<img src="' + s.url + '" alt="' + s.emotion + '">' +
+        '<div class="sessie-chosen-lbl">' + s.label + '</div>' +
+        '<div class="sessie-chosen-emotion">' + s.emotion + '</div>' +
+        (s.note ? '<div class="sessie-chosen-note">' + s.note + '</div>' : '') +
+        '</div>';
+    });
+    grid += '</div>';
+
+    var notitie = sessie.notitie ? '<div class="sessie-notitie">"' + sessie.notitie + '"</div>' : '';
+
+    var verwijderBtn = document.createElement('button');
+    verwijderBtn.className = 'btn-verwijder';
+    verwijderBtn.textContent = 'Verwijder deze sessie';
+    verwijderBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!confirm('Deze sessie verwijderen?')) return;
+      var s = laadSessies(); s.splice(idx,1); slaOpSessies(s); render();
+    });
+
+    body.innerHTML = '<div class="sessie-body-datum">' + formatDatum(sessie.datum) + (sessie.naam ? ' · ' + sessie.naam : '') + '</div>' + grid + notitie;
+    body.querySelectorAll('.sessie-chosen-note').forEach(function(el) {
+      el.addEventListener('click', function(e) { e.stopPropagation(); el.classList.toggle('uitgevouwen'); });
+    });
+    var acties = document.createElement('div');
+    acties.className = 'sessie-acties';
+    acties.appendChild(verwijderBtn);
+    body.appendChild(acties);
+
+    kaart.appendChild(header);
+    kaart.appendChild(body);
+    sectie.appendChild(kaart);
+  });
+
+  return sectie;
+}
+
+/* ── RENDER ─────────────────────────────────────────────────── */
+function render() {
+  var scrollY = window.scrollY;
+  var alleSessies = laadSessies();
+  var inhoud = document.getElementById('inhoud');
+  inhoud.innerHTML = '';
+
+  if (alleSessies.length === 0) {
+    inhoud.innerHTML = '<div class="leeg"><div class="leeg-titel">Nog niks bewaard</div><p>Doe de atlas en sla je sessie op via "Bewaar in dagboek".</p><a href="index.html" class="btn-start-link">Start de atlas</a></div>';
+    return;
+  }
+
+  /* Selectie-balk */
+  inhoud.appendChild(buildSelectieBalk(alleSessies));
+
+  /* Wolk (append eerst zodat we breedte kunnen meten) */
+  var wolk = buildWolk(alleSessies);
+  inhoud.appendChild(wolk.sectie);
+  vulScene(wolk.scene, alleSessies);
+
+  /* Tijdlijn */
+  inhoud.appendChild(buildTijdlijn(alleSessies));
+
+  /* Wis-knop */
+  var bodem = document.createElement('div');
+  bodem.className = 'bodem';
+  var wisBtn = document.createElement('button');
+  wisBtn.className = 'btn-wis';
+  wisBtn.textContent = '× Wis heel dagboek';
+  wisBtn.addEventListener('click', function() {
+    if (!confirm('Weet je zeker dat je het hele dagboek wilt wissen? Dit kan niet ongedaan worden gemaakt.')) return;
+    localStorage.removeItem('gevoelsatlas_dagboek');
+    selectedKeys = {}; activeTab = 'Alles'; render();
+  });
+  bodem.appendChild(wisBtn);
+  inhoud.appendChild(bodem);
+  window.scrollTo({ top: scrollY, behavior: 'instant' });
+}
+
+/* ── DAGBOEK LIGHTBOX ───────────────────────────────────────── */
+function openDbLightbox(f) {
+  document.getElementById('dbLightboxImg').src = f.url;
+  document.getElementById('dbLightboxImg').alt = f.emotion;
+  document.getElementById('dbLightboxName').textContent = f.emotion;
+  document.getElementById('dbLightboxCount').textContent = f.count > 1 ? f.count + '× gekozen' : '1× gekozen';
+  document.getElementById('dbLightbox').classList.add('open');
+}
+function closeDbLightbox() {
+  document.getElementById('dbLightbox').classList.remove('open');
+}
+document.getElementById('dbLightboxClose').addEventListener('click', closeDbLightbox);
+document.getElementById('dbLightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeDbLightbox();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDbLightbox();
+});
+
+render();
+document.getElementById('hamburger').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('navMenu').classList.toggle('open');
+});
+document.addEventListener('click', function() {
+  document.getElementById('navMenu').classList.remove('open');
+});
+</script>
+</body>
+</html>

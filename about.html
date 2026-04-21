@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Over de GevoelsAtlas</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/jpeg" href="images/1258_groen_intelligent.jpg">
+<style>
+:root {
+  --bg:     #F7F5EE;
+  --paper:  #FFFCF5;
+  --ink:    #111111;
+  --soft:   #555555;
+  --muted:  #BBBBBB;
+  --accent: #FF5C35;
+  --yellow: #FFD93D;
+  --green:  #B8E0A0;
+  --radius: 10px;
+  --border: 2.5px solid #111111;
+  --shadow: 4px 4px 0 #111111;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+/* ── NAVIGATIE ───────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink); padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 54px; border-bottom: 3px solid var(--accent); overflow: hidden;
+}
+.nav-logo { font-family: 'Amatic SC', cursive; font-size: 1.6rem; font-weight: 700; line-height: 1; color: white; text-decoration: none; }
+.nav-logo em { color: var(--yellow); font-style: normal; }
+.nav-start {
+  background: var(--accent);
+  color: white;
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 6px 16px; line-height: 1;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: all 0.12s;
+}
+.nav-start:hover { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+.nav-start::after { content: ''; display: inline-block; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); margin-left: 6px; vertical-align: middle; position: relative; top: -1px; }
+.nav-dagboek { color: rgba(255,255,255,0.65); font-size: 0.72rem; font-weight: 800; text-decoration: none; letter-spacing: 0.04em; transition: color 0.12s; }
+.nav-dagboek:hover { color: var(--yellow); }
+
+/* ── HERO ────────────────────────────────────────────────────── */
+.hero {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 52px 24px 40px;
+  text-align: center;
+}
+.hero-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.hero-title {
+  font-family: 'Amatic SC', cursive;
+  font-size: clamp(2.4rem, 8vw, 4rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 18px;
+}
+.hero-title em { color: var(--accent); font-style: normal; }
+.hero-intro {
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  font-weight: 600;
+  color: var(--soft);
+  max-width: 520px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* Gezichtjes-strip */
+.face-strip {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.face-strip img {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: var(--border);
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.15s;
+}
+.face-strip img:hover { transform: scale(1.12) rotate(-3deg); }
+
+@keyframes wiggle {
+  0%   { transform: scale(1.1) rotate(-4deg); }
+  25%  { transform: scale(1.15) rotate(4deg); }
+  50%  { transform: scale(1.1) rotate(-3deg); }
+  75%  { transform: scale(1.13) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.face-wrap { position: relative; display: inline-flex; cursor: pointer; }
+.face-wrap img.wiggle { animation: wiggle 0.45s ease forwards; }
+.face-bubble {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--yellow);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  font-family: 'Amatic SC', cursive;
+  font-size: 1.1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  z-index: 10;
+  text-transform: capitalize;
+  pointer-events: none;
+}
+.face-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: var(--ink);
+}
+@keyframes bubbleIn {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.7) rotate(-4deg); }
+  70%  { transform: translateX(-50%) scale(1.08) rotate(1deg); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+@keyframes bubbleOut {
+  0%   { opacity: 1; transform: translateX(-50%) scale(1); }
+  40%  { transform: translateX(-50%) scale(1.1) rotate(3deg); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.5) rotate(-6deg); }
+}
+.face-bubble { animation: bubbleIn 0.3s ease forwards; }
+.face-bubble.hiding { animation: bubbleOut 0.25s ease forwards; }
+
+/* Tags */
+.tag-row {
+  display: flex; flex-wrap: wrap; gap: 14px 20px; justify-content: center;
+  margin-bottom: 40px;
+  font-family: 'Amatic SC', cursive;
+}
+.tag {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.tag + .tag::before {
+  content: "//";
+  color: var(--accent);
+  margin-right: 20px;
+  font-weight: 900;
+}
+
+/* ── SECTIES ─────────────────────────────────────────────────── */
+.section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 56px;
+}
+.section-divider {
+  width: 100%;
+  height: 3px;
+  background: var(--ink);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Sectie-kop */
+.section-label {
+  font-size: 0.63rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: 'Amatic SC', cursive;
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+
+/* Kaarten */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 500px) { .card-grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.card-icon { width: 48px; height: 48px; margin-bottom: 8px; display: block; object-fit: contain; }
+.card-title {
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.card-body {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--soft);
+  line-height: 1.6;
+}
+
+/* Highlight-blok */
+.highlight {
+  background: var(--yellow);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+.highlight p {
+  font-family: 'Amatic SC', cursive;
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+/* Voorbeeld-sessie */
+.example-session {
+  background: var(--bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+.example-label {
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.example-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+@media (max-width: 460px) {
+  .example-steps { grid-template-columns: repeat(3, 1fr); }
+}
+.example-step {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  text-align: center;
+}
+.example-step img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  border-bottom: 2px solid var(--ink);
+}
+.example-step-lbl {
+  padding: 4px 5px;
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  line-height: 1.2;
+}
+.example-step-emotion {
+  padding: 2px 5px 6px;
+  font-family: 'Amatic SC', cursive;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+/* Lijst */
+.check-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.check-list li {
+  display: flex;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--soft);
+  align-items: flex-start;
+}
+.check-list li::before {
+  content: '✓';
+  font-weight: 900;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Niet/wel blok */
+.niet-wel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 500px) { .niet-wel { grid-template-columns: 1fr; } }
+.niet-wel-blok {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.niet-lbl {
+  font-size: 0.62rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); margin-bottom: 10px;
+}
+.wel-lbl { color: var(--accent); }
+.niet-wel-blok ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.niet-wel-blok li {
+  font-size: 0.8rem; font-weight: 700; color: var(--soft);
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.niet-wel-blok li::before { content: '✕'; color: var(--muted); flex-shrink: 0; }
+.niet-wel-blok.wel li::before { content: '✓'; color: var(--accent); }
+
+/* Gebruik-stappen */
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.step-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-text { font-size: 0.85rem; font-weight: 700; color: var(--soft); padding-top: 5px; line-height: 1.5; }
+.step-text strong { color: var(--ink); }
+
+/* Over Jolien */
+.about-jolien {
+  background: var(--ink);
+  border-radius: var(--radius);
+  padding: 24px;
+  color: white;
+  margin-bottom: 24px;
+}
+.about-jolien .section-label { color: var(--yellow); }
+.about-jolien .section-title { color: white; font-size: clamp(1.6rem, 5vw, 2.2rem); margin-bottom: 12px; }
+.about-jolien p {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.about-jolien a { color: var(--yellow); font-weight: 800; }
+
+/* Contact */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 500px) { .contact-grid { grid-template-columns: 1fr; } }
+.contact-card {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.contact-card .card-title { color: var(--soft); }
+.contact-card a {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 2px solid var(--accent);
+}
+.contact-card a:hover { color: var(--accent); }
+
+/* ── CTA ─────────────────────────────────────────────────────── */
+.cta-block {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+  text-align: center;
+}
+.cta-title {
+  font-family: 'Amatic SC', cursive;
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+.btn-start {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 16px 36px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: all 0.12s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.btn-start:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  padding: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+footer a { color: var(--yellow); text-decoration: none; }
+/* Ruimte boven secties */
+.section { padding-top: 48px; }
+.hamburger { background: none; border: none; cursor: pointer; padding: 6px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+.hamburger span { display: block; width: 20px; height: 2px; background: white; border-radius: 1px; }
+.nav-menu { display: none; position: fixed; top: 57px; right: 20px; background: var(--ink); min-width: 180px; z-index: 200; border-top: 3px solid var(--accent); border-bottom: 1px solid rgba(255,255,255,0.12); box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+.nav-menu.open { display: block; }
+.nav-menu a { display: block; padding: 12px 24px; color: rgba(255,255,255,0.65); text-decoration: none; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 800; letter-spacing: 0.04em; transition: color 0.12s; }
+.nav-menu a:hover, .nav-menu a.actief { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────────────────────── -->
+<nav>
+  <a href="index.html" class="nav-logo">Gevoels<em>Atlas</em></a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="index.html" class="nav-start">Start de atlas</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-menu" id="navMenu">
+  <a href="verken.html">Verkennen</a>
+  <a href="dagboek.html">Dagboek</a>
+  <a href="about.html" class="actief">Over de atlas</a>
+</div>
+
+<!-- ── HERO ──────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-tag">Wat is de GevoelsAtlas?</div>
+  <h1 class="hero-title">Eerst het beeld,<br>dan de <em>woorden.</em></h1>
+  <p class="hero-intro">Veel jongeren missen de woorden voor wat er van binnen speelt. Niet omdat ze niets voelen, maar omdat taal vaak tekortschiet. De GevoelsAtlas draait dat om.</p>
+
+  <div class="face-strip">
+    <img src="https://www.gevoelsatlas.nl/images/1258_groen_intelligent.jpg" alt="intelligent">
+    <img src="https://www.gevoelsatlas.nl/images/418_groen_euforisch.jpg" alt="euforisch">
+    <img src="https://www.gevoelsatlas.nl/images/1086_grijs_neutraal.jpg" alt="neutraal">
+    <img src="https://www.gevoelsatlas.nl/images/383_blauw_boos.jpg" alt="boos">
+    <img src="https://www.gevoelsatlas.nl/images/1823_bruin_gelukkig.jpg" alt="gelukkig">
+    <img src="https://www.gevoelsatlas.nl/images/671_paars_zenuwachtig.jpg" alt="zenuwachtig">
+    <img src="https://www.gevoelsatlas.nl/images/1288_bruin_voldaan.jpg" alt="voldaan">
+  </div>
+
+  <div class="tag-row">
+    <span class="tag">1870 gezichtjes</span>
+    <span class="tag">Handgemaakt</span>
+    <span class="tag">Pantone kleuren</span>
+    <span class="tag">Vijf stappen</span>
+    <span class="tag">Laagdrempelig</span>
+    <span class="tag">Direct in de browser</span>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ── VOOR JONGEREN ─────────────────────────────────────────── -->
+<section class="section" id="voor-jongeren">
+  <div class="section-label">Voor jongeren</div>
+  <h2 class="section-title">Soms zijn er geen woorden.</h2>
+
+  <div class="highlight">
+    <p>"Kies een gezichtje dat past bij hoe jij je voelt.<br>Er is geen goed of fout antwoord."</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <img class="card-icon" src="icons/klik_.png" alt="klik">
+      <div class="card-title">Klik gewoon</div>
+      <div class="card-body">Je kiest een gezichtje, en de atlas gaat vanzelf verder. Wil je meer kwijt? Dan kun je er een notitie bij typen. Hoeft niet.</div>
+    </div>
+    <div class="card">
+      <img class="card-icon" src="icons/1870_gezichtjes_.png" alt="gezichtjes">
+      <div class="card-title">1870 gezichtjes</div>
+      <div class="card-body">Handgemaakt en gedigitaliseerd. Grappig, soms gewaagd. Geworteld in de beeldtaal die jij online spreekt.</div>
+    </div>
+    <div class="card">
+      <img class="card-icon" src="icons/5_vragen_.png" alt="vijf vragen">
+      <div class="card-title">Vijf vragen</div>
+      <div class="card-body">Hoe voel je je nu? Vanbinnen? Op school? Thuis? En hoe zou je je willen voelen?</div>
+    </div>
+    <div class="card">
+      <img class="card-icon" src="icons/privacy_.png" alt="privé">
+      <div class="card-title">Van jou</div>
+      <div class="card-body">Jij bepaalt wat je deelt. Bewaar je atlas in je eigen dagboek, sla hem op als PDF, of houd hem gewoon voor jezelf.</div>
+    </div>
+    <div class="card">
+      <img class="card-icon" src="icons/dwalen_mag.png" alt="verkennen">
+      <div class="card-title">Dwalen mag — Verkennen</div>
+      <div class="card-body">Blader vrij door alle 1870 gezichtjes op de Verken-pagina. Zoek op kleur of woord, laat je verrassen en bewaar je favorieten.</div>
+    </div>
+    <div class="card">
+      <img class="card-icon" src="icons/dagboek_logo.png" alt="dagboek">
+      <div class="card-title">Jouw dagboek</div>
+      <div class="card-body">Al je sessies bij elkaar, met een wolk van gezichtjes die laat zien wat vaak terugkomt. Alleen voor jou, alleen in jouw browser.</div>
+    </div>
+  </div>
+
+  <div class="example-session">
+    <div class="example-label">Zo ziet een sessie eruit</div>
+    <div class="example-steps">
+      <div class="example-step">
+        <img src="https://www.gevoelsatlas.nl/images/1086_grijs_neutraal.jpg" alt="neutraal">
+        <div class="example-step-lbl">Nu</div>
+        <div class="example-step-emotion">Neutraal</div>
+      </div>
+      <div class="example-step">
+        <img src="https://www.gevoelsatlas.nl/images/1679_blauw_gesmolten.jpg" alt="gesmolten">
+        <div class="example-step-lbl">Vanbinnen</div>
+        <div class="example-step-emotion">Gesmolten</div>
+      </div>
+      <div class="example-step">
+        <img src="https://www.gevoelsatlas.nl/images/383_blauw_boos.jpg" alt="boos">
+        <div class="example-step-lbl">School</div>
+        <div class="example-step-emotion">Boos</div>
+      </div>
+      <div class="example-step">
+        <img src="https://www.gevoelsatlas.nl/images/1288_bruin_voldaan.jpg" alt="voldaan">
+        <div class="example-step-lbl">Thuis</div>
+        <div class="example-step-emotion">Voldaan</div>
+      </div>
+      <div class="example-step">
+        <img src="https://www.gevoelsatlas.nl/images/418_groen_euforisch.jpg" alt="euforisch">
+        <div class="example-step-lbl">Wens</div>
+        <div class="example-step-emotion">Euforisch</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── VOOR MENTOREN ─────────────────────────────────────────── -->
+<section class="section" id="voor-mentoren">
+  <div class="section-label">Voor ouders, mentoren en andere naasten</div>
+  <h2 class="section-title" style="font-size: clamp(1.6rem, 4.5vw, 2.2rem);">Een gesprek beginnen zonder te vragen "hoe gaat het?"</h2>
+
+  <div class="niet-wel">
+    <div class="niet-wel-blok">
+      <div class="niet-lbl">De atlas is géén</div>
+      <ul>
+        <li>Diagnostisch instrument</li>
+        <li>Vragenlijst of score</li>
+        <li>Therapie of behandeling</li>
+        <li>Vervanging van het gesprek</li>
+      </ul>
+    </div>
+    <div class="niet-wel-blok wel">
+      <div class="niet-lbl wel-lbl">De atlas is wél</div>
+      <ul>
+        <li>Een gespreksopener</li>
+        <li>Een taal voor wie geen taal heeft</li>
+        <li>Een opener, geen oordeel</li>
+        <li>Een tastbaar resultaat om mee te nemen</li>
+        <li>Laagdrempelig en zonder account</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="section-title" style="font-size:1.6rem; margin-bottom: 16px;">Hoe gebruik je het samen?</h3>
+
+  <div class="steps-list">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Open de atlas samen</strong> op een tablet, laptop of telefoon. De jongere bedient zelf.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Laat klikken zonder commentaar:</strong> geen uitleg geven, geen gezichten trekken. Beeld is primair.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Kijk samen naar het eindscherm:</strong> vijf gezichtjes naast elkaar. Vraag: "Vertel me over deze."</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-text"><strong>Optioneel:</strong> bewaar de sessie in het dagboek om er later op terug te kijken, of sla hem op als PDF voor de jongere zelf of voor het dossier.</div>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <img class="card-icon" src="icons/waar_in_te_zetten_.png" alt="waar in te zetten" style="width:80px;height:48px;">
+      <div class="card-title">Waar het ingezet kan worden</div>
+      <div class="card-body">Thuis · Middelbare scholen · Jongerenwerk · Jeugdhulp · Kernteams rond jongeren · Culturele programma's</div>
+    </div>
+    <div class="card">
+      <img class="card-icon" src="icons/start_gesprek_.png" alt="gespreksstarters">
+      <div class="card-title">Gespreksstarters</div>
+      <div class="card-body">"Welk gezichtje verraste jou zelf?" · "Wat zit er verschil tussen thuis en school?" · "Herken je dit gevoel van eerder?"</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── OVER JOLIEN ────────────────────────────────────────────── -->
+<section class="section" id="over">
+  <div class="about-jolien">
+    <div class="section-label">Over de maker</div>
+    <h2 class="section-title">Jolien Former</h2>
+    <p>Ik ben Jolien Former, beeldend kunstenaar en maker in Kampen, werkend onder de naam Jolien Beeldendwerk. Mijn werk beweegt zich op de grens van kunst, zorg en educatie.</p>
+    <p>De 1870 gezichtjes zijn stuk voor stuk met de hand getekend en daarna gedigitaliseerd, geworteld in de beeld- en memecultuur die jongeren online kennen. Geen enkel gezichtje is hetzelfde. De GevoelsAtlas is voor mij meer dan een tool: het is een kunstwerk.</p>
+    <p>Ik sta open voor samenwerking, pilotprojecten of een gesprek over de inzet van de atlas in jouw organisatie.</p>
+    <p><a href="https://jolienbeeldendwerk.nl" target="_blank" rel="noopener">jolienbeeldendwerk.nl</a> &nbsp;·&nbsp; <a href="mailto:info@jolienbeeldendwerk.nl">info@jolienbeeldendwerk.nl</a></p>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="card-title">Website</div>
+      <a href="https://jolienbeeldendwerk.nl" target="_blank" rel="noopener">jolienbeeldendwerk.nl</a>
+    </div>
+    <div class="contact-card">
+      <div class="card-title">GevoelsAtlas</div>
+      <a href="https://gevoelsatlas.nl" target="_blank" rel="noopener">gevoelsatlas.nl</a>
+    </div>
+    <div class="contact-card">
+      <div class="card-title">Samenwerking of pilot?</div>
+      <a href="mailto:info@jolienbeeldendwerk.nl">Stuur een bericht</a>
+    </div>
+    <div class="contact-card">
+      <div class="card-title">Privacy</div>
+      <div class="card-body" style="font-size:0.78rem; color: var(--soft); font-weight:600; line-height:1.5;">De atlas slaat geen gegevens op op een server. Alles blijft in je browser. Geen account, geen tracking.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────── -->
+<div class="section-divider"></div>
+<div class="cta-block">
+  <div class="cta-title">Klaar om te beginnen?</div>
+  <a href="index.html" class="btn-start">Start de GevoelsAtlas</a>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+  GevoelsAtlas 2026 · <a href="https://jolienbeeldendwerk.nl" target="_blank" rel="noopener">Jolien Beeldendwerk</a> · Kampen
+</footer>
+
+
+<script>
+var ZINNETJES = {
+  'intelligent': 'Ik snap het allemaal zo goed vandaag.',
+  'euforisch':   'Ik kan de hele wereld aan!!',
+  'neutraal':    'Gewoon. Niks bijzonders.',
+  'boos':        'UGH. Laat me even.',
+  'gelukkig':    'Dit is echt een goed moment.',
+  'zenuwachtig': 'Mijn buik doet raar...',
+  'voldaan':     'Ja. Dit was het.'
+};
+
+function hideBubble(bubble) {
+  bubble.classList.add('hiding');
+  bubble.addEventListener('animationend', function() { bubble.remove(); }, { once: true });
+}
+
+document.querySelectorAll('.face-strip img').forEach(function(img) {
+  var wrap = document.createElement('div');
+  wrap.className = 'face-wrap';
+  img.parentNode.insertBefore(wrap, img);
+  wrap.appendChild(img);
+
+  wrap.addEventListener('click', function(e) {
+    e.stopPropagation();
+    img.classList.remove('wiggle');
+    void img.offsetWidth;
+    img.classList.add('wiggle');
+    img.addEventListener('animationend', function() { img.classList.remove('wiggle'); }, { once: true });
+
+    var existing = wrap.querySelector('.face-bubble');
+    if (existing) { hideBubble(existing); return; }
+    document.querySelectorAll('.face-bubble').forEach(hideBubble);
+    var bubble = document.createElement('div');
+    bubble.className = 'face-bubble';
+    bubble.textContent = ZINNETJES[img.alt] || img.alt;
+    wrap.appendChild(bubble);
+    setTimeout(function() { if (bubble.parentNode) hideBubble(bubble); }, 2500);
+  });
+});
+
+document.addEventListener('click', function() {
+  document.querySelectorAll('.face-bubble').forEach(hideBubble);
+  document.getElementById('navMenu').classList.remove('open');
+});
+document.getElementById('hamburger').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('navMenu').classList.toggle('open');
+});
+</script>
+</body>
+</html>
