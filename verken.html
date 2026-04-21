@@ -501,6 +501,19 @@ footer a { color: var(--yellow); text-decoration: none; }
 .nav-menu.open { display: block; }
 .nav-menu a { display: block; padding: 12px 24px; color: rgba(255,255,255,0.65); text-decoration: none; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 800; letter-spacing: 0.04em; transition: color 0.12s; }
 .nav-menu a:hover, .nav-menu a.actief { color: var(--yellow); }
+
+@media (min-width: 900px) {
+  .page-header { max-width: 1000px; }
+  .filter-section { max-width: 1400px; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; }
+  .grid-wrap { max-width: 1400px; }
+  .face-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+  .face-item { height: 80px; }
+}
+@media (min-width: 1200px) {
+  .grid-wrap { max-width: 1600px; }
+  .face-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+  .face-item { height: 90px; }
+}
 </style>
 </head>
 <body>

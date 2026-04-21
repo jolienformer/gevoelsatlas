@@ -636,6 +636,17 @@ nav {
     text-transform: uppercase;
   }
 }
+
+@media (min-width: 900px) {
+  #step-screen { max-width: 960px; }
+  .img-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  #end-screen { max-width: 860px; }
+  .chosen-grid { grid-template-columns: repeat(5, 1fr); gap: 14px; }
+}
+@media (min-width: 1200px) {
+  #step-screen { max-width: 1200px; }
+  .img-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
 </style>
 </head>
 <body>
