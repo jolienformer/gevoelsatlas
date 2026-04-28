@@ -507,30 +507,33 @@ nav {
   }
 
   .pv-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    text-align: center;
     border-bottom: 2.5px solid #111111;
-    padding-bottom: 8px;
-    margin-bottom: 6px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
   }
   .pv-title {
     font-family: 'Amatic SC', cursive;
-    font-size: 2.2rem;
+    font-size: 2.6rem;
     font-weight: 700;
     color: #111111;
     line-height: 1;
+    display: block;
   }
   .pv-title em { color: #FF5C35; font-style: normal; }
+  .pv-date {
+    display: block;
+    font-size: 0.72rem; font-weight: 700; color: #666;
+    margin-top: 4px;
+  }
   .pv-subtitle {
     font-size: 0.7rem;
     color: #666;
     font-weight: 700;
     font-style: italic;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    text-align: center;
   }
-  .pv-date { font-size: 0.72rem; font-weight: 700; color: #666; }
-
   .pv-name {
     font-size: 0.75rem;
     font-weight: 800;
@@ -538,6 +541,7 @@ nav {
     margin-bottom: 16px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    text-align: center;
   }
 
   /* 5 gezichtjes als grid */
@@ -550,6 +554,7 @@ nav {
   .pv-card {
     border: 2.5px solid #111111;
     border-radius: 8px;
+    box-shadow: 3px 3px 0 #111111;
     overflow: hidden;
     break-inside: avoid;
     background: white;
@@ -575,15 +580,6 @@ nav {
     color: #111111;
     line-height: 1.1;
   }
-  .pv-card-note {
-    padding: 3px 5px 5px;
-    font-size: 0.52rem;
-    font-style: italic;
-    color: #666666;
-    line-height: 1.4;
-    border-top: 1px solid #eeeeee;
-  }
-
   /* Notitie-sectie */
   .pv-note-section {
     border: 2px solid #111111;
@@ -1100,7 +1096,7 @@ async function deelAlsAfbeelding() {
   var W      = 630;
   var PAD    = 28;
   var CARD_W = 104;
-  var CARD_H = 140;   /* CARD_W (full-bleed img) + 36px label-ruimte */
+  var CARD_H = 148;   /* CARD_W (full-bleed img) + 44px voor label + gevoelsnaam */
   var GAP    = 10;
   var gridX  = (W - (5 * CARD_W + 4 * GAP)) / 2;  /* = 35 */
 
@@ -1109,9 +1105,8 @@ async function deelAlsAfbeelding() {
   var ySub     = 82;
   var yName    = name ? 104 : ySub;
   var ySep     = (name ? yName + 18 : ySub + 14);
-  var yLabels  = ySep + 20;
-  var yCards   = yLabels + 16;
-  var yPost    = yCards + CARD_H + 22;
+  var yCards   = ySep + 16;
+  var yPost    = yCards + CARD_H + 20;
   var noteLines = note ? Math.ceil(note.length / 58) + 1 : 0;
   var noteBoxH  = note ? 26 + noteLines * 20 + 14 : 0;
   var H = yPost + (note ? noteBoxH + 14 : 0) + 40;
@@ -1178,17 +1173,11 @@ async function deelAlsAfbeelding() {
     var entry = sessionLog[i];
     var cx = gridX + i * (CARD_W + GAP);
 
-    /* staplabel boven kaartje — oranje, uppercase */
-    ctx.fillStyle = '#FF5C35';
-    ctx.font = 'bold 9px Nunito, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(s.label.toUpperCase(), cx + CARD_W / 2, yLabels);
-
     /* kaart — paper-kleur achtergrond */
     neoCard(ctx, cx, yCards, CARD_W, CARD_H, 10, '#FFFCF5');
 
     if (entry && images[i]) {
-      /* afbeelding full-bleed (clip op kaart) */
+      /* afbeelding full-bleed (clip op kaart, alleen boven) */
       ctx.save();
       rrect(ctx, cx, yCards, CARD_W, CARD_H, 10);
       ctx.clip();
@@ -1199,6 +1188,12 @@ async function deelAlsAfbeelding() {
       ctx.fillStyle = '#111';
       ctx.fillRect(cx, yCards + CARD_W, CARD_W, 2);
 
+      /* staplabel in kaart (oranje, small caps) */
+      ctx.fillStyle = '#FF5C35';
+      ctx.font = 'bold 8px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(s.label.toUpperCase(), cx + CARD_W / 2, yCards + CARD_W + 13);
+
       /* gevoelswoord in Amatic SC */
       var emotion = entry.img.emotion || '';
       ctx.fillStyle = '#111';
@@ -1207,7 +1202,7 @@ async function deelAlsAfbeelding() {
       while (ctx.measureText(emotion).width > CARD_W - 10 && emotion.length > 3) {
         emotion = emotion.slice(0, -2) + '…';
       }
-      ctx.fillText(emotion, cx + CARD_W / 2, yCards + CARD_W + 22);
+      ctx.fillText(emotion, cx + CARD_W / 2, yCards + CARD_W + 30);
     }
   });
 
@@ -1289,13 +1284,24 @@ function exportPDF() {
       html += '<img src="' + entry.img.url + '" alt="' + entry.img.emotion + '">';
       html += '<div class="pv-card-lbl">' + s.label + '</div>';
       html += '<div class="pv-card-emotion">' + entry.img.emotion + '</div>';
-      if (entry.note) html += '<div class="pv-card-note">' + entry.note + '</div>';
       html += '</div>';
     } else {
       html += '<div class="pv-card" style="min-height:80px"></div>';
     }
   });
   html += '</div>';
+
+  // Aantekeningen per stap (apart, buiten het grid)
+  var stapNotes = STEPS.filter(function(s, i) { return sessionLog[i] && sessionLog[i].note; });
+  if (stapNotes.length) {
+    html += '<div class="pv-note-section">';
+    html += '<div class="pv-note-lbl">Aantekeningen</div>';
+    stapNotes.forEach(function(s, idx) {
+      var entry = sessionLog[STEPS.indexOf(s)];
+      html += '<div class="pv-note-txt" style="margin-bottom:4px"><strong style="color:#FF5C35;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.07em">' + s.label + '</strong> ' + entry.note + '</div>';
+    });
+    html += '</div>';
+  }
 
   // Algemene notitie eindscherm
   if (note) {
