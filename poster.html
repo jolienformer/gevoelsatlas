@@ -626,7 +626,9 @@ document.getElementById('btnDownload').addEventListener('click', function() {
       var filename = 'gevoelsatlas-poster-' + f.naam + '.png';
       var file = new File([blob], filename, { type: 'image/png' });
       /* Mobiel: gebruik deelscherm (→ "Bewaar in Foto's" etc.) */
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      var isMobiel = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                     (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+      if (isMobiel && navigator.canShare && navigator.canShare({ files: [file] })) {
         navigator.share({ files: [file], title: 'Mijn GevoelsAtlas poster' })
           .catch(function() { /* gebruiker annuleerde */ })
           .finally(function() { btn.disabled = false; btn.textContent = origText; });
