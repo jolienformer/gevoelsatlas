@@ -573,7 +573,7 @@ function drawFace(c, face, x, y, w, h, preview) {
   c.clip();
   c.drawImage(img, dx, dy, dw, dh);
   /* Randje: dikte ~1/60 van celgrootte, min 1px — lijkt op lijndiktes in de tekeningen */
-  var bw = Math.max(1, Math.round(Math.min(w, h) / 60));
+  var bw = Math.max(1, Math.round(Math.min(w, h) / 120));
   c.strokeStyle = '#111111';
   c.lineWidth = bw * 2; /* × 2 omdat helft buiten clip valt */
   c.strokeRect(x, y, w, h);
