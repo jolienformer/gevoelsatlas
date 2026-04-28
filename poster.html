@@ -208,11 +208,6 @@ footer a { color: var(--yellow); text-decoration: none; }
 
     <div class="opties">
       <div class="optie-groep">
-        <span class="optie-label">Rand</span>
-        <button class="optie-btn actief" data-rand="edge">Edge-to-edge</button>
-        <button class="optie-btn" data-rand="border">Met witrand</button>
-      </div>
-      <div class="optie-groep">
         <span class="optie-label">Volgorde</span>
         <button class="optie-btn" id="btnSchud">Schudden</button>
       </div>
@@ -256,7 +251,6 @@ var searchQuery = '';
 var filtered = [];
 var gekozenKeys = [];                 /* filenames in volgorde van kiezen */
 var huidigFormaat = null;             /* 'A5' | 'A4' | 'A3' | 'A2' */
-var randStijl = 'edge';               /* 'edge' | 'border' */
 
 /* ── FORMAAT-KAARTEN ──────────────────────────────────────── */
 (function buildFormaten() {
@@ -449,14 +443,6 @@ document.getElementById('modalClose').addEventListener('click', closeModal);
 modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
 
-document.querySelectorAll('.optie-btn[data-rand]').forEach(function(b) {
-  b.addEventListener('click', function() {
-    document.querySelectorAll('.optie-btn[data-rand]').forEach(function(x) { x.classList.remove('actief'); });
-    b.classList.add('actief');
-    randStijl = b.dataset.rand;
-    rendererPreview();
-  });
-});
 
 document.getElementById('btnSchud').addEventListener('click', function() {
   posterVolgorde = shuffle(posterVolgorde);
@@ -516,7 +502,7 @@ function drawPoster(c, W, H, preview) {
     return IMAGES.find(function(im) { return im.filename === fn; });
   }).filter(Boolean);
 
-  var border = (randStijl === 'border') ? Math.round(Math.min(W,H) * 0.05) : 0;
+  var border = 0;
   var innerW = W - border*2;
   var innerH = H - border*2;
 
