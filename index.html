@@ -712,6 +712,7 @@ nav {
       Fijn. Gevoelens veranderen vaak per dag.<br>Kom morgen terug voor een nieuwe atlas.<br><br>
       <a href="dagboek.html">Bekijk je dagboek</a>
     </div>
+    <button class="btn-secondary" id="btnDeel" onclick="deelAlsAfbeelding()">↑ Deel als afbeelding</button>
     <button class="btn-pdf-link" onclick="exportPDF()">Of download als PDF</button>
     <button class="btn-tertiary" onclick="opnieuwBeginnen()">↺ Opnieuw beginnen</button>
   </div>
@@ -1120,6 +1121,213 @@ function opnieuwBeginnen() {
   renderProgress();
   renderStep();
   window.scrollTo(0, 0);
+}
+
+/* ── DEEL ALS AFBEELDING ─────────────────────────────────────── */
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  var words = text.split(' ');
+  var line = '';
+  for (var i = 0; i < words.length; i++) {
+    var test = line + words[i] + ' ';
+    if (ctx.measureText(test).width > maxWidth && i > 0) {
+      ctx.fillText(line.trim(), x, y);
+      line = words[i] + ' ';
+      y += lineHeight;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, y);
+}
+
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function neoCard(ctx, x, y, w, h, r, fill) {
+  /* shadow */
+  ctx.fillStyle = '#111';
+  rrect(ctx, x + 3, y + 3, w, h, r);
+  ctx.fill();
+  /* card */
+  ctx.fillStyle = fill || '#fff';
+  rrect(ctx, x, y, w, h, r);
+  ctx.fill();
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+}
+
+async function deelAlsAfbeelding() {
+  var btn  = document.getElementById('btnDeel');
+  var name = document.getElementById('endName').value.trim();
+  var note = document.getElementById('endNote').value.trim();
+  var d    = new Date().toLocaleDateString('nl-NL', {day:'2-digit', month:'long', year:'numeric'});
+
+  btn.disabled = true;
+  btn.textContent = 'Even geduld…';
+
+  await document.fonts.ready;
+
+  /* ── layout constanten ── */
+  var W      = 630;
+  var PAD    = 28;
+  var IMG    = 88;
+  var CARD_W = 104;   /* IMG + 8px padding links/rechts */
+  var CARD_H = 136;   /* IMG + ruimte voor gevoelswoord */
+  var GAP    = 10;
+  var gridX  = (W - (5 * CARD_W + 4 * GAP)) / 2;  /* = 35 */
+
+  /* ── dynamische hoogte ── */
+  var yTitle   = 60;
+  var ySub     = 82;
+  var yName    = name ? 104 : ySub;
+  var ySep     = (name ? yName + 18 : ySub + 14);
+  var yLabels  = ySep + 20;
+  var yCards   = yLabels + 16;
+  var yPost    = yCards + CARD_H + 22;
+  var noteLines = note ? Math.ceil(note.length / 58) + 1 : 0;
+  var noteBoxH  = note ? 22 + noteLines * 20 + 14 : 0;
+  var H = yPost + (note ? noteBoxH + 14 : 0) + 36;
+
+  var canvas = document.createElement('canvas');
+  canvas.width  = W;
+  canvas.height = H;
+  var ctx = canvas.getContext('2d');
+
+  /* ── achtergrond + border ── */
+  ctx.fillStyle = '#F7F5EE';
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 2.5;
+  rrect(ctx, 2, 2, W - 4, H - 4, 12);
+  ctx.stroke();
+
+  /* ── titel ── */
+  ctx.fillStyle = '#111';
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 54px "Amatic SC", cursive';
+  ctx.fillText('GevoelsAtlas', W / 2, yTitle);
+
+  /* ── subtitel ── */
+  ctx.fillStyle = '#888';
+  ctx.font = '14px Nunito, sans-serif';
+  ctx.fillText('een momentopname · ' + d, W / 2, ySub);
+
+  /* ── naam ── */
+  if (name) {
+    ctx.fillStyle = '#111';
+    ctx.font = 'bold 17px Nunito, sans-serif';
+    ctx.fillText(name, W / 2, yName);
+  }
+
+  /* ── scheidingslijn ── */
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(PAD, ySep);
+  ctx.lineTo(W - PAD, ySep);
+  ctx.stroke();
+
+  /* ── afbeeldingen laden ── */
+  var images = await Promise.all(STEPS.map(function(s, i) {
+    return new Promise(function(resolve) {
+      var entry = sessionLog[i];
+      if (!entry) { resolve(null); return; }
+      var img = new Image();
+      img.onload  = function() { resolve(img); };
+      img.onerror = function() { resolve(null); };
+      img.src = entry.img.url;
+    });
+  }));
+
+  /* ── gezichtjeskaartjes ── */
+  STEPS.forEach(function(s, i) {
+    var entry = sessionLog[i];
+    var cx = gridX + i * (CARD_W + GAP);
+
+    /* staplabel boven kaartje */
+    ctx.fillStyle = '#999';
+    ctx.font = '11px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.label, cx + CARD_W / 2, yLabels);
+
+    /* kaart met afgeronde hoeken + neobrutalist shadow */
+    neoCard(ctx, cx, yCards, CARD_W, CARD_H, 10);
+
+    if (entry && images[i]) {
+      ctx.drawImage(images[i], cx + 8, yCards + 8, IMG, IMG);
+
+      /* gevoelswoord (afkappen indien nodig) */
+      var emotion = entry.img.emotion || '';
+      ctx.fillStyle = '#111';
+      ctx.font = 'bold 11px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      while (ctx.measureText(emotion).width > CARD_W - 10 && emotion.length > 3) {
+        emotion = emotion.slice(0, -2) + '…';
+      }
+      ctx.fillText(emotion, cx + CARD_W / 2, yCards + IMG + 26);
+    }
+  });
+
+  /* ── notitiebox ── */
+  if (note) {
+    var nx = PAD, ny = yPost, nw = W - PAD * 2;
+    neoCard(ctx, nx, ny, nw, noteBoxH, 10, '#FFD93D');
+
+    ctx.fillStyle = '#555';
+    ctx.font = 'bold 10px Nunito, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('AANTEKENING', nx + 12, ny + 15);
+
+    ctx.fillStyle = '#111';
+    ctx.font = '14px Nunito, sans-serif';
+    wrapText(ctx, note, nx + 12, ny + 32, nw - 24, 20);
+  }
+
+  /* ── footer ── */
+  ctx.fillStyle = '#aaa';
+  ctx.font = '12px Nunito, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('gevoelsatlas.nl', W / 2, H - 12);
+
+  /* ── delen of downloaden ── */
+  canvas.toBlob(async function(blob) {
+    var filename = 'gevoelsatlas-' + new Date().toISOString().slice(0, 10) + '.png';
+    if (navigator.share && navigator.canShare) {
+      var file = new File([blob], filename, {type: 'image/png'});
+      if (navigator.canShare({files: [file]})) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Mijn GevoelsAtlas',
+            text: name ? name + '\'s GevoelsAtlas' : 'Mijn GevoelsAtlas van vandaag'
+          });
+          btn.textContent = '✓ Gedeeld';
+          return;
+        } catch(e) {
+          if (e.name === 'AbortError') { btn.disabled = false; btn.textContent = '↑ Deel als afbeelding'; return; }
+        }
+      }
+    }
+    /* fallback: download */
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+    btn.textContent = '✓ Opgeslagen';
+  }, 'image/png');
 }
 
 /* ── PDF EXPORT ─────────────────────────────────────────────── */
