@@ -841,11 +841,12 @@ document.getElementById('lightboxDeel').addEventListener('click', function() {
   fetch(lightboxFace.url)
     .then(function(r) { return r.blob(); })
     .then(function(blob) {
-      var file = new File([blob], lightboxFace.emotion + '.png', { type: blob.type || 'image/png' });
+      var deelTekst = 'Ik voel mij... ' + lightboxFace.emotion + ' · via gevoelsatlas.nl';
+      var file = new File([blob], lightboxFace.emotion + '.jpg', { type: blob.type || 'image/jpeg' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        return navigator.share({ files: [file], title: lightboxFace.emotion });
+        return navigator.share({ files: [file], text: deelTekst });
       } else if (navigator.share) {
-        return navigator.share({ title: lightboxFace.emotion, url: lightboxFace.url });
+        return navigator.share({ text: deelTekst, url: lightboxFace.url });
       } else {
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
