@@ -1180,9 +1180,8 @@ async function deelAlsAfbeelding() {
   /* ── layout constanten ── */
   var W      = 630;
   var PAD    = 28;
-  var IMG    = 88;
-  var CARD_W = 104;   /* IMG + 8px padding links/rechts */
-  var CARD_H = 136;   /* IMG + ruimte voor gevoelswoord */
+  var CARD_W = 104;
+  var CARD_H = 140;   /* CARD_W (full-bleed img) + 36px label-ruimte */
   var GAP    = 10;
   var gridX  = (W - (5 * CARD_W + 4 * GAP)) / 2;  /* = 35 */
 
@@ -1195,8 +1194,8 @@ async function deelAlsAfbeelding() {
   var yCards   = yLabels + 16;
   var yPost    = yCards + CARD_H + 22;
   var noteLines = note ? Math.ceil(note.length / 58) + 1 : 0;
-  var noteBoxH  = note ? 22 + noteLines * 20 + 14 : 0;
-  var H = yPost + (note ? noteBoxH + 14 : 0) + 36;
+  var noteBoxH  = note ? 26 + noteLines * 20 + 14 : 0;
+  var H = yPost + (note ? noteBoxH + 14 : 0) + 40;
 
   var canvas = document.createElement('canvas');
   canvas.width  = W;
@@ -1211,11 +1210,15 @@ async function deelAlsAfbeelding() {
   rrect(ctx, 2, 2, W - 4, H - 4, 12);
   ctx.stroke();
 
-  /* ── titel ── */
-  ctx.fillStyle = '#111';
-  ctx.textAlign = 'center';
+  /* ── titel (Gevoels zwart, Atlas oranje) ── */
   ctx.font = 'bold 54px "Amatic SC", cursive';
-  ctx.fillText('GevoelsAtlas', W / 2, yTitle);
+  ctx.textAlign = 'left';
+  var tw1 = ctx.measureText('Gevoels').width;
+  var tw2 = ctx.measureText('Atlas').width;
+  var tx  = W / 2 - (tw1 + tw2) / 2;
+  ctx.fillStyle = '#111';    ctx.fillText('Gevoels', tx, yTitle);
+  ctx.fillStyle = '#FF5C35'; ctx.fillText('Atlas', tx + tw1, yTitle);
+  ctx.textAlign = 'center';
 
   /* ── subtitel ── */
   ctx.fillStyle = '#888';
@@ -1254,27 +1257,36 @@ async function deelAlsAfbeelding() {
     var entry = sessionLog[i];
     var cx = gridX + i * (CARD_W + GAP);
 
-    /* staplabel boven kaartje */
-    ctx.fillStyle = '#999';
-    ctx.font = '11px Nunito, sans-serif';
+    /* staplabel boven kaartje — oranje, uppercase */
+    ctx.fillStyle = '#FF5C35';
+    ctx.font = 'bold 9px Nunito, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(s.label, cx + CARD_W / 2, yLabels);
+    ctx.fillText(s.label.toUpperCase(), cx + CARD_W / 2, yLabels);
 
-    /* kaart met afgeronde hoeken + neobrutalist shadow */
-    neoCard(ctx, cx, yCards, CARD_W, CARD_H, 10);
+    /* kaart — paper-kleur achtergrond */
+    neoCard(ctx, cx, yCards, CARD_W, CARD_H, 10, '#FFFCF5');
 
     if (entry && images[i]) {
-      ctx.drawImage(images[i], cx + 8, yCards + 8, IMG, IMG);
+      /* afbeelding full-bleed (clip op kaart) */
+      ctx.save();
+      rrect(ctx, cx, yCards, CARD_W, CARD_H, 10);
+      ctx.clip();
+      ctx.drawImage(images[i], cx, yCards, CARD_W, CARD_W);
+      ctx.restore();
 
-      /* gevoelswoord (afkappen indien nodig) */
+      /* lijn onder afbeelding */
+      ctx.fillStyle = '#111';
+      ctx.fillRect(cx, yCards + CARD_W, CARD_W, 2);
+
+      /* gevoelswoord in Amatic SC */
       var emotion = entry.img.emotion || '';
       ctx.fillStyle = '#111';
-      ctx.font = 'bold 11px Nunito, sans-serif';
+      ctx.font = 'bold 17px "Amatic SC", cursive';
       ctx.textAlign = 'center';
       while (ctx.measureText(emotion).width > CARD_W - 10 && emotion.length > 3) {
         emotion = emotion.slice(0, -2) + '…';
       }
-      ctx.fillText(emotion, cx + CARD_W / 2, yCards + IMG + 26);
+      ctx.fillText(emotion, cx + CARD_W / 2, yCards + CARD_W + 22);
     }
   });
 
