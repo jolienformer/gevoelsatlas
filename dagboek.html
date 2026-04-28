@@ -515,7 +515,11 @@ function buildSelectieBalk(sessies) {
     btnGeen.classList.add('actief'); btnAlles.classList.remove('actief');
     render();
   });
-  btnAlles.classList.add('actief');
+  /* Actieve staat afleiden uit werkelijke selectie */
+  var alleAan = sessies.every(function(s) { return isSelected(s.datum); });
+  var alleUit = sessies.every(function(s) { return !isSelected(s.datum); });
+  if (alleUit) btnGeen.classList.add('actief');
+  else if (alleAan) btnAlles.classList.add('actief');
 
   acties.appendChild(btnAlles);
   acties.appendChild(btnGeen);
