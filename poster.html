@@ -214,7 +214,7 @@ footer a { color: var(--yellow); text-decoration: none; }
     </div>
 
     <div class="modal-actions">
-      <button class="btn-download" id="btnDownload">Download als PNG (300 dpi)</button>
+      <button class="btn-download" id="btnDownload">Sla op als PNG (300 dpi)</button>
     </div>
     <div class="modal-info">
       Bewaar digitaal, print thuis, of geef het bestand mee aan een drukkerij.
@@ -623,17 +623,27 @@ document.getElementById('btnDownload').addEventListener('click', function() {
     btn.textContent = 'Bestand voorbereiden…';
     off.toBlob(function(blob) {
       if (!blob) { alert('Er ging iets mis bij het opslaan.'); btn.disabled = false; btn.textContent = origText; return; }
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'gevoelsatlas-poster-'+f.naam+'.png';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-        URL.revokeObjectURL(a.href);
-        if (a.parentNode) a.parentNode.removeChild(a);
-      }, 1500);
-      btn.disabled = false;
-      btn.textContent = origText;
+      var filename = 'gevoelsatlas-poster-' + f.naam + '.png';
+      var file = new File([blob], filename, { type: 'image/png' });
+      /* Mobiel: gebruik deelscherm (→ "Bewaar in Foto's" etc.) */
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: 'Mijn GevoelsAtlas poster' })
+          .catch(function() { /* gebruiker annuleerde */ })
+          .finally(function() { btn.disabled = false; btn.textContent = origText; });
+      } else {
+        /* Desktop: directe download */
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+          URL.revokeObjectURL(a.href);
+          if (a.parentNode) a.parentNode.removeChild(a);
+        }, 1500);
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
     }, 'image/png');
   });
 });
