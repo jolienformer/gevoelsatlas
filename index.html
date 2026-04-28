@@ -719,13 +719,6 @@ nav {
 
 <script src="faces-data.js"></script>
 <script>
-const IMAGES = RAW.map(function(r) {
-  var emotion = fixLabel(r[2]);
-  var url     = BASE + fixFilename(r[0]);
-  var cat     = r[3] === 'overig' && WORD_TO_CAT[emotion] ? WORD_TO_CAT[emotion] : r[3];
-  return { filename: r[0], color: r[1], emotion: emotion, cat: cat, url: url };
-});
-
 /* ── STAPPEN ────────────────────────────────────────────────── */
 const STEPS = [
   { label: 'Nu',          theme: 'Hoe voel jij je?',     question: 'Wat past bij hoe jij je nu voelt?' },
