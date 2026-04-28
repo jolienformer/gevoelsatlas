@@ -494,27 +494,43 @@ nav {
 /* ── PRINT / PDF ─────────────────────────────────────────────── */
 #print-view { display: none; }
 
-@page { margin: 12mm 10mm; size: A4 portrait; }
+@page { margin: 0; size: auto; }
 
 @media print {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body > *:not(#print-view) { display: none !important; }
 
   #print-view {
-    display: block !important;
+    display: flex !important;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24mm 20mm;
+    background: #F7F5EE;
     font-family: 'Nunito', sans-serif;
     color: #111111;
   }
 
+  /* Kaart-wrapper — zelfde look als de gedeelde afbeelding */
+  .pv-wrap {
+    width: 100%;
+    max-width: 160mm;
+    background: #F7F5EE;
+    border: 2.5px solid #111111;
+    border-radius: 14px;
+    padding: 20px 22px 18px;
+  }
+
+  /* Header */
   .pv-head {
     text-align: center;
-    border-bottom: 2.5px solid #111111;
     padding-bottom: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    border-bottom: 2px solid #111111;
   }
   .pv-title {
     font-family: 'Amatic SC', cursive;
-    font-size: 2.6rem;
+    font-size: 3rem;
     font-weight: 700;
     color: #111111;
     line-height: 1;
@@ -523,40 +539,31 @@ nav {
   .pv-title em { color: #FF5C35; font-style: normal; }
   .pv-date {
     display: block;
-    font-size: 0.72rem; font-weight: 700; color: #666;
-    margin-top: 4px;
+    font-size: 0.7rem; font-weight: 700; color: #666;
+    margin-top: 5px;
   }
   .pv-subtitle {
-    font-size: 0.7rem;
-    color: #666;
-    font-weight: 700;
-    font-style: italic;
-    margin-bottom: 8px;
-    text-align: center;
+    font-size: 0.68rem; color: #888; font-weight: 700;
+    font-style: italic; margin-bottom: 6px; text-align: center;
   }
   .pv-name {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #111111;
-    margin-bottom: 16px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-align: center;
+    font-size: 0.8rem; font-weight: 900; color: #111111;
+    margin-bottom: 14px; letter-spacing: 0.05em;
+    text-transform: uppercase; text-align: center;
   }
 
-  /* 5 gezichtjes als grid */
+  /* 5-kaartenrij */
   .pv-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 14px;
   }
   .pv-card {
     border: 2.5px solid #111111;
     border-radius: 8px;
     box-shadow: 3px 3px 0 #111111;
     overflow: hidden;
-    break-inside: avoid;
     background: white;
   }
   .pv-card img {
@@ -564,72 +571,41 @@ nav {
     border-bottom: 2px solid #111111;
   }
   .pv-card-lbl {
-    padding: 3px 5px;
-    font-size: 0.52rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #FF5C35;
+    padding: 4px 5px 1px;
+    font-size: 0.48rem; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: #FF5C35; text-align: center;
   }
   .pv-card-emotion {
-    padding: 1px 5px 4px;
+    padding: 1px 5px 6px;
     font-family: 'Amatic SC', cursive;
-    font-size: 1.1rem;
-    font-weight: 700;
-    text-transform: capitalize;
-    color: #111111;
-    line-height: 1.1;
+    font-size: 1.15rem; font-weight: 700;
+    text-transform: capitalize; color: #111111;
+    line-height: 1.1; text-align: center;
   }
+
   /* Notitie-sectie */
   .pv-note-section {
     border: 2px solid #111111;
     border-radius: 8px;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    background: #FFFCF5;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: #FFD93D;
   }
   .pv-note-lbl {
-    font-size: 0.6rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #FF5C35;
-    margin-bottom: 5px;
+    font-size: 0.58rem; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: #111111; margin-bottom: 4px;
   }
   .pv-note-txt {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #111111;
-    line-height: 1.6;
-    font-style: italic;
-    min-height: 28px;
-  }
-
-  /* Lege ruimte voor handmatige notitie */
-  .pv-blank {
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    min-height: 55px;
-  }
-  .pv-blank-lbl {
-    font-size: 0.6rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #999;
-    margin-bottom: 4px;
+    font-size: 0.78rem; font-weight: 600;
+    color: #111111; line-height: 1.6; font-style: italic;
   }
 
   .pv-footer {
-    font-size: 0.62rem;
-    color: #999;
-    font-weight: 700;
-    text-align: center;
-    margin-top: 10px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.6rem; color: #aaa; font-weight: 700;
+    text-align: center; margin-top: 12px;
+    letter-spacing: 0.08em; text-transform: uppercase;
   }
 }
 
@@ -1258,14 +1234,13 @@ function exportPDF() {
   var d    = new Date().toLocaleDateString('nl-NL', { day:'2-digit', month:'long', year:'numeric' });
 
   var pv = document.getElementById('print-view');
-  var html = '';
+  var html = '<div class="pv-wrap">';
 
   // Header
   html += '<div class="pv-head">';
   html += '<div class="pv-title">Gevoels<em>Atlas</em></div>';
-  html += '<div class="pv-date">' + d + '</div>';
+  html += '<div class="pv-date">een momentopname · ' + d + '</div>';
   html += '</div>';
-  html += '<div class="pv-subtitle">Een momentopname</div>';
   if (name) html += '<div class="pv-name">' + name + '</div>';
 
   // 5 gezichtjes
@@ -1302,11 +1277,10 @@ function exportPDF() {
     html += '<div class="pv-note-lbl">Aantekening</div>';
     html += '<div class="pv-note-txt">' + note + '</div>';
     html += '</div>';
-  } else {
-    html += '<div class="pv-blank"><div class="pv-blank-lbl">Aantekening</div></div>';
   }
 
-  html += '<div class="pv-footer">gevoelsatlas.nl, een momentopname</div>';
+  html += '<div class="pv-footer">gevoelsatlas.nl</div>';
+  html += '</div>'; // sluit pv-wrap
 
   pv.innerHTML = html;
 
