@@ -377,6 +377,7 @@ footer a { color: var(--yellow); text-decoration: none; }
   GevoelsAtlas 2026 · <a href="https://jolienbeeldendwerk.nl" target="_blank" rel="noopener">Jolien Beeldendwerk</a> · Kampen
 </footer>
 
+<script src="faces-data.js"></script>
 <script>
 /* ── CONSTANTEN ─────────────────────────────────────────────── */
 var MAANDEN = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
@@ -388,21 +389,6 @@ var CAT_VALENCE = {
   'boos':'negatief','bang':'negatief','verdrietig':'negatief','moe':'negatief',
   'onzeker':'negatief','ongemakkelijk':'negatief',
   'nieuwsgierig':'neutraal','verward':'neutraal','uiterlijk':'neutraal','overig':'neutraal',
-};
-
-var WOORD_CAT = {
-  'belangrijk':'zelfverzekerd','geleerd':'zelfverzekerd','groot':'zelfverzekerd','heldhaftig':'zelfverzekerd','hooghartig':'zelfverzekerd','intelligent':'zelfverzekerd','koninklijk':'zelfverzekerd','opgebouwd':'zelfverzekerd','opschepperig':'zelfverzekerd','overwinnend':'zelfverzekerd','prominent':'zelfverzekerd','rechtlijnig':'zelfverzekerd','rijk':'zelfverzekerd','robuust':'zelfverzekerd','slim':'zelfverzekerd','standvastig':'zelfverzekerd','stoer':'zelfverzekerd','vastberaden':'zelfverzekerd',
-  'goedgelovig':'onzeker','klein':'onzeker','kruiperig':'onzeker','naïef':'onzeker','onervaren':'onzeker','onnozel':'onzeker','onwetend':'onzeker','twijfelend':'onzeker','verborgen':'onzeker','verstopt':'onzeker','vertwijfeld':'onzeker',
-  'gemaakt':'ongemakkelijk','misplaatst':'ongemakkelijk','raar':'ongemakkelijk','schaamtevol':'ongemakkelijk','schuldig':'ongemakkelijk','vreemd':'ongemakkelijk',
-  'fruitig':'speels','gewiekst':'speels','grappig':'speels','guitig':'speels','jeugdig':'speels','jong':'speels','lachwekkend':'speels','lollig':'speels','melig':'speels','ondeugend':'speels','sluw':'speels','stiekem':'speels','stout':'speels',
-  'gevleugeld':'blij','joviaal':'blij','lacherig':'blij','muzikaal':'blij','opgewonden':'blij','optimistisch':'blij','sociaal':'blij','spraakzaam':'blij','verbonden':'blij','verheugd':'blij','vriendschappelijk':'blij',
-  'belerend':'boos','betuttelend':'boos','gevaarlijk':'boos','geweldadig':'boos','geïrriteerd':'boos','giftig':'boos','hebberig':'boos','koppig':'boos','luid':'boos','moralistisch':'boos','nors':'boos','ontvlambaar':'boos','opdringerig':'boos','schreeuwerig':'boos','streng':'boos','strijdbaar':'boos','vlammend':'boos','woest':'boos','stom':'boos',
-  'afschrikwekkend':'bang','gestresst':'bang','griezelig':'bang','gruwelijk':'bang','monsterachtig':'bang','monsterlijk':'bang','ongerust':'bang','spookachtig':'bang','verschrikt':'bang','versteend':'bang','zorgelijk':'bang',
-  'gebruikt':'verdrietig','getekend':'verdrietig','gevangen':'verdrietig','gewond':'verdrietig','huilend':'verdrietig','incompleet':'verdrietig','mishandeld':'verdrietig','onderdrukt':'verdrietig','teruggetrokken':'verdrietig','verafschuwd':'verdrietig','vervreemd':'verdrietig',
-  'heilig':'rustig','helder':'rustig','instemmend':'rustig','introvert':'rustig','luisterend':'rustig','minimaal':'rustig','natuurlijk':'rustig','onschuldig':'rustig','opgelucht':'rustig','serieus':'rustig','vaderlijk':'rustig','verzadigd':'rustig','verzorgend':'rustig',
-  'doorleefd':'moe','gebogen':'moe','mechanisch':'moe','ongemotiveerd':'moe','ongeïnteresseerd':'moe','onverschillig':'moe','overspannen':'moe','sloom':'moe','verveeld':'moe','verwaterd':'moe',
-  'geheimzinnig':'nieuwsgierig','geïntrigeerd':'nieuwsgierig','kunstzinnig':'nieuwsgierig','mysterieus':'nieuwsgierig','mystiek':'nieuwsgierig','observerend':'nieuwsgierig','oplettend':'nieuwsgierig','overdenkend':'nieuwsgierig','suggestief':'nieuwsgierig','verleidelijk':'nieuwsgierig','verwachtingsvol':'nieuwsgierig','wakker':'nieuwsgierig',
-  'behekst':'verward','beschonken':'verward','beïnvloed':'verward','gespiegeld':'verward','gestoord':'verward','hypnotisch':'verward','ingewikkeld':'verward','ondersteboven':'verward','onduidelijk':'verward','sprakeloos':'verward','verbouwereerd':'verward','verdeeld':'verward','verdraaid':'verward','verdubbeld':'verward','verschoven':'verward','verstomd':'verward','verwrongen':'verward',
 };
 
 /* ── STATE ───────────────────────────────────────────────────── */
@@ -430,7 +416,7 @@ function getValence(emotion) {
   if (!emotion) return 'neutraal';
   var e = emotion.toLowerCase().trim();
   if (CAT_VALENCE[e]) return CAT_VALENCE[e];
-  var cat = WOORD_CAT[e];
+  var cat = WORD_TO_CAT[e];
   return (cat && CAT_VALENCE[cat]) ? CAT_VALENCE[cat] : 'neutraal';
 }
 
