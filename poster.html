@@ -576,7 +576,7 @@ function drawFace(c, face, x, y, w, h, preview) {
   /* Rand: proportioneel aan celgrootte, geen hard minimum in preview */
   var bw = preview
     ? Math.max(0.5, Math.min(w, h) / 120)          /* schermpreview: altijd proportioneel */
-    : Math.max(1, Math.round(Math.min(w, h) / 180)); /* hi-res print: minimaal 1px */
+    : Math.max(1, Math.round(Math.min(w, h) / 150)); /* hi-res print: minimaal 1px */
   c.strokeStyle = '#111111';
   c.lineWidth = bw * 2; /* × 2 omdat helft buiten clip valt */
   c.strokeRect(x, y, w, h);
