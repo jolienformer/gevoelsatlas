@@ -509,19 +509,21 @@ function drawPoster(c, W, H, preview) {
   var r = bestRaster(faces.length, innerW, innerH);
   if (!r) return;
   /* Vierkante cellen: neem de kleinste van breedte/cols en hoogte/rows */
-  var cellSize = Math.min(innerW / r.cols, innerH / r.rows);
+  var rawCell = Math.min(innerW / r.cols, innerH / r.rows);
+  /* Preview: afronden op hele pixels → geen sub-pixel vervorming */
+  var cellSize = preview ? Math.floor(rawCell) : rawCell;
   /* Centreer de grid in de beschikbare ruimte */
   var gridW = cellSize * r.cols;
   var gridH = cellSize * r.rows;
-  var offsetX = border + (innerW - gridW) / 2;
-  var offsetY = border + (innerH - gridH) / 2;
+  var offsetX = border + Math.round((innerW - gridW) / 2);
+  var offsetY = border + Math.round((innerH - gridH) / 2);
 
   /* Teken gezichtjes */
   var idx = 0;
   for (var row = 0; row < r.rows && idx < faces.length; row++) {
     for (var col = 0; col < r.cols && idx < faces.length; col++) {
-      var x = offsetX + col * cellSize;
-      var y = offsetY + row * cellSize;
+      var x = Math.round(offsetX + col * cellSize);
+      var y = Math.round(offsetY + row * cellSize);
       var face = faces[idx++];
       drawFace(c, face, x, y, cellSize, cellSize, preview);
     }
