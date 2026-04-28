@@ -242,11 +242,8 @@ nav {
 }
 .sessie-header:hover { background: #F0EDE4; }
 .sessie-datum { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); white-space: nowrap; }
-.sessie-naam { font-size: 0.8rem; font-weight: 700; color: var(--soft); flex-shrink: 0; }
 .sessie-faces { display: flex; gap: 6px; flex: 1; justify-content: center; }
 .sessie-face-mini { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ink); flex-shrink: 0; }
-.sessie-chevron { font-size: 0.8rem; color: var(--muted); flex-shrink: 0; transition: transform 0.2s; }
-.sessie-kaart.open .sessie-chevron { transform: rotate(180deg); }
 .sessie-body { display: none; border-top: 2px solid var(--ink); padding: 20px 16px; }
 .sessie-kaart.open .sessie-body { display: block; }
 .sessie-body-datum { font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; }
@@ -687,13 +684,11 @@ function buildTijdlijn(sessies) {
     header.className = 'sessie-header';
     header.innerHTML =
       '<div class="sessie-datum">' + formatDatum(sessie.datum) + '</div>' +
-      (sessie.naam ? '<div class="sessie-naam">' + sessie.naam + '</div>' : '') +
       '<div class="sessie-faces">' +
         sessie.stappen.map(function(s) {
           return '<img class="sessie-face-mini" src="' + s.url + '" alt="' + s.emotion + '">';
         }).join('') +
-      '</div>' +
-      '<div class="sessie-chevron">▾</div>';
+      '</div>';
     header.addEventListener('click', function() { kaart.classList.toggle('open'); });
 
     var body = document.createElement('div');
