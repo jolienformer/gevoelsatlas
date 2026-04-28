@@ -833,6 +833,11 @@ var isTransitioning = false;
 function init() {
   renderProgress();
   renderStep();
+  /* Splash overslaan als de gebruiker via 'Start de atlas'-knop binnenkomt */
+  if (window.location.search.indexOf('start=1') !== -1) {
+    document.getElementById('splash-screen').style.display = 'none';
+    return;
+  }
   /* Terugkerende bezoeker: andere welkomsttekst */
   try {
     var sessies = JSON.parse(localStorage.getItem('gevoelsatlas_dagboek') || '[]');
