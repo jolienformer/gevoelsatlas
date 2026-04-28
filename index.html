@@ -49,12 +49,72 @@ nav {
 /* ── STAP-SCHERM ─────────────────────────────────────────────── */
 #step-screen {
   min-height: 100dvh;
-  display: flex;
+  display: none;
   flex-direction: column;
   max-width: 680px;
   margin: 0 auto;
   padding: 0 0 32px;
 }
+
+/* ── SPLASH ──────────────────────────────────────────────────── */
+#splash-screen {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  background: var(--bg);
+}
+.splash-inner {
+  text-align: center;
+  max-width: 440px;
+  width: 100%;
+}
+.splash-tag {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--accent); margin-bottom: 10px;
+}
+.splash-title {
+  font-family: 'Amatic SC', cursive;
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 700; line-height: 1.05;
+  color: var(--ink); margin-bottom: 18px;
+}
+.splash-title em { color: var(--accent); font-style: normal; }
+.splash-sub {
+  font-size: 0.95rem; font-weight: 600;
+  color: var(--soft); line-height: 1.6;
+  margin-bottom: 36px;
+}
+.btn-splash-start {
+  display: block; width: 100%;
+  background: var(--accent); color: white;
+  border: var(--border); border-radius: var(--radius);
+  padding: 16px 28px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 900;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: all 0.12s; margin-bottom: 16px;
+}
+.btn-splash-start:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+.btn-splash-start::after {
+  content: '';
+  display: inline-block; width: 6px; height: 6px;
+  border-right: 2px solid white; border-top: 2px solid white;
+  transform: rotate(45deg); margin-left: 10px;
+  vertical-align: middle; position: relative; top: -1px;
+}
+.btn-splash-verken {
+  display: inline-block;
+  font-size: 0.82rem; font-weight: 800;
+  color: var(--soft); text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color 0.12s;
+}
+.btn-splash-verken:hover { color: var(--ink); }
 
 /* Progress strip */
 .progress-strip {
@@ -634,6 +694,16 @@ nav {
 </div>
 
 <!-- ── STAP-SCHERM ──────────────────────────────────────────── -->
+<div id="splash-screen">
+  <div class="splash-inner">
+    <div class="splash-tag">Welkom bij</div>
+    <h1 class="splash-title">Gevoels<em>Atlas</em></h1>
+    <p class="splash-sub" id="splashSub">Ontdek welke gevoelens er in jou leven — stap voor stap.</p>
+    <button class="btn-splash-start" onclick="startAtlas()">Start de atlas</button>
+    <a href="verken.html" class="btn-splash-verken">Of verken alle gevoelens</a>
+  </div>
+</div>
+
 <div id="step-screen">
   <div class="progress-strip" id="progressStrip"></div>
   <div class="question-block">
@@ -735,6 +805,20 @@ var isTransitioning = false;
 
 /* ── INIT ───────────────────────────────────────────────────── */
 function init() {
+  /* Terugkerende bezoeker: andere welkomsttekst */
+  try {
+    var sessies = JSON.parse(localStorage.getItem('gevoelsatlas_dagboek') || '[]');
+    if (sessies.length > 0) {
+      document.getElementById('splashSub').textContent =
+        'Fijn dat je er weer bent. Hoe voel jij je vandaag?';
+    }
+  } catch(e) {}
+}
+
+function startAtlas() {
+  document.getElementById('splash-screen').style.display = 'none';
+  var ss = document.getElementById('step-screen');
+  ss.style.display = 'flex';
   renderProgress();
   renderStep();
 }
