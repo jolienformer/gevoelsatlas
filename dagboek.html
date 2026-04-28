@@ -381,6 +381,7 @@ footer a { color: var(--yellow); text-decoration: none; }
 /* ── CONSTANTEN ─────────────────────────────────────────────── */
 var MAANDEN = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
 var THEMA_LABELS = ['Nu', 'Vanbinnen', 'School/werk', 'Thuis', 'Wens'];
+var LABEL_KORT = { 'Vanbinnen': 'Binnen', 'School/werk': 'School' };
 
 var CAT_VALENCE = {
   'blij':'positief','zelfverzekerd':'positief','rustig':'positief','speels':'positief',
@@ -698,7 +699,7 @@ function buildTijdlijn(sessies) {
     sessie.stappen.forEach(function(s) {
       grid += '<div class="sessie-chosen">' +
         '<img src="' + s.url + '" alt="' + s.emotion + '">' +
-        '<div class="sessie-chosen-lbl">' + s.label + '</div>' +
+        '<div class="sessie-chosen-lbl">' + (LABEL_KORT[s.label] || s.label) + '</div>' +
         '<div class="sessie-chosen-emotion">' + s.emotion + '</div>' +
         '</div>';
     });
