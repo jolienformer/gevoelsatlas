@@ -295,11 +295,9 @@ function kiesFormaat(k) {
 }
 
 function maxVoorFormaat(k) {
-  /* maximum = aantal cellen in een raster waar elke cel ≥ 3cm bij 300dpi */
-  /* 3cm = 30mm = 354px → we mikken op cellen ~3,1 cm → kleinere gezichtjes nooit */
-  /* Voor flexibiliteit bovengrens iets boven minimum: */
+  /* Exact het raster vullen: geen lege cellen, geen crop-effect */
   var f = FORMATEN[k];
-  return f.raster[0] * f.raster[1] + Math.floor(f.min * 0.3); /* min + ~30% extra ruimte */
+  return f.raster[0] * f.raster[1]; /* = f.min — raster altijd 100% vol */
 }
 
 /* ── FILTER ───────────────────────────────────────────────── */
@@ -369,7 +367,7 @@ function toggleKeuze(face) {
   } else {
     var max = maxVoorFormaat(huidigFormaat);
     if (gekozenKeys.length >= max) {
-      flashStatus('Vol! Maximum '+max+' voor '+huidigFormaat);
+      flashStatus('Poster vol — kies een groter formaat voor meer gezichtjes');
       return;
     }
     gekozenKeys.push(face.filename);
@@ -563,12 +561,17 @@ function drawFace(c, face, x, y, w, h, preview) {
   var dw = iw * s, dh = ih * s;
   var dx = x + (w - dw)/2;
   var dy = y + (h - dh)/2;
-  /* Clip naar cel */
+  /* Clip naar cel, teken afbeelding, daarna zwart randje */
   c.save();
   c.beginPath();
   c.rect(x, y, w, h);
   c.clip();
   c.drawImage(img, dx, dy, dw, dh);
+  /* Randje: dikte ~1/60 van celgrootte, min 1px — lijkt op lijndiktes in de tekeningen */
+  var bw = Math.max(1, Math.round(Math.min(w, h) / 60));
+  c.strokeStyle = '#111111';
+  c.lineWidth = bw * 2; /* × 2 omdat helft buiten clip valt */
+  c.strokeRect(x, y, w, h);
   c.restore();
 }
 
