@@ -253,11 +253,11 @@ nav {
 .sessie-chosen img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-bottom: 2px solid var(--ink); }
 .sessie-chosen-lbl { padding: 3px 4px; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
 .sessie-chosen-emotion { padding: 2px 4px 5px; font-family: 'Amatic SC', cursive; font-size: 0.9rem; font-weight: 700; text-transform: capitalize; color: var(--ink); line-height: 1.1; }
-.sessie-chosen-note { padding: 4px 6px 6px; font-size: 0.62rem; font-style: italic; color: var(--soft); line-height: 1.4; border-top: 1px solid #eee; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; cursor: pointer; }
-.sessie-chosen-note.uitgevouwen { display: block; -webkit-line-clamp: unset; }
-.sessie-chosen-note::after { content: ' ↓'; font-style: normal; font-size: 0.55rem; color: var(--muted); }
-.sessie-chosen-note.uitgevouwen::after { content: ' ↑'; }
 .sessie-notitie { background: var(--bg); border-radius: var(--radius); padding: 10px 12px; font-size: 0.8rem; font-weight: 600; color: var(--soft); font-style: italic; line-height: 1.6; margin-bottom: 14px; }
+.sessie-aantekeningen { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+.sessie-aantekening-rij { display: flex; gap: 8px; align-items: baseline; font-size: 0.72rem; line-height: 1.5; }
+.sessie-aantekening-lbl { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
+.sessie-aantekening-tekst { font-style: italic; color: var(--soft); font-weight: 600; }
 .sessie-acties { display: flex; gap: 8px; justify-content: flex-end; }
 .btn-verwijder { background: none; border: 2px solid var(--muted); border-radius: var(--radius); padding: 6px 14px; font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 800; color: var(--muted); cursor: pointer; transition: all 0.12s; }
 .btn-verwijder:hover { border-color: var(--accent); color: var(--accent); }
@@ -700,10 +700,23 @@ function buildTijdlijn(sessies) {
         '<img src="' + s.url + '" alt="' + s.emotion + '">' +
         '<div class="sessie-chosen-lbl">' + s.label + '</div>' +
         '<div class="sessie-chosen-emotion">' + s.emotion + '</div>' +
-        (s.note ? '<div class="sessie-chosen-note">' + s.note + '</div>' : '') +
         '</div>';
     });
     grid += '</div>';
+
+    /* Aantekeningen per stap (apart blok, buiten het grid) */
+    var stapNotes = sessie.stappen.filter(function(s) { return s.note; });
+    var aantekeningenHtml = '';
+    if (stapNotes.length) {
+      aantekeningenHtml = '<div class="sessie-aantekeningen">' +
+        stapNotes.map(function(s) {
+          return '<div class="sessie-aantekening-rij">' +
+            '<span class="sessie-aantekening-lbl">' + s.label + '</span>' +
+            '<span class="sessie-aantekening-tekst">"' + s.note + '"</span>' +
+            '</div>';
+        }).join('') +
+        '</div>';
+    }
 
     var notitie = sessie.notitie ? '<div class="sessie-notitie">"' + sessie.notitie + '"</div>' : '';
 
@@ -716,10 +729,7 @@ function buildTijdlijn(sessies) {
       var s = laadSessies(); s.splice(idx,1); slaOpSessies(s); render();
     });
 
-    body.innerHTML = '<div class="sessie-body-datum">' + formatDatum(sessie.datum) + (sessie.naam ? ' · ' + sessie.naam : '') + '</div>' + grid + notitie;
-    body.querySelectorAll('.sessie-chosen-note').forEach(function(el) {
-      el.addEventListener('click', function(e) { e.stopPropagation(); el.classList.toggle('uitgevouwen'); });
-    });
+    body.innerHTML = '<div class="sessie-body-datum">' + formatDatum(sessie.datum) + (sessie.naam ? ' · ' + sessie.naam : '') + '</div>' + grid + aantekeningenHtml + notitie;
     var acties = document.createElement('div');
     acties.className = 'sessie-acties';
     acties.appendChild(verwijderBtn);
