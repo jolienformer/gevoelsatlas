@@ -49,55 +49,81 @@ nav {
 /* ── STAP-SCHERM ─────────────────────────────────────────────── */
 #step-screen {
   min-height: 100dvh;
-  display: none;
+  display: flex;
   flex-direction: column;
   max-width: 680px;
   margin: 0 auto;
   padding: 0 0 32px;
 }
 
-/* ── SPLASH ──────────────────────────────────────────────────── */
+/* ── SPLASH (zwevende popup) ─────────────────────────────────── */
 #splash-screen {
-  min-height: 100dvh;
+  position: fixed; inset: 0;
+  z-index: 400;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
-  background: var(--bg);
+  padding: 24px;
+  background: rgba(247, 245, 238, 0.78);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: splashFade 0.4s ease-out;
+}
+#splash-screen.dicht {
+  animation: splashOut 0.3s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes splashFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes splashOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(1.02); }
 }
 .splash-inner {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: 14px;
+  box-shadow: 6px 6px 0 var(--ink);
   text-align: center;
-  max-width: 440px;
+  max-width: 380px;
   width: 100%;
+  padding: 28px 28px 24px;
+  animation: splashPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes splashPop {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .splash-tag {
   display: inline-block;
-  font-size: 0.65rem; font-weight: 900;
+  font-size: 0.62rem; font-weight: 900;
   text-transform: uppercase; letter-spacing: 0.14em;
-  color: var(--accent); margin-bottom: 10px;
+  color: var(--accent); margin-bottom: 6px;
 }
 .splash-title {
   font-family: 'Amatic SC', cursive;
-  font-size: clamp(3rem, 12vw, 5rem);
+  font-size: clamp(2.6rem, 10vw, 3.8rem);
   font-weight: 700; line-height: 1.05;
-  color: var(--ink); margin-bottom: 18px;
+  color: var(--ink); margin-bottom: 14px;
 }
 .splash-title em { color: var(--accent); font-style: normal; }
 .splash-sub {
-  font-size: 0.95rem; font-weight: 600;
+  font-size: 0.92rem; font-weight: 600;
   color: var(--soft); line-height: 1.6;
-  margin-bottom: 36px;
+  margin-bottom: 26px;
 }
 .btn-splash-start {
   display: block; width: 100%;
   background: var(--accent); color: white;
   border: var(--border); border-radius: var(--radius);
-  padding: 16px 28px;
+  padding: 14px 24px;
   font-family: 'Nunito', sans-serif;
-  font-size: 1rem; font-weight: 900;
+  font-size: 0.95rem; font-weight: 900;
   letter-spacing: 0.04em; text-transform: uppercase;
   box-shadow: var(--shadow); cursor: pointer;
-  transition: all 0.12s; margin-bottom: 16px;
+  transition: all 0.12s; margin-bottom: 14px;
 }
 .btn-splash-start:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
 .btn-splash-start::after {
@@ -109,7 +135,7 @@ nav {
 }
 .btn-splash-verken {
   display: inline-block;
-  font-size: 0.82rem; font-weight: 800;
+  font-size: 0.78rem; font-weight: 800;
   color: var(--soft); text-decoration: none;
   letter-spacing: 0.02em;
   transition: color 0.12s;
@@ -805,6 +831,8 @@ var isTransitioning = false;
 
 /* ── INIT ───────────────────────────────────────────────────── */
 function init() {
+  renderProgress();
+  renderStep();
   /* Terugkerende bezoeker: andere welkomsttekst */
   try {
     var sessies = JSON.parse(localStorage.getItem('gevoelsatlas_dagboek') || '[]');
@@ -816,11 +844,9 @@ function init() {
 }
 
 function startAtlas() {
-  document.getElementById('splash-screen').style.display = 'none';
-  var ss = document.getElementById('step-screen');
-  ss.style.display = 'flex';
-  renderProgress();
-  renderStep();
+  var splash = document.getElementById('splash-screen');
+  splash.classList.add('dicht');
+  setTimeout(function() { splash.style.display = 'none'; }, 300);
 }
 
 /* ── PROGRESS DOTS ──────────────────────────────────────────── */
