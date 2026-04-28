@@ -477,11 +477,21 @@ function rendererPreview() {
   var posterW_mm = f.mm[0], posterH_mm = f.mm[1];
   var aspect = posterW_mm / posterH_mm;
 
-  /* Scherm-canvas houdt aspect, max 600px hoogte */
-  var maxH = 560;
-  var scrnH = maxH;
-  var scrnW = Math.round(maxH * aspect);
-  if (scrnW > 540) { scrnW = 540; scrnH = Math.round(540 / aspect); }
+  /* Beschikbare breedte in de modal (minus padding van stage + card) */
+  var stage = canvas.parentElement;
+  var maxW = (stage ? stage.clientWidth : 520) - 28;
+  var maxH = Math.min(window.innerHeight * 0.58, 560);
+
+  /* Pas in beschikbare ruimte, bewaar aspect */
+  var scrnW, scrnH;
+  if (maxW / aspect <= maxH) {
+    scrnW = Math.floor(maxW);
+    scrnH = Math.round(scrnW / aspect);
+  } else {
+    scrnH = Math.floor(maxH);
+    scrnW = Math.round(scrnH * aspect);
+  }
+
   var dpr = window.devicePixelRatio || 1;
   canvas.width  = scrnW * dpr;
   canvas.height = scrnH * dpr;
