@@ -158,7 +158,7 @@ nav {
 }
 .bubble-glow-wrap {
   width: 100%; height: 100%;
-  border-radius: 50%; overflow: hidden;
+  border-radius: 50%;
   transition: transform 0.18s;
   cursor: pointer;
 }
@@ -189,22 +189,22 @@ nav {
   display: block;
 }
 
-/* Glow via drop-shadow (volgt de ronde PNG-vorm) */
+/* Glow via box-shadow op de img zelf (werkt ook op iOS Safari) */
 @keyframes glowPos {
-  0%,100% { filter: drop-shadow(0 0 6px rgba(40,180,60,0.9))  drop-shadow(0 0 16px rgba(40,180,60,0.55)); }
-  50%      { filter: drop-shadow(0 0 12px rgba(40,180,60,1))   drop-shadow(0 0 26px rgba(40,180,60,0.75)); }
+  0%,100% { box-shadow: 0 0 8px 4px rgba(40,180,60,0.7), 0 0 20px 8px rgba(40,180,60,0.35); }
+  50%      { box-shadow: 0 0 14px 6px rgba(40,180,60,0.9), 0 0 32px 12px rgba(40,180,60,0.55); }
 }
 @keyframes glowNeg {
-  0%,100% { filter: drop-shadow(0 0 6px rgba(210,40,40,0.9))  drop-shadow(0 0 16px rgba(210,40,40,0.55)); }
-  50%      { filter: drop-shadow(0 0 12px rgba(210,40,40,1))   drop-shadow(0 0 26px rgba(210,40,40,0.75)); }
+  0%,100% { box-shadow: 0 0 8px 4px rgba(210,40,40,0.7), 0 0 20px 8px rgba(210,40,40,0.35); }
+  50%      { box-shadow: 0 0 14px 6px rgba(210,40,40,0.9), 0 0 32px 12px rgba(210,40,40,0.55); }
 }
 @keyframes glowNeu {
-  0%,100% { filter: drop-shadow(0 0 6px rgba(195,155,0,0.9))  drop-shadow(0 0 16px rgba(195,155,0,0.55)); }
-  50%      { filter: drop-shadow(0 0 12px rgba(195,155,0,1))   drop-shadow(0 0 26px rgba(195,155,0,0.75)); }
+  0%,100% { box-shadow: 0 0 8px 4px rgba(195,155,0,0.7), 0 0 20px 8px rgba(195,155,0,0.35); }
+  50%      { box-shadow: 0 0 14px 6px rgba(195,155,0,0.9), 0 0 32px 12px rgba(195,155,0,0.55); }
 }
-.glow-positief { animation: glowPos 3s   ease-in-out infinite; }
-.glow-negatief { animation: glowNeg 2.2s ease-in-out infinite; }
-.glow-neutraal { animation: glowNeu 3.4s ease-in-out infinite; }
+.glow-positief .bubble-img { animation: glowPos 3s   ease-in-out infinite; }
+.glow-negatief .bubble-img { animation: glowNeg 2.2s ease-in-out infinite; }
+.glow-neutraal .bubble-img { animation: glowNeu 3.4s ease-in-out infinite; }
 
 /* Float animations */
 @keyframes flt0 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(5px,-9px)} }
@@ -281,7 +281,7 @@ footer a { color: var(--yellow); text-decoration: none; }
 .nav-menu a:hover, .nav-menu a.actief { color: var(--yellow); }
 
 @media (prefers-reduced-motion: reduce) {
-  .bubble-wrap, .glow-positief, .glow-negatief, .glow-neutraal { animation: none !important; }
+  .bubble-wrap, .glow-positief .bubble-img, .glow-negatief .bubble-img, .glow-neutraal .bubble-img { animation: none !important; }
 }
 
 /* ── DAGBOEK LIGHTBOX ────────────────────────────────────────── */
