@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Maak je poster · GevoelsAtlas</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/jpeg" href="images/1258_groen_intelligent.jpg">
+<style>
+:root {
+  --bg:     #F7F5EE;
+  --paper:  #FFFCF5;
+  --ink:    #111111;
+  --soft:   #555555;
+  --muted:  #BBBBBB;
+  --accent: #FF5C35;
+  --yellow: #FFD93D;
+  --radius: 10px;
+  --border: 2.5px solid #111111;
+  --shadow: 4px 4px 0 #111111;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--ink); padding-bottom: 110px; }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 100; background: var(--ink); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 54px; border-bottom: 3px solid var(--accent); }
+.nav-logo { font-family: 'Amatic SC', cursive; font-size: 1.6rem; font-weight: 700; color: white; text-decoration: none; }
+.nav-logo em { color: var(--yellow); font-style: normal; }
+.nav-start { background: var(--accent); color: white; border: 2px solid white; border-radius: 8px; padding: 6px 16px; line-height: 1; font-size: 0.72rem; font-weight: 900; text-decoration: none; letter-spacing: 0.04em; transition: all 0.12s; }
+.nav-start:hover { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+.nav-start::after { content: ''; display: inline-block; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor; transform: rotate(45deg); margin-left: 6px; vertical-align: middle; position: relative; top: -1px; }
+.hamburger { background: none; border: none; cursor: pointer; padding: 6px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+.hamburger span { display: block; width: 20px; height: 2px; background: white; border-radius: 1px; }
+.nav-menu { display: none; position: fixed; top: 57px; right: 20px; background: var(--ink); min-width: 180px; z-index: 200; border-top: 3px solid var(--accent); box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+.nav-menu.open { display: block; }
+.nav-menu a { display: block; padding: 12px 24px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.82rem; font-weight: 800; letter-spacing: 0.04em; }
+.nav-menu a:hover, .nav-menu a.actief { color: var(--yellow); }
+
+/* HEADER */
+.page-header { max-width: 720px; margin: 0 auto; padding: 36px 24px 20px; text-align: center; }
+.page-tag { display: inline-block; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 12px; }
+.page-title { font-family: 'Amatic SC', cursive; font-size: clamp(2.4rem, 8vw, 3.8rem); font-weight: 700; line-height: 1.1; margin-bottom: 14px; }
+.page-title em { color: var(--accent); font-style: normal; }
+.page-intro { font-size: 0.9rem; font-weight: 600; color: var(--soft); line-height: 1.7; max-width: 480px; margin: 0 auto; }
+
+/* STAP-TITELS */
+.step-title { max-width: 860px; margin: 28px auto 14px; padding: 0 20px; font-family: 'Amatic SC', cursive; font-size: 2rem; text-align: center; }
+.step-title span { background: var(--yellow); border: var(--border); border-radius: 999px; box-shadow: 2px 2px 0 var(--ink); padding: 0 12px; font-size: 1rem; font-family: 'Nunito',sans-serif; font-weight: 900; vertical-align: middle; margin-right: 8px; }
+
+/* FORMAAT KEUZE */
+.formaten { max-width: 860px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+.formaat-card { background: var(--paper); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 14px; cursor: pointer; transition: all 0.12s; text-align: center; position: relative; }
+.formaat-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+.formaat-card.actief { background: var(--accent); color: white; }
+.formaat-card.actief .formaat-min { color: rgba(255,255,255,0.85); }
+.formaat-naam { font-family: 'Amatic SC', cursive; font-size: 2.2rem; line-height: 1; margin-bottom: 4px; }
+.formaat-cm { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; opacity: 0.7; margin-bottom: 8px; }
+.formaat-min { font-size: 0.78rem; font-weight: 700; color: var(--soft); }
+
+/* BLADEREN (alleen na keuze formaat) */
+.bladeren { display: none; }
+.bladeren.show { display: block; }
+
+.filter-section { max-width: 860px; margin: 0 auto; padding: 14px 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.search-row { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.search-wrap { max-width: 200px; width: 100%; }
+.search-input { width: 100%; padding: 7px 16px; border: 2px solid var(--muted); border-radius: 8px; background: transparent; font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700; outline: none; }
+.search-input::placeholder { color: var(--muted); font-style: italic; font-weight: 600; }
+.search-input:focus { border-color: var(--ink); }
+
+.filter-bar { max-width: 860px; margin: 0 auto; padding: 0 20px 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+.filter-btn { width: 30px; height: 30px; border-radius: 50%; border: var(--border); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; transition: all 0.12s; flex-shrink: 0; }
+.filter-btn:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.filter-btn.active { box-shadow: none; transform: none; outline: 3px solid var(--accent); outline-offset: 3px; }
+.filter-btn.alles { background: conic-gradient(#89B4CC 0% 9%, #9B7653 9% 18%, #FFD93D 18% 27%, #BBBBBB 27% 36%, #7BC67E 36% 45%, #FF8C42 45% 54%, #9B72CF 54% 63%, #E05C5C 63% 72%, #F4A7B9 72% 81%, #EEEEEE 81% 90%, #444444 90% 100%); }
+
+/* GRID */
+.grid-wrap { max-width: 860px; margin: 0 auto; padding: 0 16px 60px; }
+.face-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 14px; }
+.face-item { position: relative; border-radius: var(--radius); overflow: visible; border: var(--border); box-shadow: 2px 2px 0 var(--ink); aspect-ratio: 1; cursor: pointer; transition: transform 0.12s; }
+.face-item:hover { transform: scale(1.05); }
+.face-item img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: calc(var(--radius) - 2px); }
+.face-item.gekozen { outline: 3px solid var(--accent); outline-offset: 2px; }
+.face-item.gekozen::after { content: '✓'; position: absolute; top: -6px; right: -6px; background: var(--accent); color: white; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; border: 2px solid white; font-size: 0.78rem; font-weight: 900; }
+.count-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-align: center; padding-top: 12px; }
+
+/* STICKY ACTIE-BALK */
+.sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--paper); border-top: var(--border); box-shadow: 0 -3px 0 var(--ink); padding: 12px 20px; z-index: 90; display: none; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.sticky-bar.show { display: flex; }
+.sticky-status { font-size: 0.85rem; font-weight: 800; color: var(--ink); text-align: center; min-width: 200px; }
+.sticky-status .ok { color: var(--accent); }
+.sticky-status .more { color: var(--soft); font-weight: 700; }
+.sticky-bar-progress { width: 100%; max-width: 360px; height: 8px; background: var(--bg); border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; margin: 0 auto; }
+.sticky-bar-progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.25s; }
+.sticky-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.btn-actie { background: var(--paper); color: var(--ink); border: var(--border); border-radius: 8px; padding: 8px 16px; font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 900; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); transition: all 0.12s; letter-spacing: 0.02em; }
+.btn-actie:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.btn-actie:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-actie.primair { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-actie.primair:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); }
+
+/* PREVIEW MODAL */
+.modal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(17,17,17,0.78); align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+.modal.open { display: flex; }
+.modal-card { background: var(--paper); border: var(--border); border-radius: var(--radius); box-shadow: 6px 6px 0 var(--ink); padding: 24px 20px; max-width: 720px; width: 100%; position: relative; max-height: 95vh; overflow-y: auto; }
+.modal-close { position: absolute; top: -48px; right: 0; width: 38px; height: 38px; background: var(--ink); color: white; border: 2.5px solid white; border-radius: 8px; font-size: 1.3rem; font-weight: 900; cursor: pointer; line-height: 33px; text-align: center; box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
+.modal-close:hover { background: var(--accent); border-color: var(--accent); }
+.modal-title { font-family: 'Amatic SC', cursive; font-size: 2.4rem; text-align: center; margin-bottom: 4px; }
+.modal-sub { font-size: 0.78rem; font-weight: 700; color: var(--soft); text-align: center; margin-bottom: 16px; }
+
+.preview-stage { background: var(--bg); border: 2px dashed var(--muted); border-radius: var(--radius); padding: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; min-height: 200px; }
+.preview-poster { display: block; max-width: 100%; max-height: 60vh; box-shadow: 4px 4px 0 var(--ink); }
+
+.opties { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.optie-groep { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.optie-label { font-size: 0.72rem; font-weight: 800; color: var(--soft); letter-spacing: 0.04em; text-transform: uppercase; margin-right: 4px; }
+.optie-btn { background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; padding: 5px 12px; font-family: 'Nunito',sans-serif; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.1s; }
+.optie-btn:hover { background: var(--bg); }
+.optie-btn.actief { background: var(--ink); color: white; }
+
+.modal-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn-download { background: var(--ink); color: white; border: var(--border); border-radius: 8px; padding: 10px 22px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 900; cursor: pointer; box-shadow: 3px 3px 0 var(--accent); transition: all 0.12s; letter-spacing: 0.03em; }
+.btn-download:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--accent); background: var(--accent); }
+.btn-download:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.modal-info { font-size: 0.72rem; font-weight: 600; color: var(--soft); text-align: center; margin-top: 12px; line-height: 1.5; }
+.modal-info strong { color: var(--ink); }
+
+/* FOOTER */
+footer { background: var(--ink); color: rgba(255,255,255,0.5); text-align: center; padding: 20px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+footer a { color: var(--yellow); text-decoration: none; }
+
+@media (min-width: 900px) {
+  .grid-wrap { max-width: 1200px; }
+  .face-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Gevoels<em>Atlas</em></a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="index.html?start=1" class="nav-start">Start de atlas</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-menu" id="navMenu">
+  <a href="verken.html">Verkennen</a>
+  <a href="dagboek.html">Dagboek</a>
+  <a href="poster.html" class="actief">Maak je poster</a>
+  <a href="about.html">Over de atlas</a>
+</div>
+
+<div class="page-header">
+  <div class="page-tag">Eigen poster</div>
+  <h1 class="page-title">Maak je <em>poster</em></h1>
+  <p class="page-intro">Kies een formaat, kies je gezichtjes en download je eigen poster — een wolk van gevoelens die helemaal van jou is.</p>
+</div>
+
+<!-- STAP 1: FORMAAT -->
+<h2 class="step-title"><span>1</span>Kies je formaat</h2>
+<div class="formaten" id="formaten"></div>
+
+<!-- STAP 2: BLADEREN + KIEZEN -->
+<div class="bladeren" id="bladeren">
+  <h2 class="step-title"><span>2</span>Kies je gezichtjes</h2>
+
+  <div class="filter-section">
+    <div class="search-row">
+      <div class="search-wrap">
+        <input class="search-input" id="searchInput" type="text" placeholder="zoek een gevoel…" autocomplete="off">
+      </div>
+    </div>
+  </div>
+  <div class="filter-bar" id="filterBar"></div>
+
+  <div class="grid-wrap">
+    <div class="face-grid" id="faceGrid"></div>
+    <div class="count-label" id="countLabel"></div>
+  </div>
+</div>
+
+<!-- STICKY BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:520px;">
+    <div class="sticky-status" id="stickyStatus"></div>
+    <div class="sticky-bar-progress"><div class="sticky-bar-progress-fill" id="progressFill"></div></div>
+    <div class="sticky-actions">
+      <button class="btn-actie" id="btnVulAan">+ Vul aan met willekeurige</button>
+      <button class="btn-actie" id="btnReset">Begin opnieuw</button>
+      <button class="btn-actie primair" id="btnBekijk" disabled>Bekijk je poster</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">×</button>
+    <h3 class="modal-title" id="modalTitle">Jouw poster</h3>
+    <div class="modal-sub" id="modalSub"></div>
+
+    <div class="preview-stage">
+      <canvas class="preview-poster" id="previewCanvas"></canvas>
+    </div>
+
+    <div class="opties">
+      <div class="optie-groep">
+        <span class="optie-label">Rand</span>
+        <button class="optie-btn actief" data-rand="edge">Edge-to-edge</button>
+        <button class="optie-btn" data-rand="border">Met witrand</button>
+      </div>
+      <div class="optie-groep">
+        <span class="optie-label">Volgorde</span>
+        <button class="optie-btn" id="btnSchud">Schudden</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-download" id="btnDownload">Download als PNG (300 dpi)</button>
+    </div>
+    <div class="modal-info">
+      <strong>Lever het bestand in bij een drukkerij</strong> of bewaar het digitaal.<br>
+      Op termijn kun je hier ook direct een gedrukte poster bestellen.
+    </div>
+  </div>
+</div>
+
+<footer>Gemaakt door Jolien Former · <a href="mailto:jolienformer@gmail.com">jolienformer@gmail.com</a></footer>
+
+<script src="faces-data.js"></script>
+<script>
+/* ── KLEUREN ──────────────────────────────────────────────── */
+var KLEUR_CSS = {
+  blauw:'#89B4CC', bruin:'#9B7653', geel:'#FFD93D', grijs:'#BBBBBB',
+  groen:'#7BC67E', oranje:'#FF8C42', paars:'#9B72CF', rood:'#E05C5C',
+  roze:'#F4A7B9', wit:'#EEEEEE', zwart:'#444444'
+};
+
+/* ── FORMATEN ─────────────────────────────────────────────── */
+/* mm → px @ 300dpi: px = mm * 300/25.4 */
+var DPI = 300;
+var MM_PER_INCH = 25.4;
+function mmToPx(mm) { return Math.round(mm * DPI / MM_PER_INCH); }
+
+var FORMATEN = {
+  A5: { naam:'A5', mm:[148,210],  min:24,  raster:[4,6]   },
+  A4: { naam:'A4', mm:[210,297],  min:54,  raster:[6,9]   },
+  A3: { naam:'A3', mm:[297,420],  min:117, raster:[9,13]  },
+  A2: { naam:'A2', mm:[420,594],  min:247, raster:[13,19] }
+};
+
+/* ── STATE ────────────────────────────────────────────────── */
+var activeColor = 'alles';
+var searchQuery = '';
+var filtered = [];
+var gekozenKeys = [];                 /* filenames in volgorde van kiezen */
+var huidigFormaat = null;             /* 'A5' | 'A4' | 'A3' | 'A2' */
+var randStijl = 'edge';               /* 'edge' | 'border' */
+
+/* ── FORMAAT-KAARTEN ──────────────────────────────────────── */
+(function buildFormaten() {
+  var c = document.getElementById('formaten');
+  Object.keys(FORMATEN).forEach(function(k) {
+    var f = FORMATEN[k];
+    var card = document.createElement('div');
+    card.className = 'formaat-card';
+    card.dataset.fmt = k;
+    card.innerHTML = '<div class="formaat-naam">'+f.naam+'</div>'+
+                     '<div class="formaat-cm">'+f.mm[0]/10+' × '+f.mm[1]/10+' cm</div>'+
+                     '<div class="formaat-min">vanaf '+f.min+' gezichtjes</div>';
+    card.addEventListener('click', function() { kiesFormaat(k); });
+    c.appendChild(card);
+  });
+})();
+
+function kiesFormaat(k) {
+  huidigFormaat = k;
+  document.querySelectorAll('.formaat-card').forEach(function(el) {
+    el.classList.toggle('actief', el.dataset.fmt === k);
+  });
+  document.getElementById('bladeren').classList.add('show');
+  document.getElementById('stickyBar').classList.add('show');
+  /* Trim selectie als er meer is dan max nieuw formaat */
+  var max = maxVoorFormaat(k);
+  if (gekozenKeys.length > max) gekozenKeys = gekozenKeys.slice(0, max);
+  updateStatus();
+  renderGrid();
+  /* Scroll naar grid */
+  setTimeout(function() {
+    document.getElementById('bladeren').scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 80);
+}
+
+function maxVoorFormaat(k) {
+  /* maximum = aantal cellen in een raster waar elke cel ≥ 3cm bij 300dpi */
+  /* 3cm = 30mm = 354px → we mikken op cellen ~3,1 cm → kleinere gezichtjes nooit */
+  /* Voor flexibiliteit bovengrens iets boven minimum: */
+  var f = FORMATEN[k];
+  return f.raster[0] * f.raster[1] + Math.floor(f.min * 0.3); /* min + ~30% extra ruimte */
+}
+
+/* ── FILTER ───────────────────────────────────────────────── */
+var bar = document.getElementById('filterBar');
+var kleuren = ['alles'].concat(Object.keys(KLEUR_CSS));
+kleuren.forEach(function(k) {
+  var btn = document.createElement('button');
+  btn.className = 'filter-btn' + (k === 'alles' ? ' active alles' : '');
+  btn.dataset.kleur = k;
+  btn.title = k === 'alles' ? 'Alle kleuren' : k;
+  if (k !== 'alles') btn.style.background = KLEUR_CSS[k];
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    activeColor = k;
+    renderGrid();
+  });
+  bar.appendChild(btn);
+});
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchQuery = this.value.trim().toLowerCase();
+  renderGrid();
+});
+
+/* ── GRID ─────────────────────────────────────────────────── */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function renderGrid() {
+  filtered = IMAGES.filter(function(f) {
+    var kleurOk = activeColor === 'alles' || f.color === activeColor;
+    var zoekOk  = searchQuery === '' || f.emotion.indexOf(searchQuery) !== -1;
+    return kleurOk && zoekOk;
+  });
+  if (searchQuery === '') filtered = shuffle(filtered);
+
+  var grid = document.getElementById('faceGrid');
+  grid.innerHTML = '';
+
+  filtered.forEach(function(face) {
+    var item = document.createElement('div');
+    item.className = 'face-item' + (gekozenKeys.indexOf(face.filename) !== -1 ? ' gekozen' : '');
+    item.dataset.filename = face.filename;
+    var img = document.createElement('img');
+    img.src = face.url;
+    img.alt = face.emotion;
+    img.loading = 'lazy';
+    item.appendChild(img);
+    item.addEventListener('click', function() { toggleKeuze(face); });
+    grid.appendChild(item);
+  });
+  document.getElementById('countLabel').textContent = filtered.length + ' gezichtjes';
+}
+
+function toggleKeuze(face) {
+  if (!huidigFormaat) return;
+  var idx = gekozenKeys.indexOf(face.filename);
+  if (idx !== -1) {
+    gekozenKeys.splice(idx, 1);
+  } else {
+    var max = maxVoorFormaat(huidigFormaat);
+    if (gekozenKeys.length >= max) {
+      flashStatus('Vol! Maximum '+max+' voor '+huidigFormaat);
+      return;
+    }
+    gekozenKeys.push(face.filename);
+  }
+  /* Update alleen het ene item */
+  var item = document.querySelector('[data-filename="'+CSS.escape(face.filename)+'"]');
+  if (item) item.classList.toggle('gekozen', gekozenKeys.indexOf(face.filename) !== -1);
+  updateStatus();
+}
+
+/* ── STATUS / STICKY ──────────────────────────────────────── */
+function updateStatus() {
+  if (!huidigFormaat) return;
+  var f = FORMATEN[huidigFormaat];
+  var n = gekozenKeys.length;
+  var status = document.getElementById('stickyStatus');
+  var fill = document.getElementById('progressFill');
+  var bekijk = document.getElementById('btnBekijk');
+  var pct = Math.min(100, Math.round(n / f.min * 100));
+  fill.style.width = pct + '%';
+  if (n < f.min) {
+    status.innerHTML = '<span>'+n+' / '+f.min+' gekozen</span> · <span class="more">nog '+(f.min - n)+' te gaan voor '+f.naam+'</span>';
+    bekijk.disabled = true;
+  } else {
+    status.innerHTML = '<span class="ok">'+n+' gezichtjes</span> · klaar voor '+f.naam;
+    bekijk.disabled = false;
+  }
+}
+function flashStatus(msg) {
+  var s = document.getElementById('stickyStatus');
+  var orig = s.innerHTML;
+  s.innerHTML = '<span style="color:var(--accent)">'+msg+'</span>';
+  setTimeout(function() { updateStatus(); }, 1400);
+}
+
+document.getElementById('btnVulAan').addEventListener('click', function() {
+  if (!huidigFormaat) return;
+  var f = FORMATEN[huidigFormaat];
+  var nodig = f.min - gekozenKeys.length;
+  if (nodig <= 0) {
+    flashStatus('Je hebt al genoeg!');
+    return;
+  }
+  var pool = shuffle(IMAGES.filter(function(im) { return gekozenKeys.indexOf(im.filename) === -1; }));
+  for (var i = 0; i < nodig && i < pool.length; i++) {
+    gekozenKeys.push(pool[i].filename);
+  }
+  /* Re-render om nieuwe vinkjes te tonen */
+  renderGrid();
+  updateStatus();
+});
+
+document.getElementById('btnReset').addEventListener('click', function() {
+  if (gekozenKeys.length === 0) return;
+  if (!confirm('Selectie wissen?')) return;
+  gekozenKeys = [];
+  renderGrid();
+  updateStatus();
+});
+
+document.getElementById('btnBekijk').addEventListener('click', openModal);
+
+/* ── MODAL / PREVIEW ──────────────────────────────────────── */
+var modal = document.getElementById('modal');
+var canvas = document.getElementById('previewCanvas');
+var ctx = canvas.getContext('2d');
+var posterVolgorde = []; /* huidige volgorde (filenames) na evt. schudden */
+
+function openModal() {
+  if (!huidigFormaat || gekozenKeys.length < FORMATEN[huidigFormaat].min) return;
+  posterVolgorde = gekozenKeys.slice();
+  var f = FORMATEN[huidigFormaat];
+  document.getElementById('modalTitle').textContent = 'Jouw '+f.naam+'-poster';
+  document.getElementById('modalSub').textContent = (f.mm[0]/10)+' × '+(f.mm[1]/10)+' cm · '+gekozenKeys.length+' gezichtjes · 300 dpi';
+  modal.classList.add('open');
+  rendererPreview();
+}
+
+function closeModal() { modal.classList.remove('open'); }
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+document.querySelectorAll('.optie-btn[data-rand]').forEach(function(b) {
+  b.addEventListener('click', function() {
+    document.querySelectorAll('.optie-btn[data-rand]').forEach(function(x) { x.classList.remove('actief'); });
+    b.classList.add('actief');
+    randStijl = b.dataset.rand;
+    rendererPreview();
+  });
+});
+
+document.getElementById('btnSchud').addEventListener('click', function() {
+  posterVolgorde = shuffle(posterVolgorde);
+  rendererPreview();
+});
+
+/* Bereken raster (cols × rows) voor n gezichtjes met poster-aspect h/w */
+function bestRaster(n, posterW, posterH) {
+  var ratio = posterW / posterH;
+  var bestCols = Math.max(1, Math.round(Math.sqrt(n * ratio)));
+  /* Probeer rond bestCols heen naar beneden voor goed passende rij/kolom */
+  var best = null;
+  for (var dc = -3; dc <= 3; dc++) {
+    var cols = bestCols + dc;
+    if (cols < 1) continue;
+    var rows = Math.ceil(n / cols);
+    if (cols * rows < n) continue;
+    var leeg = cols * rows - n;
+    /* score: hoe vierkanter de cellen, hoe minder leegte */
+    var cellW = posterW / cols;
+    var cellH = posterH / rows;
+    var aspectDiff = Math.abs(cellW - cellH) / Math.max(cellW, cellH);
+    var score = aspectDiff * 2 + (leeg / n);
+    if (!best || score < best.score) best = { cols:cols, rows:rows, score:score, leeg:leeg };
+  }
+  return best;
+}
+
+/* Render preview op canvas met devicePixelRatio-bewuste schaal */
+function rendererPreview() {
+  var f = FORMATEN[huidigFormaat];
+  var posterW_mm = f.mm[0], posterH_mm = f.mm[1];
+  var aspect = posterW_mm / posterH_mm;
+
+  /* Scherm-canvas houdt aspect, max 600px hoogte */
+  var maxH = 560;
+  var scrnH = maxH;
+  var scrnW = Math.round(maxH * aspect);
+  if (scrnW > 540) { scrnW = 540; scrnH = Math.round(540 / aspect); }
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width  = scrnW * dpr;
+  canvas.height = scrnH * dpr;
+  canvas.style.width  = scrnW + 'px';
+  canvas.style.height = scrnH + 'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  drawPoster(ctx, scrnW, scrnH, true /* preview */);
+}
+
+/* Tekent poster op gegeven canvas-context, dimensies in pixels */
+function drawPoster(c, W, H, preview) {
+  /* Achtergrond = paper */
+  c.fillStyle = '#FFFCF5';
+  c.fillRect(0, 0, W, H);
+
+  var faces = posterVolgorde.map(function(fn) {
+    return IMAGES.find(function(im) { return im.filename === fn; });
+  }).filter(Boolean);
+
+  var border = (randStijl === 'border') ? Math.round(Math.min(W,H) * 0.05) : 0;
+  var innerW = W - border*2;
+  var innerH = H - border*2;
+
+  var r = bestRaster(faces.length, innerW, innerH);
+  if (!r) return;
+  var cellW = innerW / r.cols;
+  var cellH = innerH / r.rows;
+
+  /* Teken gezichtjes */
+  var idx = 0;
+  for (var row = 0; row < r.rows && idx < faces.length; row++) {
+    for (var col = 0; col < r.cols && idx < faces.length; col++) {
+      var x = border + col * cellW;
+      var y = border + row * cellH;
+      var face = faces[idx++];
+      drawFace(c, face, x, y, cellW, cellH, preview);
+    }
+  }
+
+  /* Voor preview: contour-randje rond hele poster */
+  if (preview) {
+    c.strokeStyle = '#111';
+    c.lineWidth = 1;
+    c.strokeRect(0.5, 0.5, W-1, H-1);
+  }
+}
+
+/* Tekent een gezichtje, schaal en crop bepaald per cel */
+function drawFace(c, face, x, y, w, h, preview) {
+  var img = imgCache[face.url];
+  if (!img || !img.complete || img.naturalWidth === 0) {
+    /* placeholder: licht grijsblok */
+    c.fillStyle = '#EEE';
+    c.fillRect(x, y, w, h);
+    return;
+  }
+  /* cover-fit: schalen zodat hele cel gevuld is */
+  var iw = img.naturalWidth, ih = img.naturalHeight;
+  var s = Math.max(w / iw, h / ih);
+  var dw = iw * s, dh = ih * s;
+  var dx = x + (w - dw)/2;
+  var dy = y + (h - dh)/2;
+  /* Clip naar cel */
+  c.save();
+  c.beginPath();
+  c.rect(x, y, w, h);
+  c.clip();
+  c.drawImage(img, dx, dy, dw, dh);
+  c.restore();
+}
+
+/* ── IMG CACHE (preload, ook voor hi-res render) ──────────── */
+var imgCache = {};
+function preloadFaces(urls) {
+  return Promise.all(urls.map(function(url) {
+    if (imgCache[url] && imgCache[url].complete) return Promise.resolve();
+    return new Promise(function(resolve) {
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() { resolve(); };
+      img.onerror = function() { resolve(); };
+      img.src = url;
+      imgCache[url] = img;
+    });
+  }));
+}
+
+/* Wanneer modal opent: preload, dan render preview opnieuw */
+var origRender = rendererPreview;
+rendererPreview = function() {
+  origRender();
+  var urls = posterVolgorde.map(function(fn) {
+    var im = IMAGES.find(function(i) { return i.filename === fn; });
+    return im ? im.url : null;
+  }).filter(Boolean);
+  preloadFaces(urls).then(function() { origRender(); });
+};
+
+/* ── DOWNLOAD HI-RES ──────────────────────────────────────── */
+document.getElementById('btnDownload').addEventListener('click', function() {
+  var btn = this;
+  if (!huidigFormaat) return;
+  btn.disabled = true;
+  var origText = btn.textContent;
+  btn.textContent = 'Bezig met renderen…';
+
+  var f = FORMATEN[huidigFormaat];
+  var W = mmToPx(f.mm[0]);
+  var H = mmToPx(f.mm[1]);
+
+  /* Eerst alle gezichtjes preloaden */
+  var urls = posterVolgorde.map(function(fn) {
+    var im = IMAGES.find(function(i) { return i.filename === fn; });
+    return im ? im.url : null;
+  }).filter(Boolean);
+
+  preloadFaces(urls).then(function() {
+    /* Render op offscreen canvas */
+    var off = document.createElement('canvas');
+    off.width  = W;
+    off.height = H;
+    var octx = off.getContext('2d');
+    drawPoster(octx, W, H, false);
+
+    btn.textContent = 'Bestand voorbereiden…';
+    off.toBlob(function(blob) {
+      if (!blob) { alert('Er ging iets mis bij het opslaan.'); btn.disabled = false; btn.textContent = origText; return; }
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'gevoelsatlas-poster-'+f.naam+'.png';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        URL.revokeObjectURL(a.href);
+        if (a.parentNode) a.parentNode.removeChild(a);
+      }, 1500);
+      btn.disabled = false;
+      btn.textContent = origText;
+    }, 'image/png');
+  });
+});
+
+/* ── HAMBURGER ────────────────────────────────────────────── */
+document.getElementById('hamburger').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('navMenu').classList.toggle('open');
+});
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('navMenu');
+  if (menu.classList.contains('open') && !menu.contains(e.target) && e.target.id !== 'hamburger') menu.classList.remove('open');
+});
+
+/* ── INIT ─────────────────────────────────────────────────── */
+renderGrid(); /* eerst leeg/onzichtbaar tot formaat gekozen, maar grid wordt al gevuld */
+</script>
+</body>
+</html>
