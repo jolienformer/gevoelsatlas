@@ -109,19 +109,19 @@ nav { position: sticky; top: 0; z-index: 100; background: var(--ink); padding: 0
 .modal-title { font-family: 'Amatic SC', cursive; font-size: 2.4rem; text-align: center; margin-bottom: 4px; }
 .modal-sub { font-size: 0.78rem; font-weight: 700; color: var(--soft); text-align: center; margin-bottom: 16px; }
 
-.preview-stage { background: var(--bg); border: 2px dashed var(--muted); border-radius: var(--radius); padding: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; min-height: 200px; }
+.preview-stage { background: var(--bg); border: var(--border); border-radius: var(--radius); padding: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; min-height: 200px; box-shadow: 3px 3px 0 var(--ink); }
 .preview-poster { display: block; max-width: 100%; max-height: 60vh; box-shadow: 4px 4px 0 var(--ink); }
 
-.opties { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
-.optie-groep { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; }
-.optie-label { font-size: 0.72rem; font-weight: 800; color: var(--soft); letter-spacing: 0.04em; text-transform: uppercase; margin-right: 4px; }
-.optie-btn { background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; padding: 5px 12px; font-family: 'Nunito',sans-serif; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: all 0.1s; }
-.optie-btn:hover { background: var(--bg); }
+.opties { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 18px; }
+.optie-groep { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.optie-label { font-size: 0.7rem; font-weight: 800; color: var(--soft); letter-spacing: 0.06em; text-transform: uppercase; margin-right: 2px; }
+.optie-btn { background: var(--paper); color: var(--ink); border: var(--border); border-radius: 8px; padding: 7px 16px; font-family: 'Nunito',sans-serif; font-size: 0.78rem; font-weight: 900; cursor: pointer; transition: all 0.12s; box-shadow: 2px 2px 0 var(--ink); letter-spacing: 0.03em; }
+.optie-btn:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
 .optie-btn.actief { background: var(--ink); color: white; }
 
 .modal-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.btn-download { background: var(--ink); color: white; border: var(--border); border-radius: 8px; padding: 10px 22px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 900; cursor: pointer; box-shadow: 3px 3px 0 var(--accent); transition: all 0.12s; letter-spacing: 0.03em; }
-.btn-download:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--accent); background: var(--accent); }
+.btn-download { width: 100%; max-width: 340px; background: var(--ink); color: white; border: var(--border); border-radius: var(--radius); padding: 15px 22px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 900; cursor: pointer; box-shadow: var(--shadow); transition: all 0.12s; letter-spacing: 0.05em; text-transform: uppercase; }
+.btn-download:hover:not(:disabled) { transform: translate(-1px,-2px); box-shadow: 4px 5px 0 var(--ink); background: var(--accent); border-color: var(--accent); }
 .btn-download:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .modal-info { font-size: 0.72rem; font-weight: 600; color: var(--soft); text-align: center; margin-top: 12px; line-height: 1.5; }
