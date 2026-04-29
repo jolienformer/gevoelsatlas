@@ -568,14 +568,44 @@ nav {
 .btn-tertiary:hover { color: var(--ink); }
 .end-terugkom {
   background: var(--yellow); border: var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 14px 18px; text-align: center;
+  border-radius: var(--radius); box-shadow: 2px 2px 0 var(--ink);
+  padding: 10px 16px; text-align: center;
   font-family: 'Amatic SC', cursive;
-  font-size: 1.2rem; font-weight: 700; color: var(--ink);
-  line-height: 1.5;
+  font-size: 1.15rem; font-weight: 700; color: var(--ink);
+  line-height: 1.4;
 }
-.end-terugkom a { color: var(--accent); font-weight: 900; text-decoration: none; }
-.end-terugkom a:hover { text-decoration: underline; }
+.btn-naar-dagboek {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--accent);
+  color: white;
+  border: var(--border);
+  border-radius: var(--radius);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem; font-weight: 900;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  animation: bouncein 0.4s ease;
+}
+.btn-naar-dagboek:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); background: var(--ink); border-color: var(--ink); }
+.btn-naar-dagboek::after { content: ' →'; }
+.btn-naar-dagboek-sub {
+  display: block;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+  color: rgba(255,255,255,0.85); text-transform: none;
+  margin-top: 4px;
+}
+@keyframes bouncein {
+  0%   { transform: scale(0.85); opacity: 0; }
+  60%  { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
 
 /* ── PRINT / PDF ─────────────────────────────────────────────── */
 #print-view { display: none; }
@@ -778,9 +808,12 @@ nav {
       <div class="dagboek-btn-sub">zie hoe je gevoel verandert over tijd</div>
     </button>
     <div id="terugkomMsg" class="end-terugkom" style="display:none;">
-      Fijn. Gevoelens veranderen vaak per dag.<br>Kom morgen terug voor een nieuwe atlas.<br><br>
-      <a href="dagboek.html">Bekijk je dagboek</a>
+      Fijn, opgeslagen. Gevoelens veranderen vaak per dag.<br>Kom morgen terug voor een nieuwe atlas.
     </div>
+    <a href="dagboek.html" id="btnNaarDagboek" class="btn-naar-dagboek" style="display:none;">
+      Bekijk je dagboek
+      <span class="btn-naar-dagboek-sub">zie hoe je gevoel verandert over tijd</span>
+    </a>
     <button class="btn-secondary" id="btnDeel" onclick="deelAlsAfbeelding()">↑ Deel als afbeelding</button>
     <button class="btn-pdf-link" onclick="exportPDF()">Of download als PDF</button>
     <button class="btn-tertiary" onclick="opnieuwBeginnen()">↺ Opnieuw beginnen</button>
@@ -1103,9 +1136,9 @@ function slaOpInDagboek() {
   bestaand.unshift(sessie);
   localStorage.setItem('gevoelsatlas_dagboek', JSON.stringify(bestaand));
 
-  document.getElementById('btnDagboek').innerHTML = '<img src="icons/dagboek_logo.png" alt="" style="height:1.2em;vertical-align:middle;margin-right:6px;"> ✓ Opgeslagen';
-  document.getElementById('btnDagboek').disabled = true;
+  document.getElementById('btnDagboek').style.display = 'none';
   document.getElementById('terugkomMsg').style.display = 'block';
+  document.getElementById('btnNaarDagboek').style.display = 'block';
 }
 
 /* ── OPNIEUW BEGINNEN ───────────────────────────────────────── */
@@ -1118,10 +1151,9 @@ function opnieuwBeginnen() {
   document.getElementById('step-screen').style.display = '';
   document.getElementById('endNote').value = '';
   document.getElementById('endName').value = '';
-  var btnD = document.getElementById('btnDagboek');
-  btnD.innerHTML = '<img src="icons/dagboek_logo.png" alt="" style="height:1.2em;vertical-align:middle;margin-right:6px;"> Bewaar in mijn dagboek<div class="dagboek-btn-sub">zie hoe je gevoel verandert over tijd</div>';
-  btnD.disabled = false;
+  document.getElementById('btnDagboek').style.display = '';
   document.getElementById('terugkomMsg').style.display = 'none';
+  document.getElementById('btnNaarDagboek').style.display = 'none';
   renderProgress();
   renderStep();
   window.scrollTo(0, 0);
