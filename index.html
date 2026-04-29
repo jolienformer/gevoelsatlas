@@ -792,6 +792,10 @@ nav {
 
 <script src="faces-data.js"></script>
 <script>
+/* ── KORTE LABELS voor smalle kaartjes ──────────────────────── */
+const LABEL_KORT = { 'Vanbinnen': 'Binnen', 'School/werk': 'School' };
+function kortLabel(lbl) { return LABEL_KORT[lbl] || lbl; }
+
 /* ── STAPPEN ────────────────────────────────────────────────── */
 const STEPS = [
   { label: 'Nu',          theme: 'Hoe voel jij je?',     question: 'Wat past bij hoe jij je nu voelt?' },
@@ -1071,7 +1075,7 @@ function showEndScreen() {
     if (entry) {
       html += '<div class="chosen-card">';
       html += '<img src="' + entry.img.url + '" alt="' + entry.img.emotion + '">';
-      html += '<div class="chosen-card-lbl">' + s.label + '</div>';
+      html += '<div class="chosen-card-lbl">' + kortLabel(s.label) + '</div>';
       html += '<div class="chosen-card-emotion">' + entry.img.emotion + '</div>';
       if (entry.note) html += '<div class="chosen-card-note">' + entry.note + '</div>';
       html += '</div>';
@@ -1277,7 +1281,7 @@ async function deelAlsAfbeelding() {
       ctx.fillStyle = '#FF5C35';
       ctx.font = 'bold 8px Nunito, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(s.label.toUpperCase(), cx + CARD_W / 2, yCards + CARD_W + 13);
+      ctx.fillText(kortLabel(s.label).toUpperCase(), cx + CARD_W / 2, yCards + CARD_W + 13);
 
       /* gevoelswoord in Amatic SC */
       var emotion = entry.img.emotion || '';
@@ -1366,7 +1370,7 @@ function exportPDF() {
     if (entry) {
       html += '<div class="pv-card">';
       html += '<img src="' + entry.img.url + '" alt="' + entry.img.emotion + '">';
-      html += '<div class="pv-card-lbl">' + s.label + '</div>';
+      html += '<div class="pv-card-lbl">' + kortLabel(s.label) + '</div>';
       html += '<div class="pv-card-emotion">' + entry.img.emotion + '</div>';
       html += '</div>';
     } else {
