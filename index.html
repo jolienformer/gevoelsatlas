@@ -789,7 +789,7 @@ nav {
   </div>
   <div class="cat-strip" id="catStrip"></div>
   <div class="img-grid" id="imgGrid"></div>
-  <button class="meer-btn" id="meerBtn" onclick="loadMoreAlles()">+ Toon nog 60 meer</button>
+  <div id="meerSentinel" aria-hidden="true" style="height:1px"></div>
 </div>
 
 <!-- ── STAP-OVERGANG ────────────────────────────────────────── -->
@@ -1036,14 +1036,24 @@ function renderGrid() {
   });
   document.getElementById('imgGrid').innerHTML = html;
 
-  var meerBtn = document.getElementById('meerBtn');
-  if (isAlles && shuffled.length > allesLimit) {
-    meerBtn.textContent = '+ Toon nog 60 meer';
-    meerBtn.style.display = '';
-  } else {
-    meerBtn.style.display = 'none';
-  }
+  var sentinel = document.getElementById('meerSentinel');
+  sentinel.style.display = (isAlles && shuffled.length > allesLimit) ? '' : 'none';
 }
+
+/* Oneindig bladeren: laad automatisch meer wanneer de sentinel in beeld komt. */
+(function() {
+  if (!('IntersectionObserver' in window)) return;
+  var sentinel = document.getElementById('meerSentinel');
+  if (!sentinel) return;
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting && sentinel.style.display !== 'none') {
+        loadMoreAlles();
+      }
+    });
+  }, { rootMargin: '600px 0px' });
+  io.observe(sentinel);
+})();
 
 function shuffleGrid() {
   allesLimit = PAGE_ALLES;
@@ -1054,7 +1064,6 @@ function shuffleGrid() {
 function loadMoreAlles() {
   allesLimit += PAGE_MORE;
   renderGrid();
-  window.scrollTo({ top: document.getElementById('meerBtn').offsetTop - 40, behavior: 'smooth' });
 }
 
 /* ── KLIK OP GEZICHTJE ──────────────────────────────────────── */
