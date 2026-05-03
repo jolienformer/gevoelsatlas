@@ -136,16 +136,25 @@ nav {
 .btn-splash-verken {
   display: inline-block;
   font-size: 0.78rem; font-weight: 800;
-  color: var(--soft); text-decoration: none;
+  color: var(--ink); text-decoration: none;
   letter-spacing: 0.02em;
-  transition: color 0.12s;
+  background: var(--bg);
+  border: 2.5px solid var(--ink);
+  border-radius: 8px;
+  padding: 8px 14px;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform .12s, box-shadow .12s, background .12s;
 }
-.btn-splash-verken:hover { color: var(--ink); }
+.btn-splash-verken:hover {
+  background: var(--yellow);
+  transform: translate(-1px,-1px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
 .splash-links {
   display: flex; align-items: center; justify-content: center;
   gap: 10px; flex-wrap: wrap;
+  margin-top: 4px;
 }
-.splash-sep { color: var(--soft); font-weight: 800; opacity: .5; }
 
 /* Progress strip */
 .progress-strip {
@@ -780,7 +789,6 @@ nav {
     <button class="btn-splash-start" onclick="startAtlas()">Start de atlas</button>
     <div class="splash-links">
       <a href="verken.html" class="btn-splash-verken">Verken alle gevoelens</a>
-      <span class="splash-sep">·</span>
       <a href="dagboek.html" class="btn-splash-verken">Open je dagboek</a>
     </div>
   </div>
