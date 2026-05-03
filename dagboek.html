@@ -1243,8 +1243,18 @@ function berekenFaces(sessies) {
   return faces.map(function(f) {
     var bestUrl = Object.keys(f.urls).sort(function(a,b){ return f.urls[b]-f.urls[a]; })[0];
     var t = maxC === minC ? 0.5 : (f.count - minC) / (maxC - minC);
-    var fn = bestUrl ? bestUrl.split('/').pop() : null;
-    return { emotion: f.emotion, url: bestUrl, count: f.count, size: Math.round(38 + t * 30), valence: getValence(f.emotion, fn) };
+    // Valentie: gewogen gemiddelde over ALLE gebruikte afbeeldingen voor dit woord
+    var totaalScore = 0, totaalGewicht = 0;
+    Object.keys(f.urls).forEach(function(url) {
+      var fn = url ? url.split('/').pop() : null;
+      var v  = getValence(f.emotion, fn);
+      var sc = v === 'positief' ? 1 : v === 'negatief' ? -1 : 0;
+      totaalScore   += sc * f.urls[url];
+      totaalGewicht += f.urls[url];
+    });
+    var gem = totaalGewicht ? totaalScore / totaalGewicht : 0;
+    var valence = gem > 0.34 ? 'positief' : gem < -0.34 ? 'negatief' : 'neutraal';
+    return { emotion: f.emotion, url: bestUrl, count: f.count, size: Math.round(38 + t * 30), valence: valence };
   });
 }
 
