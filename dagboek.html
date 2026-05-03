@@ -1582,7 +1582,7 @@ function flushPendingFb() {
 
 function exporteerDagboek() {
   var sessies = laadSessies();
-  if (!sessies.length) { toonImportFb('err', 'Je dagboek is nog leeg — niets om te downloaden.'); return; }
+  if (!sessies.length) { toonImportFb('err', 'Je dagboek is nog leeg. Er is niets om te downloaden.'); return; }
   var payload = {
     type: 'gevoelsatlas-dagboek',
     version: 1,
@@ -1599,9 +1599,9 @@ function exporteerDagboek() {
                  (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
   var file = new File([json], filename, { type: 'application/json' });
   if (isMobiel && navigator.canShare && navigator.canShare({ files: [file] })) {
-    navigator.share({ files: [file], title: 'Mijn GevoelsAtlas dagboek — back-up' })
+    navigator.share({ files: [file], title: 'Mijn GevoelsAtlas dagboek back-up' })
       .then(function() { toonImportFb('ok', '✓ Kies "Bewaar in Bestanden" om het op te slaan.'); })
-      .catch(function(e) { if (e.name !== 'AbortError') toonImportFb('err', 'Delen mislukt — probeer het opnieuw.'); });
+      .catch(function(e) { if (e.name !== 'AbortError') toonImportFb('err', 'Delen mislukt. Probeer het opnieuw.'); });
     return;
   }
   /* Desktop: directe download */
@@ -1613,7 +1613,7 @@ function exporteerDagboek() {
   a.click();
   document.body.removeChild(a);
   setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
-  toonImportFb('ok', '✓ Bestand opgeslagen — bewaar het op een veilige plek.');
+  toonImportFb('ok', '✓ Bestand opgeslagen. Bewaar het op een veilige plek.');
 }
 
 function printDagboek() {
@@ -1925,7 +1925,7 @@ function bouwBackupSectie() {
   var dlBtn = document.createElement('button');
   dlBtn.className = 'btn-backup-klein';
   dlBtn.textContent = '↓ Back-up bewaren';
-  dlBtn.title = 'Sla een back-up op als bestand — handig om het dagboek later terug te zetten op dit of een ander apparaat';
+  dlBtn.title = 'Sla een back-up op als bestand. Handig om het dagboek later terug te zetten op dit of een ander apparaat.';
   dlBtn.addEventListener('click', exporteerDagboek);
   sub.appendChild(dlBtn);
 
@@ -1937,7 +1937,7 @@ function bouwBackupSectie() {
   var imBtn = document.createElement('button');
   imBtn.className = 'btn-backup-klein';
   imBtn.textContent = '↑ Back-up terugzetten';
-  imBtn.title = 'Laad een eerder opgeslagen back-up — sessies worden samengevoegd';
+  imBtn.title = 'Laad een eerder opgeslagen back-up. Sessies worden samengevoegd.';
   imBtn.addEventListener('click', function() { document.getElementById('importInput').click(); });
   sub.appendChild(imBtn);
 

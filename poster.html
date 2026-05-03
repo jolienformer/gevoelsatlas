@@ -156,7 +156,7 @@ footer a { color: var(--yellow); text-decoration: none; }
 <div class="page-header">
   <div class="page-tag">Eigen poster</div>
   <h1 class="page-title">Maak je <em>poster</em></h1>
-  <p class="page-intro">Kies een formaat, kies je gezichtjes en download je eigen poster — een wolk van gevoelens die helemaal van jou is.</p>
+  <p class="page-intro">Kies een formaat, kies je gezichtjes en download je eigen poster: een wolk van gevoelens die helemaal van jou is.</p>
 </div>
 
 <!-- STAP 1: FORMAAT -->
@@ -359,7 +359,7 @@ function toggleKeuze(face) {
   } else {
     var max = maxVoorFormaat(huidigFormaat);
     if (gekozenKeys.length >= max) {
-      flashStatus('Poster vol — kies een groter formaat voor meer gezichtjes');
+      flashStatus('Poster vol. Kies een groter formaat voor meer gezichtjes.');
       return;
     }
     gekozenKeys.push(face.filename);
