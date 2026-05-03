@@ -1230,10 +1230,10 @@ function berekenFaces(sessies) {
     if (!isSelected(sessie.datum)) return;
     sessie.stappen.forEach(function(s) {
       if (activeTab !== 'Alles' && s.label !== activeTab) return;
-      var em = s.emotion ? s.emotion.toLowerCase().trim() : 'onbekend';
-      if (!counts[em]) counts[em] = { emotion: em, count: 0, urls: {} };
-      counts[em].count++;
-      counts[em].urls[s.url] = (counts[em].urls[s.url] || 0) + 1;
+      var url = s.url || '';
+      var em  = s.emotion ? s.emotion.toLowerCase().trim() : 'onbekend';
+      if (!counts[url]) counts[url] = { emotion: em, url: url, count: 0 };
+      counts[url].count++;
     });
   });
   var faces = Object.values(counts).sort(function(a,b){ return b.count - a.count; }).slice(0, 36);
@@ -1241,20 +1241,10 @@ function berekenFaces(sessies) {
   var minC = faces[faces.length-1].count;
   var maxC = faces[0].count;
   return faces.map(function(f) {
-    var bestUrl = Object.keys(f.urls).sort(function(a,b){ return f.urls[b]-f.urls[a]; })[0];
-    var t = maxC === minC ? 0.5 : (f.count - minC) / (maxC - minC);
-    // Valentie: gewogen gemiddelde over ALLE gebruikte afbeeldingen voor dit woord
-    var totaalScore = 0, totaalGewicht = 0;
-    Object.keys(f.urls).forEach(function(url) {
-      var fn = url ? url.split('/').pop() : null;
-      var v  = getValence(f.emotion, fn);
-      var sc = v === 'positief' ? 1 : v === 'negatief' ? -1 : 0;
-      totaalScore   += sc * f.urls[url];
-      totaalGewicht += f.urls[url];
-    });
-    var gem = totaalGewicht ? totaalScore / totaalGewicht : 0;
-    var valence = gem > 0.34 ? 'positief' : gem < -0.34 ? 'negatief' : 'neutraal';
-    return { emotion: f.emotion, url: bestUrl, count: f.count, size: Math.round(38 + t * 30), valence: valence };
+    var fn      = f.url ? f.url.split('/').pop() : null;
+    var valence = getValence(f.emotion, fn);
+    var t       = maxC === minC ? 0.5 : (f.count - minC) / (maxC - minC);
+    return { emotion: f.emotion, url: f.url, count: f.count, size: Math.round(38 + t * 30), valence: valence };
   });
 }
 
