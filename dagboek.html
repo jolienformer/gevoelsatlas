@@ -371,6 +371,24 @@ footer a { color: var(--yellow); text-decoration: none; }
   color: var(--soft); text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+.db-lightbox-acties {
+  display: flex; gap: 8px; justify-content: center; margin-top: 16px;
+}
+.db-lightbox-fav-btn, .db-lightbox-deel-btn {
+  background: var(--paper); border: var(--border); border-radius: var(--radius);
+  box-shadow: 2px 2px 0 var(--ink); padding: 7px 16px;
+  font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 800;
+  cursor: pointer; transition: all 0.12s; color: var(--ink);
+}
+.db-lightbox-fav-btn:hover, .db-lightbox-deel-btn:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.db-lightbox-fav-btn.actief { background: var(--accent); color: white; border-color: var(--accent); }
+.db-lightbox-deel-btn { background: var(--ink); color: white; }
+.btn-deel-sessie {
+  background: none; border: 2px solid var(--muted); border-radius: var(--radius);
+  padding: 6px 14px; font-family: 'Nunito', sans-serif; font-size: 0.72rem;
+  font-weight: 800; color: var(--soft); cursor: pointer; transition: all 0.12s;
+}
+.btn-deel-sessie:hover { border-color: var(--ink); color: var(--ink); }
 
 @media (min-width: 900px) {
   .page-header, .privacy-notice, .leeg,
@@ -500,6 +518,10 @@ footer a { color: var(--yellow); text-decoration: none; }
     <img class="db-lightbox-img" id="dbLightboxImg" src="" alt="">
     <div class="db-lightbox-name" id="dbLightboxName"></div>
     <div class="db-lightbox-count" id="dbLightboxCount"></div>
+    <div class="db-lightbox-acties">
+      <button class="db-lightbox-fav-btn" id="dbLightboxFav" aria-label="Bewaar">♡ Bewaar</button>
+      <button class="db-lightbox-deel-btn" id="dbLightboxDeel">Deel</button>
+    </div>
   </div>
 </div>
 
@@ -1552,9 +1574,18 @@ function buildTijdlijn(sessies) {
       var s = laadSessies(); s.splice(idx,1); slaOpSessies(s); render();
     });
 
+    var deelBtn = document.createElement('button');
+    deelBtn.className = 'btn-deel-sessie';
+    deelBtn.textContent = '↑ Deel sessie';
+    deelBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      deelSessieCanvas(sessie, deelBtn);
+    });
+
     body.innerHTML = '<div class="sessie-body-datum">' + formatDatum(sessie.datum) + (sessie.naam ? ' · ' + sessie.naam : '') + '</div>' + grid + aantekeningenHtml + notitie;
     var acties = document.createElement('div');
     acties.className = 'sessie-acties';
+    acties.appendChild(deelBtn);
     acties.appendChild(verwijderBtn);
     body.appendChild(acties);
 
@@ -2025,16 +2056,69 @@ function render() {
 }
 
 /* ── DAGBOEK LIGHTBOX ───────────────────────────────────────── */
+var dbLightboxFace = null;
+var dbFavorieten = new Set(JSON.parse(localStorage.getItem('gevoelsatlas_favorieten') || '[]'));
+
+function slaDbFavOnp() {
+  localStorage.setItem('gevoelsatlas_favorieten', JSON.stringify(Array.from(dbFavorieten)));
+}
+
+function updateDbLightboxFav() {
+  var btn = document.getElementById('dbLightboxFav');
+  var fn  = dbLightboxFace && dbLightboxFace.url ? dbLightboxFace.url.split('/').pop() : null;
+  var isFav = fn && dbFavorieten.has(fn);
+  btn.textContent = isFav ? '♥ Bewaard' : '♡ Bewaar';
+  btn.classList.toggle('actief', isFav);
+  btn.setAttribute('aria-label', isFav ? 'Verwijder uit bewaard' : 'Bewaar');
+}
+
 function openDbLightbox(f) {
+  dbLightboxFace = f;
   document.getElementById('dbLightboxImg').src = f.url;
   document.getElementById('dbLightboxImg').alt = f.emotion;
   document.getElementById('dbLightboxName').textContent = f.emotion;
   document.getElementById('dbLightboxCount').textContent = f.count > 1 ? f.count + '× gekozen' : '1× gekozen';
+  updateDbLightboxFav();
   document.getElementById('dbLightbox').classList.add('open');
 }
 function closeDbLightbox() {
   document.getElementById('dbLightbox').classList.remove('open');
+  dbLightboxFace = null;
 }
+
+document.getElementById('dbLightboxFav').addEventListener('click', function() {
+  if (!dbLightboxFace) return;
+  var fn = dbLightboxFace.url.split('/').pop();
+  if (dbFavorieten.has(fn)) { dbFavorieten.delete(fn); } else { dbFavorieten.add(fn); }
+  slaDbFavOnp();
+  updateDbLightboxFav();
+});
+
+document.getElementById('dbLightboxDeel').addEventListener('click', function() {
+  if (!dbLightboxFace) return;
+  var btn = this;
+  btn.textContent = '…'; btn.disabled = true;
+  fetch(dbLightboxFace.url)
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var tekst = 'Ik voel mij... ' + dbLightboxFace.emotion + ' · via gevoelsatlas.nl';
+      var file  = new File([blob], dbLightboxFace.emotion + '.jpg', { type: blob.type || 'image/jpeg' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], text: tekst });
+      } else if (navigator.share) {
+        return navigator.share({ text: tekst, url: dbLightboxFace.url });
+      } else {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = dbLightboxFace.emotion + '.jpg';
+        a.click();
+        setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+      }
+    })
+    .catch(function() { window.open(dbLightboxFace.url, '_blank'); })
+    .finally(function() { btn.textContent = 'Deel'; btn.disabled = false; });
+});
+
 document.getElementById('dbLightboxClose').addEventListener('click', closeDbLightbox);
 document.getElementById('dbLightbox').addEventListener('click', function(e) {
   if (e.target === this) closeDbLightbox();
@@ -2042,6 +2126,138 @@ document.getElementById('dbLightbox').addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeDbLightbox();
 });
+
+/* ── SESSIE DELEN ALS AFBEELDING ────────────────────────────── */
+var LABEL_KORT_DB = { 'Vanbinnen': 'Binnen', 'School/werk': 'School' };
+function kortLabelDb(lbl) { return LABEL_KORT_DB[lbl] || lbl; }
+
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+function neoCard(ctx, x, y, w, h, r, fill) {
+  ctx.fillStyle = '#111'; rrect(ctx,x+3,y+3,w,h,r); ctx.fill();
+  ctx.fillStyle = fill||'#fff'; rrect(ctx,x,y,w,h,r); ctx.fill();
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2.5; ctx.stroke();
+}
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  var words = text.split(' '), line = '';
+  for (var i = 0; i < words.length; i++) {
+    var test = line + words[i] + ' ';
+    if (ctx.measureText(test).width > maxWidth && i > 0) {
+      ctx.fillText(line.trim(), x, y); line = words[i] + ' '; y += lineHeight;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, y);
+}
+
+async function deelSessieCanvas(sessie, btn) {
+  btn.disabled = true; btn.textContent = '…';
+  await document.fonts.ready;
+
+  var stappen = sessie.stappen || [];
+  var n = Math.min(stappen.length, 5);
+  var W = 630, PAD = 28, CARD_W = 104, CARD_H = 148, GAP = 10, DPR = 2;
+  var gridX = (W - (n * CARD_W + (n-1) * GAP)) / 2;
+  var d = new Date(sessie.datum).toLocaleDateString('nl-NL', {day:'2-digit', month:'long', year:'numeric'});
+
+  var yTitle = 60, ySub = 82, yNaam = sessie.naam ? 104 : ySub;
+  var ySep   = (sessie.naam ? yNaam + 18 : ySub + 14);
+  var yCards = ySep + 16, yPost = yCards + CARD_H + 20;
+  var note = sessie.notitie || '';
+  var noteLines = note ? Math.ceil(note.length / 58) + 1 : 0;
+  var noteBoxH  = note ? 26 + noteLines * 20 + 14 : 0;
+  var H = yPost + (note ? noteBoxH + 14 : 0) + 40;
+
+  var canvas = document.createElement('canvas');
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  var ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  ctx.fillStyle = '#F7F5EE'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2.5;
+  rrect(ctx, 2, 2, W-4, H-4, 12); ctx.stroke();
+
+  ctx.font = 'bold 54px "Amatic SC", cursive';
+  ctx.textAlign = 'left';
+  var tw1 = ctx.measureText('Gevoels').width;
+  var tx  = W/2 - (tw1 + ctx.measureText('Atlas').width)/2;
+  ctx.fillStyle = '#111'; ctx.fillText('Gevoels', tx, yTitle);
+  ctx.fillStyle = '#FF5C35'; ctx.fillText('Atlas', tx+tw1, yTitle);
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#888'; ctx.font = '14px Nunito, sans-serif';
+  ctx.fillText('een terugblik · ' + d, W/2, ySub);
+
+  if (sessie.naam) {
+    ctx.fillStyle = '#111'; ctx.font = 'bold 17px Nunito, sans-serif';
+    ctx.fillText(sessie.naam, W/2, yNaam);
+  }
+
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PAD, ySep); ctx.lineTo(W-PAD, ySep); ctx.stroke();
+
+  var images = await Promise.all(stappen.slice(0,n).map(function(s) {
+    return new Promise(function(resolve) {
+      if (!s.url) { resolve(null); return; }
+      var img = new Image(); img.crossOrigin = 'anonymous';
+      img.onload = function() { resolve(img); };
+      img.onerror = function() { resolve(null); };
+      img.src = s.url;
+    });
+  }));
+
+  stappen.slice(0,n).forEach(function(s, i) {
+    var cx = gridX + i * (CARD_W + GAP);
+    neoCard(ctx, cx, yCards, CARD_W, CARD_H, 10, '#FFFCF5');
+    if (images[i]) {
+      ctx.save(); rrect(ctx, cx, yCards, CARD_W, CARD_H, 10); ctx.clip();
+      ctx.drawImage(images[i], cx, yCards, CARD_W, CARD_W); ctx.restore();
+      ctx.fillStyle = '#111'; ctx.fillRect(cx, yCards+CARD_W, CARD_W, 2);
+      ctx.fillStyle = '#FF5C35'; ctx.font = 'bold 8px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(kortLabelDb(s.label||'').toUpperCase(), cx+CARD_W/2, yCards+CARD_W+13);
+      var em = s.emotion || '';
+      ctx.fillStyle = '#111'; ctx.font = 'bold 17px "Amatic SC", cursive';
+      while (ctx.measureText(em).width > CARD_W-10 && em.length > 3) em = em.slice(0,-2)+'…';
+      ctx.fillText(em, cx+CARD_W/2, yCards+CARD_W+30);
+    }
+  });
+
+  if (note) {
+    var nx = PAD, ny = yPost, nw = W - PAD*2;
+    neoCard(ctx, nx, ny, nw, noteBoxH, 10, '#FFD93D');
+    ctx.fillStyle = '#555'; ctx.font = 'bold 10px Nunito, sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText('AANTEKENING', nx+12, ny+15);
+    ctx.fillStyle = '#111'; ctx.font = '14px Nunito, sans-serif';
+    wrapText(ctx, note, nx+12, ny+32, nw-24, 20);
+  }
+
+  ctx.fillStyle = '#aaa'; ctx.font = '12px Nunito, sans-serif';
+  ctx.textAlign = 'center'; ctx.fillText('gevoelsatlas.nl', W/2, H-12);
+
+  canvas.toBlob(async function(blob) {
+    var filename = 'gevoelsatlas-' + (sessie.datum||'').slice(0,10) + '.png';
+    if (navigator.share && navigator.canShare) {
+      var file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'Mijn GevoelsAtlas', text: sessie.naam ? sessie.naam + '\'s GevoelsAtlas' : 'Mijn GevoelsAtlas' });
+          btn.textContent = '✓ Gedeeld'; return;
+        } catch(e) { if (e.name === 'AbortError') { btn.textContent = '↑ Deel sessie'; btn.disabled = false; return; } }
+      }
+    }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+    btn.textContent = '✓ Opgeslagen';
+    setTimeout(function() { btn.textContent = '↑ Deel sessie'; }, 2000);
+  });
+  btn.textContent = '↑ Deel sessie'; btn.disabled = false;
+}
 
 document.getElementById('importInput').addEventListener('change', function(e) {
   var file = e.target.files && e.target.files[0];
