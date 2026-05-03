@@ -381,10 +381,10 @@ footer a { color: var(--yellow); text-decoration: none; }
 
 /* ── VALENTIE-KALENDER ───────────────────────────────────────── */
 .kal-sectie {
-  max-width: 680px; margin: 0 auto 36px; padding: 0 24px; width: 100%;
+  max-width: 680px; margin: 0 auto 32px; padding: 0 24px; width: 100%;
 }
 .kal-kop {
-  display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px;
+  display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px;
 }
 .kal-titel {
   font-family: 'Amatic SC', cursive; font-size: 1.9rem; font-weight: 700;
@@ -393,58 +393,56 @@ footer a { color: var(--yellow); text-decoration: none; }
   font-size: 0.68rem; font-weight: 700; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.07em;
 }
-.kal-maanden { display: flex; flex-direction: column; gap: 20px; }
+/* Twee kolommen naast elkaar */
+.kal-maanden {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
 .kal-maand-naam {
-  font-size: 0.78rem; font-weight: 800; color: var(--soft);
+  font-size: 0.65rem; font-weight: 800; color: var(--soft);
   text-transform: uppercase; letter-spacing: 0.06em;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 .kal-grid {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
 }
 .kal-header {
-  text-align: center; font-size: 0.6rem; font-weight: 800;
-  color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
-  padding-bottom: 4px;
+  text-align: center; font-size: 0.48rem; font-weight: 800;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;
+  padding-bottom: 3px;
 }
 .kal-cel {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  position: relative; border-radius: 6px;
+  position: relative;
 }
 .kal-cel.leeg-cel { pointer-events: none; }
 .kal-cel.heeft-sessie { cursor: pointer; }
 .kal-cel.heeft-sessie:hover .kal-dot { transform: scale(1.15); }
+/* Dot — zelfde stijl als bubble-img in de wolk */
 .kal-dot {
-  width: 70%; height: 70%; border-radius: 50%;
-  border: 2px solid rgba(0,0,0,0.18);
+  width: 78%; height: 78%; border-radius: 50%;
+  border: 2px solid var(--ink);
   transition: transform 0.12s;
-  display: flex; align-items: center; justify-content: center;
 }
-.kal-dag-nr {
-  font-size: 0.52rem; font-weight: 800;
-  color: rgba(0,0,0,0.45); line-height: 1;
+.kal-dot.glow-pos {
+  box-shadow: 0 0 5px 2px rgba(40,180,60,0.65), 0 0 12px 4px rgba(40,180,60,0.3);
 }
-.kal-vandaag .kal-dot {
-  border-color: var(--ink) !important; border-width: 2.5px;
+.kal-dot.glow-neg {
+  box-shadow: 0 0 5px 2px rgba(210,40,40,0.65), 0 0 12px 4px rgba(210,40,40,0.3);
 }
+.kal-dot.glow-neu {
+  box-shadow: 0 0 5px 2px rgba(195,155,0,0.65), 0 0 12px 4px rgba(195,155,0,0.3);
+}
+.kal-vandaag .kal-dot { border-width: 2.5px; }
 .kal-leeg-dot {
-  width: 22%; height: 22%; border-radius: 50%;
-  background: var(--muted); opacity: 0.25;
+  width: 20%; height: 20%; border-radius: 50%;
+  background: var(--muted); opacity: 0.2;
 }
-/* Legenda */
+/* Legenda — zelfde als wolk-legenda */
 .kal-legenda {
-  display: flex; gap: 10px; align-items: center;
-  margin-top: 14px; flex-wrap: wrap;
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px;
 }
-.kal-leg-item { display: flex; align-items: center; gap: 5px; }
-.kal-leg-dot {
-  width: 12px; height: 12px; border-radius: 50%;
-  border: 2px solid rgba(0,0,0,.2);
-}
-.kal-leg-dot.neg  { background: #dc3232; }
-.kal-leg-dot.mix  { background: #FFD93D; }
-.kal-leg-dot.pos  { background: #27ae60; }
-.kal-leg-label { font-size: 0.68rem; font-weight: 700; color: var(--soft); }
 /* Tooltip */
 .kal-tooltip {
   position: fixed; z-index: 500;
@@ -457,9 +455,8 @@ footer a { color: var(--yellow); text-decoration: none; }
   line-height: 1.5;
 }
 .kal-tooltip.zichtbaar { opacity: 1; }
-@media (max-width: 480px) {
-  .kal-grid { gap: 2px; }
-  .kal-dot { border-width: 1.5px; }
+@media (max-width: 320px) {
+  .kal-maanden { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -1728,7 +1725,7 @@ function buildKalender(sessies) {
   var kop = document.createElement('div');
   kop.className = 'kal-kop';
   kop.innerHTML =
-    '<div class="kal-titel">Valentie in de tijd</div>' +
+    '<div class="kal-titel">Jouw verloop</div>' +
     '<div class="kal-uitleg">' + Object.keys(dagData).length + ' dagen</div>';
   sectie.appendChild(kop);
 
@@ -1779,13 +1776,9 @@ function buildKalender(sessies) {
       if (data) {
         cel.classList.add('heeft-sessie');
         var dot = document.createElement('div');
-        dot.className = 'kal-dot';
+        var glowKlasse = data.gemiddelde >= 0.34 ? 'glow-pos' : data.gemiddelde <= -0.34 ? 'glow-neg' : 'glow-neu';
+        dot.className = 'kal-dot ' + glowKlasse;
         dot.style.background = scoreNaarKleur(data.gemiddelde);
-
-        var nr = document.createElement('div');
-        nr.className = 'kal-dag-nr';
-        nr.textContent = dag;
-        dot.appendChild(nr);
         cel.appendChild(dot);
 
         // Tooltip
@@ -1827,13 +1820,13 @@ function buildKalender(sessies) {
 
   sectie.appendChild(maandenWrap);
 
-  // Legenda
+  // Legenda — zelfde opmaak als wolk-legenda
   var leg = document.createElement('div');
   leg.className = 'kal-legenda';
   leg.innerHTML =
-    '<div class="kal-leg-item"><div class="kal-leg-dot neg"></div><span class="kal-leg-label">Negatief</span></div>' +
-    '<div class="kal-leg-item"><div class="kal-leg-dot mix"></div><span class="kal-leg-label">Gemengd</span></div>' +
-    '<div class="kal-leg-item"><div class="kal-leg-dot pos"></div><span class="kal-leg-label">Positief</span></div>';
+    '<div class="legenda-item"><div class="legenda-dot pos"></div> positief gevoel</div>' +
+    '<div class="legenda-item"><div class="legenda-dot neg"></div> negatief gevoel</div>' +
+    '<div class="legenda-item"><div class="legenda-dot neu"></div> gemengd</div>';
   sectie.appendChild(leg);
 
   return sectie;
