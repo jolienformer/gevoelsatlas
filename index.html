@@ -915,7 +915,7 @@ function renderProgress() {
   STEPS.forEach(function(s, i) {
     var cls = i < currentStep ? 'done' : (i === currentStep ? 'active' : '');
     if (i < currentStep) {
-      html += '<button class="prog-dot ' + cls + '" onclick="goToStep(' + i + ')" title="Terug naar: ' + s.label + '"></button>';
+      html += '<button class="prog-dot ' + cls + '" onclick="goToStep(' + i + ')" title="Terug naar: ' + s.label + '" aria-label="Terug naar: ' + s.label + '"></button>';
     } else {
       html += '<div class="prog-dot ' + cls + '" title="' + s.label + '"></div>';
     }

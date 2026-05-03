@@ -571,7 +571,7 @@ footer a { color: var(--yellow); text-decoration: none; }
 
 <div class="lightbox" id="lightbox">
   <div class="lightbox-card" id="lightboxCard">
-    <button class="lightbox-close" id="lightboxClose">×</button>
+    <button class="lightbox-close" id="lightboxClose" aria-label="Sluiten">×</button>
     <div class="lightbox-speech" id="lightboxSpeech"></div>
     <img class="lightbox-img" id="lightboxImg" src="" alt="">
     <div class="lightbox-name" id="lightboxName"></div>
@@ -612,10 +612,10 @@ function saveFavorieten() {
 function toggleFavoriet(filename, btn) {
   if (favorieten.has(filename)) {
     favorieten.delete(filename);
-    if (btn) { btn.textContent = '♡'; btn.classList.remove('actief'); btn.title = 'Bewaar'; }
+    if (btn) { btn.textContent = '♡'; btn.classList.remove('actief'); btn.title = 'Bewaar'; btn.setAttribute('aria-label', 'Bewaar'); }
   } else {
     favorieten.add(filename);
-    if (btn) { btn.textContent = '♥'; btn.classList.add('actief'); btn.title = 'Verwijder uit bewaard'; }
+    if (btn) { btn.textContent = '♥'; btn.classList.add('actief'); btn.title = 'Verwijder uit bewaard'; btn.setAttribute('aria-label', 'Verwijder uit bewaard'); }
   }
   saveFavorieten();
   updateBewaardToggle();
@@ -713,6 +713,7 @@ function renderGrid() {
     favBtn.className = 'fav-btn' + (favorieten.has(face.filename) ? ' actief' : '');
     favBtn.textContent = favorieten.has(face.filename) ? '♥' : '♡';
     favBtn.title = favorieten.has(face.filename) ? 'Verwijder uit bewaard' : 'Bewaar';
+    favBtn.setAttribute('aria-label', favorieten.has(face.filename) ? 'Verwijder uit bewaard' : 'Bewaar');
     favBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       toggleFavoriet(face.filename, favBtn);
