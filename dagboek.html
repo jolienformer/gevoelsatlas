@@ -376,7 +376,90 @@ footer a { color: var(--yellow); text-decoration: none; }
 }
 @media (min-width: 1200px) {
   .page-header, .privacy-notice, .leeg,
-  .selectie-sectie, .wolk-sectie, .tijdlijn-sectie, .backup-sectie { max-width: 1100px; }
+  .selectie-sectie, .wolk-sectie, .tijdlijn-sectie, .backup-sectie, .kal-sectie { max-width: 1100px; }
+}
+
+/* ── VALENTIE-KALENDER ───────────────────────────────────────── */
+.kal-sectie {
+  max-width: 680px; margin: 0 auto 36px; padding: 0 24px; width: 100%;
+}
+.kal-kop {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px;
+}
+.kal-titel {
+  font-family: 'Amatic SC', cursive; font-size: 1.9rem; font-weight: 700;
+}
+.kal-uitleg {
+  font-size: 0.68rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.kal-maanden { display: flex; flex-direction: column; gap: 20px; }
+.kal-maand-naam {
+  font-size: 0.78rem; font-weight: 800; color: var(--soft);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.kal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+}
+.kal-header {
+  text-align: center; font-size: 0.6rem; font-weight: 800;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+  padding-bottom: 4px;
+}
+.kal-cel {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  position: relative; border-radius: 6px;
+}
+.kal-cel.leeg-cel { pointer-events: none; }
+.kal-cel.heeft-sessie { cursor: pointer; }
+.kal-cel.heeft-sessie:hover .kal-dot { transform: scale(1.15); }
+.kal-dot {
+  width: 70%; height: 70%; border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.18);
+  transition: transform 0.12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.kal-dag-nr {
+  font-size: 0.52rem; font-weight: 800;
+  color: rgba(0,0,0,0.45); line-height: 1;
+}
+.kal-vandaag .kal-dot {
+  border-color: var(--ink) !important; border-width: 2.5px;
+}
+.kal-leeg-dot {
+  width: 22%; height: 22%; border-radius: 50%;
+  background: var(--muted); opacity: 0.25;
+}
+/* Legenda */
+.kal-legenda {
+  display: flex; gap: 10px; align-items: center;
+  margin-top: 14px; flex-wrap: wrap;
+}
+.kal-leg-item { display: flex; align-items: center; gap: 5px; }
+.kal-leg-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.2);
+}
+.kal-leg-dot.neg  { background: #dc3232; }
+.kal-leg-dot.mix  { background: #FFD93D; }
+.kal-leg-dot.pos  { background: #27ae60; }
+.kal-leg-label { font-size: 0.68rem; font-weight: 700; color: var(--soft); }
+/* Tooltip */
+.kal-tooltip {
+  position: fixed; z-index: 500;
+  background: var(--ink); color: #fff;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 6px 10px; border-radius: 6px;
+  pointer-events: none; white-space: nowrap;
+  transform: translate(-50%, -110%);
+  opacity: 0; transition: opacity .15s;
+  line-height: 1.5;
+}
+.kal-tooltip.zichtbaar { opacity: 1; }
+@media (max-width: 480px) {
+  .kal-grid { gap: 2px; }
+  .kal-dot { border-width: 1.5px; }
 }
 </style>
 </head>
@@ -1394,6 +1477,7 @@ function buildTijdlijn(sessies) {
     var sel = isSelected(sessie.datum);
     var kaart = document.createElement('div');
     kaart.className = 'sessie-kaart' + (!sel ? ' gedempt' : '');
+    kaart.dataset.datum = sessie.datum ? sessie.datum.slice(0, 10) : '';
 
     var header = document.createElement('div');
     header.className = 'sessie-header';
@@ -1572,6 +1656,211 @@ function importeerDagboek(file) {
   reader.readAsText(file);
 }
 
+/* ── VALENTIE-KALENDER ───────────────────────────────────────── */
+function valentieScore(sessie) {
+  // Gemiddelde valentie van alle stappen: positief=+1, neutraal=0, negatief=-1
+  if (!sessie.stappen || !sessie.stappen.length) return 0;
+  var som = 0;
+  sessie.stappen.forEach(function(s) {
+    var fn = s.url ? s.url.split('/').pop() : null;
+    var v  = getValence(s.emotion, fn);
+    som   += (v === 'positief' ? 1 : v === 'negatief' ? -1 : 0);
+  });
+  return som / sessie.stappen.length;
+}
+
+function scoreNaarKleur(score) {
+  // score: -1 (rood) → 0 (geel) → +1 (groen)
+  var r, g, b;
+  if (score <= 0) {
+    var t = score + 1; // 0=rood, 1=geel
+    r = Math.round(220 + (255 - 220) * t);
+    g = Math.round(50  + (210 - 50)  * t);
+    b = Math.round(50  + (55  - 50)  * t);
+  } else {
+    var t = score; // 0=geel, 1=groen
+    r = Math.round(255 + (39  - 255) * t);
+    g = Math.round(210 + (174 - 210) * t);
+    b = Math.round(55  + (96  - 55)  * t);
+  }
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+function buildKalender(sessies) {
+  var DAGEN = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
+  var MAANDEN_LANG = ['januari','februari','maart','april','mei','juni',
+                      'juli','augustus','september','oktober','november','december'];
+
+  // Groepeer sessies per dag (YYYY-MM-DD) → gemiddelde score
+  var dagData = {}; // { 'YYYY-MM-DD': { score: x, labels: [...] } }
+  sessies.forEach(function(s) {
+    if (!s.datum) return;
+    var dag = s.datum.slice(0, 10);
+    if (!dagData[dag]) dagData[dag] = { scores: [], namen: [] };
+    dagData[dag].scores.push(valentieScore(s));
+    if (s.naam) dagData[dag].namen.push(s.naam);
+  });
+  Object.keys(dagData).forEach(function(dag) {
+    var d = dagData[dag];
+    d.gemiddelde = d.scores.reduce(function(a, b) { return a + b; }, 0) / d.scores.length;
+  });
+
+  if (!Object.keys(dagData).length) return null;
+
+  // Bepaal maanden met data
+  var datums  = Object.keys(dagData).sort();
+  var eersteD = new Date(datums[0]);
+  var vandaag = new Date();
+  // Toon van de eerste maand t/m huidige maand
+  var maanden = []; // [{jaar, maand}]
+  var d = new Date(eersteD.getFullYear(), eersteD.getMonth(), 1);
+  while (d <= vandaag) {
+    maanden.push({ jaar: d.getFullYear(), maand: d.getMonth() });
+    d = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+  }
+  // Nieuwste bovenaan
+  maanden.reverse();
+
+  // Bouw sectie
+  var sectie = document.createElement('div');
+  sectie.className = 'kal-sectie';
+
+  var kop = document.createElement('div');
+  kop.className = 'kal-kop';
+  kop.innerHTML =
+    '<div class="kal-titel">Valentie in de tijd</div>' +
+    '<div class="kal-uitleg">' + Object.keys(dagData).length + ' dagen</div>';
+  sectie.appendChild(kop);
+
+  var maandenWrap = document.createElement('div');
+  maandenWrap.className = 'kal-maanden';
+
+  maanden.forEach(function(m) {
+    var eersteVdMaand = new Date(m.jaar, m.maand, 1);
+    var aantaldagen   = new Date(m.jaar, m.maand + 1, 0).getDate();
+    // Ma=0 … Zo=6; getDay() geeft 0=zo…6=za → omzetten
+    var startDag = (eersteVdMaand.getDay() + 6) % 7; // 0=ma
+
+    var maandDiv = document.createElement('div');
+
+    var naam = document.createElement('div');
+    naam.className = 'kal-maand-naam';
+    naam.textContent = MAANDEN_LANG[m.maand] + ' ' + m.jaar;
+    maandDiv.appendChild(naam);
+
+    var grid = document.createElement('div');
+    grid.className = 'kal-grid';
+
+    // Dag-headers
+    DAGEN.forEach(function(dag) {
+      var h = document.createElement('div');
+      h.className = 'kal-header'; h.textContent = dag;
+      grid.appendChild(h);
+    });
+
+    // Lege cellen vóór dag 1
+    for (var i = 0; i < startDag; i++) {
+      var leeg = document.createElement('div');
+      leeg.className = 'kal-cel leeg-cel';
+      grid.appendChild(leeg);
+    }
+
+    // Daadwerkelijke dagen
+    for (var dag = 1; dag <= aantaldagen; dag++) {
+      var key   = m.jaar + '-' + String(m.maand + 1).padStart(2,'0') + '-' + String(dag).padStart(2,'0');
+      var data  = dagData[key];
+      var datumObj  = new Date(m.jaar, m.maand, dag);
+      var vandaagKey = vandaag.getFullYear() + '-' + String(vandaag.getMonth()+1).padStart(2,'0') + '-' + String(vandaag.getDate()).padStart(2,'0');
+      var isVandaag = (key === vandaagKey);
+
+      var cel = document.createElement('div');
+      cel.className = 'kal-cel' + (isVandaag ? ' kal-vandaag' : '');
+
+      if (data) {
+        cel.classList.add('heeft-sessie');
+        var dot = document.createElement('div');
+        dot.className = 'kal-dot';
+        dot.style.background = scoreNaarKleur(data.gemiddelde);
+
+        var nr = document.createElement('div');
+        nr.className = 'kal-dag-nr';
+        nr.textContent = dag;
+        dot.appendChild(nr);
+        cel.appendChild(dot);
+
+        // Tooltip
+        (function(c, k, dd) {
+          c.addEventListener('mouseenter', function(e) {
+            var v = dd.gemiddelde;
+            var label = v >= 0.34 ? 'positief' : v <= -0.34 ? 'negatief' : 'gemengd';
+            var namen = dd.namen.length ? ' — ' + dd.namen.join(', ') : '';
+            toonKalTooltip(e, k + namen + '\n' + label);
+          });
+          c.addEventListener('mouseleave', verbergKalTooltip);
+          c.addEventListener('touchstart', function(e) {
+            var v = dd.gemiddelde;
+            var label = v >= 0.34 ? 'positief' : v <= -0.34 ? 'negatief' : 'gemengd';
+            toonKalTooltip(e.touches[0], k + ' · ' + label);
+          }, { passive: true });
+        })(cel, key, data);
+
+        // Klik: scroll naar tijdlijn-sessie van die dag
+        cel.addEventListener('click', function(key) {
+          return function() {
+            var el = document.querySelector('[data-datum="' + key + '"]');
+            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+          };
+        }(key));
+
+      } else {
+        var leegDot = document.createElement('div');
+        leegDot.className = 'kal-leeg-dot';
+        cel.appendChild(leegDot);
+      }
+
+      grid.appendChild(cel);
+    }
+
+    maandDiv.appendChild(grid);
+    maandenWrap.appendChild(maandDiv);
+  });
+
+  sectie.appendChild(maandenWrap);
+
+  // Legenda
+  var leg = document.createElement('div');
+  leg.className = 'kal-legenda';
+  leg.innerHTML =
+    '<div class="kal-leg-item"><div class="kal-leg-dot neg"></div><span class="kal-leg-label">Negatief</span></div>' +
+    '<div class="kal-leg-item"><div class="kal-leg-dot mix"></div><span class="kal-leg-label">Gemengd</span></div>' +
+    '<div class="kal-leg-item"><div class="kal-leg-dot pos"></div><span class="kal-leg-label">Positief</span></div>';
+  sectie.appendChild(leg);
+
+  return sectie;
+}
+
+/* Tooltip helpers */
+var kalTooltipEl = null;
+function zorgTooltip() {
+  if (!kalTooltipEl) {
+    kalTooltipEl = document.createElement('div');
+    kalTooltipEl.className = 'kal-tooltip';
+    document.body.appendChild(kalTooltipEl);
+  }
+  return kalTooltipEl;
+}
+function toonKalTooltip(e, tekst) {
+  var t = zorgTooltip();
+  t.innerHTML = tekst.replace('\n', '<br>');
+  t.style.left = e.clientX + 'px';
+  t.style.top  = e.clientY + 'px';
+  t.classList.add('zichtbaar');
+}
+function verbergKalTooltip() {
+  var t = zorgTooltip();
+  t.classList.remove('zichtbaar');
+}
+
 function bouwBackupSectie() {
   var sectie = document.createElement('div');
   sectie.className = 'backup-sectie';
@@ -1670,6 +1959,10 @@ function render() {
   var wolk = buildWolk(alleSessies);
   inhoud.appendChild(wolk.sectie);
   vulScene(wolk.scene, alleSessies);
+
+  /* Valentie-kalender */
+  var kal = buildKalender(alleSessies);
+  if (kal) inhoud.appendChild(kal);
 
   /* Tijdlijn */
   inhoud.appendChild(buildTijdlijn(alleSessies));
