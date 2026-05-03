@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pilot-filter — GevoelsAtlas (privé)</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F7F5EE; --ink:#111111; --accent:#FF5C35; --yellow:#FFD93D;
+  --uit:#c0392b; --uit-light:#fde8e6;
+  --soft:#555; --radius:8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Nunito',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+
+.topbar {
+  background:var(--ink); color:#fff; padding:10px 18px;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:200;
+}
+.topbar h1 { font-size:1rem; font-weight:900; white-space:nowrap; }
+.prive-badge {
+  background:var(--accent); color:#fff; font-size:.65rem; font-weight:800;
+  padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.05em;
+}
+.progress-bar-wrap { flex:1; min-width:120px; background:#333; height:6px; border-radius:3px; overflow:hidden; }
+.progress-bar-fill { background:var(--uit); height:100%; width:0%; transition:width .3s; }
+.progress-label { font-size:.75rem; font-weight:700; white-space:nowrap; }
+
+.controls {
+  background:#fff; border-bottom:2px solid var(--ink);
+  padding:8px 18px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  position:sticky; top:48px; z-index:190;
+}
+.controls input, .controls select {
+  font-family:'Nunito',sans-serif; font-size:.78rem; font-weight:700;
+  border:2px solid var(--ink); border-radius:var(--radius);
+  padding:5px 8px; background:var(--bg);
+}
+.controls input { min-width:140px; }
+.btn {
+  font-family:'Nunito',sans-serif; font-size:.78rem; font-weight:800;
+  border:2px solid var(--ink); border-radius:var(--radius);
+  padding:5px 12px; cursor:pointer; background:var(--bg);
+  box-shadow:2px 2px 0 var(--ink);
+}
+.btn:hover { background:#eee; }
+.btn.actief { background:var(--ink); color:#fff; }
+.btn.danger { background:var(--uit-light); }
+.btn.primary { background:var(--accent); color:#fff; }
+
+.uitleg {
+  padding:10px 18px; font-size:.8rem; color:var(--soft); background:#fff;
+  border-bottom:1px solid #ddd;
+}
+
+.grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));
+  gap:6px; padding:12px;
+}
+.kaart {
+  position:relative; aspect-ratio:1; cursor:pointer;
+  border:2px solid transparent; border-radius:6px; overflow:hidden;
+  background:#eee; transition:transform .08s, border-color .1s;
+}
+.kaart:hover { transform:scale(1.04); border-color:var(--ink); }
+.kaart img { width:100%; height:100%; object-fit:cover; display:block; }
+.kaart .label {
+  position:absolute; bottom:0; left:0; right:0;
+  background:rgba(255,255,255,.92); font-size:.65rem; font-weight:700;
+  padding:2px 4px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.kaart.uit { border-color:var(--uit); }
+.kaart.uit img { filter:grayscale(.7) brightness(.7); }
+.kaart.uit::after {
+  content:"✕"; position:absolute; top:4px; right:6px;
+  background:var(--uit); color:#fff; font-weight:900; font-size:.9rem;
+  width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  border:2px solid #fff;
+}
+
+.export-blok {
+  display:none; padding:14px 18px; background:#fff; border-top:2px solid var(--ink);
+  position:sticky; bottom:0; z-index:190; max-height:50vh; overflow-y:auto;
+}
+.export-blok.actief { display:block; }
+.export-blok h2 { font-size:.95rem; margin-bottom:6px; }
+.export-blok p { font-size:.78rem; color:var(--soft); margin-bottom:8px; }
+.export-blok code { background:#f0eee5; padding:2px 5px; border-radius:3px; font-family:monospace; }
+.export-blok textarea {
+  width:100%; min-height:160px; font-family:monospace; font-size:.75rem;
+  border:2px solid var(--ink); border-radius:var(--radius); padding:8px; resize:vertical;
+}
+
+.toast {
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  background:var(--ink); color:#fff; padding:10px 18px; border-radius:var(--radius);
+  font-weight:700; font-size:.85rem; z-index:300; opacity:0; pointer-events:none;
+  transition:opacity .2s;
+}
+.toast.zicht { opacity:1; }
+
+.leeg { padding:40px 20px; text-align:center; color:var(--soft); font-style:italic; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>Pilot-filter <span class="prive-badge">privé</span></h1>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <span class="progress-label" id="progressLabel">laden…</span>
+</header>
+
+<div class="controls">
+  <input type="search" id="zoek" placeholder="Zoek op woord/bestandsnaam…" oninput="renderGrid()">
+  <select id="filterKleur" onchange="renderGrid()">
+    <option value="alles">Alle kleuren</option>
+    <option value="rood">Rood</option>
+    <option value="oranje">Oranje</option>
+    <option value="geel">Geel</option>
+    <option value="groen">Groen</option>
+    <option value="blauw">Blauw</option>
+    <option value="paars">Paars</option>
+    <option value="roze">Roze</option>
+    <option value="bruin">Bruin</option>
+    <option value="grijs">Grijs</option>
+    <option value="zwart">Zwart</option>
+    <option value="wit">Wit</option>
+  </select>
+  <select id="filterStatus" onchange="renderGrid()">
+    <option value="alles">Alles tonen</option>
+    <option value="uit">Alleen uitgesloten</option>
+    <option value="aan">Alleen toegelaten</option>
+  </select>
+  <button class="btn danger" onclick="wisAlles()">Wis alle uitsluitingen</button>
+  <button class="btn primary" onclick="toggleExport()">⬇ Exporteer lijst</button>
+</div>
+
+<div class="uitleg">
+  Klik op een gezichtje om het uit te sluiten van de pilot. Klik nogmaals om het weer toe te laten.
+  Uitsluitingen worden in deze browser opgeslagen. Exporteer ze om ze in de live atlas op te nemen.
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="export-blok" id="exportBlok">
+  <h2>Plak deze lijst in <code>pilot-uitsluit.js</code></h2>
+  <p>Vervang de <code>window.PILOT_UITSLUIT = [ … ];</code> in dat bestand met onderstaande tekst, deploy, en de gezichtjes verdwijnen overal in de atlas.</p>
+  <textarea id="exportTekst" readonly onclick="this.select()"></textarea>
+  <div style="margin-top:8px; display:flex; gap:8px;">
+    <button class="btn" onclick="kopieerExport()">Kopieer naar klembord</button>
+    <button class="btn" onclick="toggleExport()">Sluit</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="faces-data.js"></script>
+<script>
+var LS_KEY = 'gevoelsatlas_pilot_uitsluit';
+
+function laad() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return {};
+    var arr = JSON.parse(raw);
+    if (Array.isArray(arr)) {
+      var o = {}; for (var i=0;i<arr.length;i++) o[arr[i]] = true; return o;
+    }
+    return arr || {};
+  } catch (e) { return {}; }
+}
+function bewaar(uitsluit) {
+  var arr = Object.keys(uitsluit).filter(function(k){ return uitsluit[k]; }).sort();
+  localStorage.setItem(LS_KEY, JSON.stringify(arr));
+}
+
+var uitsluit = laad();
+
+function toonToast(tekst) {
+  var t = document.getElementById('toast');
+  t.textContent = tekst;
+  t.classList.add('zicht');
+  clearTimeout(toonToast._t);
+  toonToast._t = setTimeout(function(){ t.classList.remove('zicht'); }, 1800);
+}
+
+function actieveFilters() {
+  return {
+    zoek: document.getElementById('zoek').value.trim().toLowerCase(),
+    kleur: document.getElementById('filterKleur').value,
+    status: document.getElementById('filterStatus').value
+  };
+}
+
+function gefilterd() {
+  var f = actieveFilters();
+  return IMAGES.filter(function(im) {
+    if (f.kleur !== 'alles' && im.color !== f.kleur) return false;
+    if (f.status === 'uit' && !uitsluit[im.filename]) return false;
+    if (f.status === 'aan' && uitsluit[im.filename]) return false;
+    if (f.zoek) {
+      var hay = (im.filename + ' ' + (im.emotion||'') + ' ' + (im.color||'')).toLowerCase();
+      if (hay.indexOf(f.zoek) === -1) return false;
+    }
+    return true;
+  });
+}
+
+function updateProgress() {
+  var n = Object.keys(uitsluit).filter(function(k){ return uitsluit[k]; }).length;
+  var totaal = IMAGES.length;
+  document.getElementById('progressLabel').textContent =
+    n + ' van ' + totaal + ' uitgesloten';
+  document.getElementById('progressFill').style.width = (totaal ? (n/totaal*100) : 0) + '%';
+}
+
+function renderGrid() {
+  var grid = document.getElementById('grid');
+  var lijst = gefilterd();
+  if (lijst.length === 0) {
+    grid.innerHTML = '<div class="leeg">Geen gezichtjes met deze filters.</div>';
+    updateProgress();
+    return;
+  }
+  var html = '';
+  for (var i=0; i<lijst.length; i++) {
+    var im = lijst[i];
+    var aan = !!uitsluit[im.filename];
+    html += '<div class="kaart' + (aan ? ' uit' : '') + '" data-fn="' + encodeURIComponent(im.filename) + '" title="' + (im.emotion||'') + '">' +
+      '<img src="' + im.url + '" alt="" loading="lazy">' +
+      '<div class="label">' + (im.emotion || im.filename) + '</div>' +
+    '</div>';
+  }
+  grid.innerHTML = html;
+  // Bind klik
+  var kaarten = grid.querySelectorAll('.kaart');
+  for (var j=0; j<kaarten.length; j++) {
+    kaarten[j].addEventListener('click', function() {
+      var fn = decodeURIComponent(this.getAttribute('data-fn'));
+      toggle(fn, this);
+    });
+  }
+  updateProgress();
+}
+
+function toggle(fn, kaartEl) {
+  if (uitsluit[fn]) {
+    delete uitsluit[fn];
+    if (kaartEl) kaartEl.classList.remove('uit');
+  } else {
+    uitsluit[fn] = true;
+    if (kaartEl) kaartEl.classList.add('uit');
+  }
+  bewaar(uitsluit);
+  // Bij filter "alleen uitgesloten/toegelaten" verschijnt de kaart in/uit zicht
+  var status = document.getElementById('filterStatus').value;
+  if (status !== 'alles') renderGrid();
+  else updateProgress();
+}
+
+function wisAlles() {
+  var n = Object.keys(uitsluit).filter(function(k){ return uitsluit[k]; }).length;
+  if (n === 0) { toonToast('Niets om te wissen.'); return; }
+  if (!confirm('Alle ' + n + ' uitsluitingen verwijderen?')) return;
+  uitsluit = {};
+  bewaar(uitsluit);
+  renderGrid();
+  toonToast(n + ' uitsluitingen gewist.');
+}
+
+function toggleExport() {
+  var blok = document.getElementById('exportBlok');
+  if (blok.classList.contains('actief')) {
+    blok.classList.remove('actief');
+    return;
+  }
+  var keys = Object.keys(uitsluit).filter(function(k){ return uitsluit[k]; }).sort();
+  var regels = keys.map(function(fn){ return '  ' + JSON.stringify(fn) + ','; });
+  var code = '// Pilot-uitsluitlijst (gegenereerd door pilot-editor.html)\n' +
+             '// ' + keys.length + ' bestand' + (keys.length===1?'':'en') + '\n' +
+             'window.PILOT_UITSLUIT = [\n' +
+             regels.join('\n') +
+             (regels.length ? '\n' : '') +
+             '];\n';
+  document.getElementById('exportTekst').value = code;
+  blok.classList.add('actief');
+}
+
+function kopieerExport() {
+  var ta = document.getElementById('exportTekst');
+  ta.select();
+  try {
+    document.execCommand('copy');
+    toonToast('Gekopieerd naar klembord.');
+  } catch (e) {
+    toonToast('Kopiëren mislukt — selecteer en kopieer handmatig.');
+  }
+}
+
+renderGrid();
+</script>
+</body>
+</html>
