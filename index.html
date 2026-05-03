@@ -141,6 +141,11 @@ nav {
   transition: color 0.12s;
 }
 .btn-splash-verken:hover { color: var(--ink); }
+.splash-links {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap;
+}
+.splash-sep { color: var(--soft); font-weight: 800; opacity: .5; }
 
 /* Progress strip */
 .progress-strip {
@@ -773,7 +778,11 @@ nav {
     <h1 class="splash-title">Gevoels<em>Atlas</em></h1>
     <p class="splash-sub" id="splashSub">Stap voor stap ontdek je wat er in jou leeft.</p>
     <button class="btn-splash-start" onclick="startAtlas()">Start de atlas</button>
-    <a href="verken.html" class="btn-splash-verken">Of verken alle gevoelens</a>
+    <div class="splash-links">
+      <a href="verken.html" class="btn-splash-verken">Verken alle gevoelens</a>
+      <span class="splash-sep">·</span>
+      <a href="dagboek.html" class="btn-splash-verken">Open je dagboek</a>
+    </div>
   </div>
 </div>
 
