@@ -1213,14 +1213,38 @@ var VALENCE_OVERRIDE_FILES = {
   "1354_blauw_rijk.jpg": "neutraal",
 };
 
+/* Bouw een map van bestandsnaam → categorie op basis van de IMAGES-array.
+   Twee sleutels per afbeelding: raw filename (voor overrides) én
+   URL-encoded filename (voor sessie-URLs), zodat beide werken. */
+var FILE_TO_CAT = (function() {
+  var map = {};
+  if (typeof IMAGES !== 'undefined') {
+    IMAGES.forEach(function(img) {
+      if (img.cat && img.cat !== 'overig') {
+        map[img.filename] = img.cat;
+        if (img.url) map[img.url.split('/').pop()] = img.cat;
+      }
+    });
+  }
+  return map;
+}());
+
 function getValence(emotion, filename) {
-  // Filename-override heeft altijd voorrang
+  // 1. Handmatige override op bestandsnaam
   if (filename && VALENCE_OVERRIDE_FILES[filename]) return VALENCE_OVERRIDE_FILES[filename];
   if (!emotion) return 'neutraal';
   var e = emotion.toLowerCase().trim();
+  // 2. Categorie-naam zelf (b.v. "blij")
   if (CAT_VALENCE[e]) return CAT_VALENCE[e];
+  // 3. Emotiewoord → categorie via WORD_TO_CAT
   var cat = WORD_TO_CAT[e];
-  return (cat && CAT_VALENCE[cat]) ? CAT_VALENCE[cat] : 'neutraal';
+  if (cat && CAT_VALENCE[cat]) return CAT_VALENCE[cat];
+  // 4. Bestandsnaam → categorie via IMAGES-array (vangt ontbrekende woorden in WORD_TO_CAT op)
+  if (filename && FILE_TO_CAT[filename]) {
+    cat = FILE_TO_CAT[filename];
+    if (CAT_VALENCE[cat]) return CAT_VALENCE[cat];
+  }
+  return 'neutraal';
 }
 
 /* ── FACES BEREKENEN (per emotienaam) ───────────────────────── */
