@@ -1693,9 +1693,18 @@ function buildKalender(sessies) {
   sessies.forEach(function(s) {
     if (!s.datum) return;
     var dag = s.datum.slice(0, 10);
-    if (!dagData[dag]) dagData[dag] = { scores: [], namen: [] };
+    if (!dagData[dag]) dagData[dag] = { scores: [], namen: [], stapReeksen: [] };
     dagData[dag].scores.push(valentieScore(s));
     if (s.naam) dagData[dag].namen.push(s.naam);
+    // Sla per stap de valentie-kleur op
+    if (s.stappen && s.stappen.length) {
+      var kleuren = s.stappen.map(function(stap) {
+        var fn = stap.url ? stap.url.split('/').pop() : null;
+        var v  = getValence(stap.emotion, fn);
+        return v === 'positief' ? scoreNaarKleur(1) : v === 'negatief' ? scoreNaarKleur(-1) : scoreNaarKleur(0);
+      });
+      dagData[dag].stapReeksen.push(kleuren);
+    }
   });
   Object.keys(dagData).forEach(function(dag) {
     var d = dagData[dag];
@@ -1783,17 +1792,24 @@ function buildKalender(sessies) {
 
         // Tooltip
         (function(c, k, dd) {
+          function maakTooltipHtml() {
+            var stijlBol = 'display:inline-block;width:11px;height:11px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.3);margin:0 2px;vertical-align:middle;';
+            var html = '<span style="font-size:0.7rem;opacity:0.75">' + k + '</span>';
+            dd.stapReeksen.forEach(function(kleuren) {
+              html += '<div style="margin-top:5px;line-height:1">';
+              kleuren.forEach(function(kleur) {
+                html += '<span style="' + stijlBol + 'background:' + kleur + '"></span>';
+              });
+              html += '</div>';
+            });
+            return html;
+          }
           c.addEventListener('mouseenter', function(e) {
-            var v = dd.gemiddelde;
-            var label = v >= 0.34 ? 'positief' : v <= -0.34 ? 'negatief' : 'gemengd';
-            var namen = dd.namen.length ? ' — ' + dd.namen.join(', ') : '';
-            toonKalTooltip(e, k + namen + '\n' + label);
+            toonKalTooltip(e, maakTooltipHtml(), true);
           });
           c.addEventListener('mouseleave', verbergKalTooltip);
           c.addEventListener('touchstart', function(e) {
-            var v = dd.gemiddelde;
-            var label = v >= 0.34 ? 'positief' : v <= -0.34 ? 'negatief' : 'gemengd';
-            toonKalTooltip(e.touches[0], k + ' · ' + label);
+            toonKalTooltip(e.touches[0], maakTooltipHtml(), true);
           }, { passive: true });
         })(cel, key, data);
 
@@ -1842,9 +1858,9 @@ function zorgTooltip() {
   }
   return kalTooltipEl;
 }
-function toonKalTooltip(e, tekst) {
+function toonKalTooltip(e, inhoud, isHtml) {
   var t = zorgTooltip();
-  t.innerHTML = tekst.replace('\n', '<br>');
+  if (isHtml) { t.innerHTML = inhoud; } else { t.textContent = inhoud; }
   t.style.left = e.clientX + 'px';
   t.style.top  = e.clientY + 'px';
   t.classList.add('zichtbaar');
