@@ -421,8 +421,7 @@ footer a { color: var(--yellow); text-decoration: none; }
 .kal-cel.heeft-sessie:hover .kal-dot { transform: scale(1.15); }
 /* Dot — zelfde stijl als bubble-img in de wolk */
 .kal-dot {
-  width: 78%; height: 78%; border-radius: 50%;
-  border: 2px solid var(--ink);
+  width: 60%; height: 60%; border-radius: 50%;
   transition: transform 0.12s;
 }
 .kal-dot.glow-pos {
@@ -434,7 +433,7 @@ footer a { color: var(--yellow); text-decoration: none; }
 .kal-dot.glow-neu {
   box-shadow: 0 0 5px 2px rgba(195,155,0,0.65), 0 0 12px 4px rgba(195,155,0,0.3);
 }
-.kal-vandaag .kal-dot { border-width: 2.5px; }
+.kal-vandaag .kal-dot { outline: 2px solid var(--ink); outline-offset: 2px; }
 .kal-leeg-dot {
   width: 20%; height: 20%; border-radius: 50%;
   background: var(--muted); opacity: 0.2;
