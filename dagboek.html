@@ -2245,7 +2245,7 @@ async function deelSessieCanvas(sessie, btn) {
       var file = new File([blob], filename, { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: 'Mijn GevoelsAtlas', text: sessie.naam ? sessie.naam + '\'s GevoelsAtlas' : 'Mijn GevoelsAtlas' });
+          await navigator.share({ files: [file], text: (sessie.naam ? sessie.naam + ' · ' : '') + 'GevoelsAtlas · via gevoelsatlas.nl' });
           btn.textContent = '✓ Gedeeld'; return;
         } catch(e) { if (e.name === 'AbortError') { btn.textContent = '↑ Deel sessie'; btn.disabled = false; return; } }
       }

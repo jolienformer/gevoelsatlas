@@ -1374,8 +1374,7 @@ async function deelAlsAfbeelding() {
         try {
           await navigator.share({
             files: [file],
-            title: 'Mijn GevoelsAtlas',
-            text: name ? name + '\'s GevoelsAtlas' : 'Mijn GevoelsAtlas van vandaag'
+            text: (name ? name + ' · ' : '') + 'GevoelsAtlas · via gevoelsatlas.nl'
           });
           btn.textContent = '✓ Gedeeld';
           return;
