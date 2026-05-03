@@ -566,6 +566,14 @@ nav {
   transition: color 0.12s;
 }
 .btn-tertiary:hover { color: var(--ink); }
+.crisis-link {
+  font-size: 0.68rem; font-weight: 600;
+  color: var(--muted); text-align: center;
+  margin-top: 14px; line-height: 1.6;
+  padding-top: 12px; border-top: 1px solid #E8E5DC;
+}
+.crisis-link a { color: var(--soft); font-weight: 700; text-decoration: underline; }
+.crisis-link a:hover { color: var(--ink); }
 .end-terugkom {
   background: var(--yellow); border: var(--border);
   border-radius: var(--radius); box-shadow: 2px 2px 0 var(--ink);
@@ -818,6 +826,7 @@ nav {
     <button class="btn-secondary" id="btnDeel" onclick="deelAlsAfbeelding()">↑ Deel als afbeelding</button>
     <button class="btn-pdf-link" onclick="exportPDF()">Of download als PDF</button>
     <button class="btn-tertiary" onclick="opnieuwBeginnen()">↺ Opnieuw beginnen</button>
+    <p class="crisis-link">Soms is een gesprek fijn. <a href="tel:08000432">Kindertelefoon: 0800-0432</a> (gratis, altijd open)</p>
   </div>
 </div>
 
