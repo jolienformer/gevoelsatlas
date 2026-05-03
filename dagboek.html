@@ -262,6 +262,20 @@ nav {
 .btn-verwijder { background: none; border: 2px solid var(--muted); border-radius: var(--radius); padding: 6px 14px; font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 800; color: var(--muted); cursor: pointer; transition: all 0.12s; }
 .btn-verwijder:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ── BACKUP SECTIE ───────────────────────────────────────────── */
+.backup-sectie { max-width: 680px; margin: 0 auto; padding: 8px 24px 4px; text-align: center; }
+.backup-titel { font-family: 'Amatic SC', cursive; font-size: 1.4rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.backup-uitleg { font-size: 0.72rem; font-weight: 600; color: var(--soft); margin: 0 auto 14px; line-height: 1.5; max-width: 460px; }
+.backup-rij { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.btn-backup { background: var(--paper); border: var(--border); border-radius: var(--radius); box-shadow: 2px 2px 0 var(--ink); padding: 10px 18px; font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 800; color: var(--ink); cursor: pointer; transition: all 0.12s; letter-spacing: 0.02em; }
+.btn-backup:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.import-fb { display: none; max-width: 460px; margin: 14px auto 0; padding: 10px 14px; border-radius: var(--radius); font-size: 0.78rem; font-weight: 700; line-height: 1.5; border: 2px solid var(--ink); }
+.import-fb.show { display: block; }
+.import-fb.ok  { background: #DFF2D8; color: #2D5A1F; border-color: #2D5A1F; }
+.import-fb.err { background: #FCE2DA; color: #B0331A; border-color: #B0331A; }
+.btn-import-leeg { display: inline-block; margin-top: 18px; font-size: 0.75rem; font-weight: 700; color: var(--soft); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 4px 0; font-family: 'Nunito', sans-serif; }
+.btn-import-leeg:hover { color: var(--ink); }
+
 /* ── BODEM ────────────────────────────────────────────────────── */
 .bodem { max-width: 680px; margin: 0 auto; padding: 8px 24px 64px; text-align: center; }
 .btn-wis { background: none; border: 2px solid var(--muted); border-radius: var(--radius); padding: 8px 18px; font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 800; color: var(--muted); cursor: pointer; transition: all 0.12s; }
@@ -326,13 +340,13 @@ footer a { color: var(--yellow); text-decoration: none; }
 
 @media (min-width: 900px) {
   .page-header, .privacy-notice, .leeg,
-  .selectie-sectie, .wolk-sectie, .tijdlijn-sectie { max-width: 960px; }
+  .selectie-sectie, .wolk-sectie, .tijdlijn-sectie, .backup-sectie { max-width: 960px; }
   .sessie-grid { grid-template-columns: repeat(5, 1fr); }
   .bubble-scene { min-height: 360px; }
 }
 @media (min-width: 1200px) {
   .page-header, .privacy-notice, .leeg,
-  .selectie-sectie, .wolk-sectie, .tijdlijn-sectie { max-width: 1100px; }
+  .selectie-sectie, .wolk-sectie, .tijdlijn-sectie, .backup-sectie { max-width: 1100px; }
 }
 </style>
 </head>
@@ -364,6 +378,8 @@ footer a { color: var(--yellow); text-decoration: none; }
 </div>
 
 <div id="inhoud"></div>
+
+<input type="file" id="importInput" accept="application/json,.json" style="display:none">
 
 <div class="db-lightbox" id="dbLightbox">
   <div class="db-lightbox-card" id="dbLightboxCard">
@@ -735,6 +751,134 @@ function buildTijdlijn(sessies) {
   return sectie;
 }
 
+/* ── EXPORT / IMPORT ────────────────────────────────────────── */
+var pendingFb = null;
+
+function toonImportFb(soort, tekst) {
+  var fb = document.getElementById('importFb');
+  if (!fb) { pendingFb = { soort: soort, tekst: tekst }; return; }
+  fb.className = 'import-fb show ' + soort;
+  fb.textContent = tekst;
+  clearTimeout(fb._timer);
+  fb._timer = setTimeout(function() { fb.classList.remove('show'); }, 7000);
+}
+
+function flushPendingFb() {
+  if (!pendingFb) return;
+  var p = pendingFb; pendingFb = null;
+  toonImportFb(p.soort, p.tekst);
+}
+
+function exporteerDagboek() {
+  var sessies = laadSessies();
+  if (!sessies.length) { toonImportFb('err', 'Je dagboek is nog leeg — niets om te downloaden.'); return; }
+  var payload = {
+    type: 'gevoelsatlas-dagboek',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    sessies: sessies
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var d = new Date();
+  var datum = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  var filename = 'gevoelsatlas-dagboek-' + datum + '.json';
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+  toonImportFb('ok', '✓ Bestand opgeslagen — bewaar het op een veilige plek (bijv. e-mail naar jezelf).');
+}
+
+function valideerSessie(s) {
+  return s && typeof s === 'object'
+    && typeof s.datum === 'string'
+    && Array.isArray(s.stappen)
+    && s.stappen.every(function(st) { return st && typeof st.url === 'string' && typeof st.emotion === 'string'; });
+}
+
+function importeerDagboek(file) {
+  var reader = new FileReader();
+  reader.onload = function() {
+    try {
+      var data = JSON.parse(reader.result);
+      var nieuwe = Array.isArray(data) ? data
+                  : (data && Array.isArray(data.sessies) ? data.sessies : null);
+      if (!nieuwe) { toonImportFb('err', 'Dit lijkt geen geldig dagboek-bestand. Heb je het juiste .json gekozen?'); return; }
+      var geldig = nieuwe.filter(valideerSessie);
+      if (!geldig.length) { toonImportFb('err', 'Geen geldige sessies gevonden in dit bestand.'); return; }
+
+      var bestaand = laadSessies();
+      var bekend = {};
+      bestaand.forEach(function(s) { bekend[s.datum] = true; });
+
+      var toegevoegd = 0;
+      geldig.forEach(function(s) {
+        if (!bekend[s.datum]) {
+          bestaand.push(s);
+          bekend[s.datum] = true;
+          toegevoegd++;
+        }
+      });
+      bestaand.sort(function(a, b) { return new Date(b.datum) - new Date(a.datum); });
+      slaOpSessies(bestaand);
+
+      var msg;
+      if (toegevoegd === 0) msg = '✓ Alle sessies uit dit bestand stonden al in je dagboek.';
+      else if (toegevoegd === 1) msg = '✓ 1 sessie toegevoegd aan je dagboek.';
+      else msg = '✓ ' + toegevoegd + ' sessies toegevoegd aan je dagboek.';
+
+      pendingFb = { soort: 'ok', tekst: msg };
+      render();
+    } catch (e) {
+      toonImportFb('err', 'Het bestand kon niet gelezen worden. Is het een geldig .json-bestand?');
+    }
+  };
+  reader.onerror = function() { toonImportFb('err', 'Bestand lezen mislukt.'); };
+  reader.readAsText(file);
+}
+
+function bouwBackupSectie() {
+  var sectie = document.createElement('div');
+  sectie.className = 'backup-sectie';
+
+  var titel = document.createElement('div');
+  titel.className = 'backup-titel';
+  titel.textContent = 'Bewaar een kopie';
+  sectie.appendChild(titel);
+
+  var uitleg = document.createElement('div');
+  uitleg.className = 'backup-uitleg';
+  uitleg.textContent = 'Je dagboek staat alleen op dit apparaat. Maak af en toe een kopie, zodat je niets kwijtraakt als je browser wist of van apparaat wisselt.';
+  sectie.appendChild(uitleg);
+
+  var rij = document.createElement('div');
+  rij.className = 'backup-rij';
+
+  var dlBtn = document.createElement('button');
+  dlBtn.className = 'btn-backup';
+  dlBtn.textContent = '↓ Download mijn dagboek';
+  dlBtn.addEventListener('click', exporteerDagboek);
+  rij.appendChild(dlBtn);
+
+  var imBtn = document.createElement('button');
+  imBtn.className = 'btn-backup';
+  imBtn.textContent = '↑ Importeer dagboek';
+  imBtn.addEventListener('click', function() { document.getElementById('importInput').click(); });
+  rij.appendChild(imBtn);
+
+  sectie.appendChild(rij);
+
+  var fb = document.createElement('div');
+  fb.className = 'import-fb';
+  fb.id = 'importFb';
+  sectie.appendChild(fb);
+
+  return sectie;
+}
+
 /* ── RENDER ─────────────────────────────────────────────────── */
 function render() {
   var scrollY = window.scrollY;
@@ -743,7 +887,28 @@ function render() {
   inhoud.innerHTML = '';
 
   if (alleSessies.length === 0) {
-    inhoud.innerHTML = '<div class="leeg"><div class="leeg-titel">Nog niks bewaard</div><p>Doe de atlas en sla je sessie op via "Bewaar in dagboek".</p><a href="index.html" class="btn-start-link">Start de atlas</a></div>';
+    var leeg = document.createElement('div');
+    leeg.className = 'leeg';
+    leeg.innerHTML =
+      '<div class="leeg-titel">Nog niks bewaard</div>' +
+      '<p>Doe de atlas en sla je sessie op via "Bewaar in dagboek".</p>' +
+      '<a href="index.html" class="btn-start-link">Start de atlas</a>';
+
+    var importLeegBtn = document.createElement('button');
+    importLeegBtn.className = 'btn-import-leeg';
+    importLeegBtn.textContent = 'Heb je eerder een back-up gemaakt? Importeer dagboek';
+    importLeegBtn.addEventListener('click', function() { document.getElementById('importInput').click(); });
+    var wrap = document.createElement('div');
+    wrap.appendChild(importLeegBtn);
+    leeg.appendChild(wrap);
+
+    var fbLeeg = document.createElement('div');
+    fbLeeg.className = 'import-fb';
+    fbLeeg.id = 'importFb';
+    leeg.appendChild(fbLeeg);
+
+    inhoud.appendChild(leeg);
+    flushPendingFb();
     return;
   }
 
@@ -758,6 +923,9 @@ function render() {
   /* Tijdlijn */
   inhoud.appendChild(buildTijdlijn(alleSessies));
 
+  /* Backup-sectie */
+  inhoud.appendChild(bouwBackupSectie());
+
   /* Wis-knop */
   var bodem = document.createElement('div');
   bodem.className = 'bodem';
@@ -771,6 +939,8 @@ function render() {
   });
   bodem.appendChild(wisBtn);
   inhoud.appendChild(bodem);
+
+  flushPendingFb();
   window.scrollTo({ top: scrollY, behavior: 'instant' });
 }
 
@@ -791,6 +961,13 @@ document.getElementById('dbLightbox').addEventListener('click', function(e) {
 });
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeDbLightbox();
+});
+
+document.getElementById('importInput').addEventListener('change', function(e) {
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+  importeerDagboek(file);
+  e.target.value = '';
 });
 
 render();
