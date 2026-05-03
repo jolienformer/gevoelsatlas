@@ -322,7 +322,11 @@ footer a { color: var(--yellow); text-decoration: none; }
 .nav-menu a:hover, .nav-menu a.actief { color: var(--yellow); }
 
 @media (prefers-reduced-motion: reduce) {
-  .bubble-wrap, .glow-positief .bubble-img, .glow-negatief .bubble-img, .glow-neutraal .bubble-img { animation: none !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── DAGBOEK LIGHTBOX ────────────────────────────────────────── */
