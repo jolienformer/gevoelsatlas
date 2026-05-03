@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Valentie-editor — GevoelsAtlas (privé)</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5EE;
+  --ink: #111111;
+  --accent: #FF5C35;
+  --yellow: #FFD93D;
+  --pos: #27ae60;
+  --pos-light: #d4f4e2;
+  --neu: #e6a817;
+  --neu-light: #fef6d0;
+  --neg: #e74c3c;
+  --neg-light: #fde8e6;
+  --ovr-light: #e8e0f8;
+  --soft: #555;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+/* ── Sticky header ─────────────────────────────────────────── */
+.topbar {
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  position: sticky; top: 0; z-index: 200;
+}
+.topbar h1 { font-size: 1rem; font-weight: 900; white-space: nowrap; }
+.topbar .prive-badge {
+  background: var(--accent); color: #fff;
+  font-size: 0.65rem; font-weight: 800;
+  padding: 2px 8px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.progress-bar-wrap {
+  flex: 1; min-width: 120px;
+  background: #333; height: 6px; border-radius: 3px; overflow: hidden;
+}
+.progress-bar-fill {
+  background: var(--accent); height: 100%; width: 0%;
+  transition: width .3s;
+}
+.progress-label { font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+
+/* ── Controls bar ──────────────────────────────────────────── */
+.controls {
+  background: #fff;
+  border-bottom: 2px solid var(--ink);
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  position: sticky; top: 48px; z-index: 190;
+}
+.controls select {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem; font-weight: 700;
+  border: 2px solid var(--ink); border-radius: var(--radius);
+  padding: 5px 8px; background: var(--bg); cursor: pointer;
+}
+.mode-btn {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem; font-weight: 800;
+  border: 2px solid var(--ink); border-radius: var(--radius);
+  padding: 5px 12px; cursor: pointer; background: var(--bg);
+  transition: background .1s;
+}
+.mode-btn.actief { background: var(--ink); color: #fff; }
+.mode-btn:hover:not(.actief) { background: #eee; }
+.controls-sep { color: #ccc; font-size: 0.85rem; }
+.export-btn {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem; font-weight: 800;
+  border: 2px solid var(--ink); border-radius: var(--radius);
+  padding: 5px 12px; cursor: pointer;
+  background: var(--accent); color: #fff;
+  margin-left: auto;
+}
+.export-btn:hover { opacity: .85; }
+.reset-all-btn {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.75rem; font-weight: 700;
+  border: 2px solid #bbb; border-radius: var(--radius);
+  padding: 5px 10px; cursor: pointer; background: transparent; color: #888;
+}
+.reset-all-btn:hover { border-color: var(--neg); color: var(--neg); }
+
+/* Legende */
+.legende {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  padding: 6px 18px;
+  border-bottom: 1px solid #e0ddd5;
+  background: var(--bg);
+  font-size: 0.7rem; font-weight: 700;
+}
+.leg { display: flex; align-items: center; gap: 4px; }
+.leg-dot { width: 11px; height: 11px; border-radius: 3px; border: 2px solid rgba(0,0,0,.25); }
+.leg-dot.pos { background: var(--pos-light); border-color: var(--pos); }
+.leg-dot.neu { background: var(--neu-light); border-color: var(--neu); }
+.leg-dot.neg { background: var(--neg-light); border-color: var(--neg); }
+.leg-dot.ovr { background: var(--ovr-light); border-color: #7c5cbf; }
+.leg-dot.unk { background: #f0ede4; border-color: #bbb; }
+
+/* ══════════════════════════════════════════════════════════
+   EÉN VOOR ÉÉN MODUS
+══════════════════════════════════════════════════════════ */
+#modus-enkel {
+  max-width: 480px;
+  margin: 24px auto;
+  padding: 0 16px 60px;
+  text-align: center;
+  display: none;
+}
+#modus-enkel.actief { display: block; }
+
+.enkel-teller {
+  font-size: 0.75rem; font-weight: 700; color: var(--soft);
+  margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.enkel-teller-pos { background: var(--pos-light); color: var(--pos); padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; }
+.enkel-teller-neu { background: var(--neu-light); color: var(--neu); padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; }
+.enkel-teller-neg { background: var(--neg-light); color: var(--neg); padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; }
+
+.enkel-kaart {
+  background: #fff;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: border-color .2s, box-shadow .2s;
+}
+.enkel-kaart.v-pos { border-color: var(--pos); box-shadow: 4px 4px 0 var(--pos); }
+.enkel-kaart.v-neu { border-color: var(--neu); box-shadow: 4px 4px 0 var(--neu); }
+.enkel-kaart.v-neg { border-color: var(--neg); box-shadow: 4px 4px 0 var(--neg); }
+.enkel-kaart.v-ovr { border-color: #7c5cbf; box-shadow: 4px 4px 0 #7c5cbf; }
+
+.enkel-img {
+  width: 240px; height: 240px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 14px;
+}
+.enkel-emotion {
+  font-size: 1.3rem; font-weight: 900;
+  margin-bottom: 4px;
+}
+.enkel-meta {
+  font-size: 0.72rem; font-weight: 700;
+  color: var(--soft); text-transform: uppercase; letter-spacing: .05em;
+  margin-bottom: 4px;
+}
+.enkel-basis-info {
+  font-size: 0.7rem; color: var(--soft);
+  margin-top: 4px;
+}
+.enkel-override-badge {
+  display: inline-block;
+  background: var(--ovr-light);
+  color: #7c5cbf;
+  font-size: 0.65rem; font-weight: 800;
+  padding: 2px 8px; border-radius: 20px;
+  margin-top: 4px;
+  letter-spacing: .03em;
+}
+
+/* Valentie knoppen */
+.val-knoppen {
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.btn-val {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem; font-weight: 800;
+  border: 2.5px solid var(--ink); border-radius: var(--radius);
+  padding: 10px 6px; cursor: pointer;
+  background: var(--bg);
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: all .1s;
+  line-height: 1.2;
+}
+.btn-val:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+.btn-val:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+
+.btn-val.v-pos { border-color: var(--pos); }
+.btn-val.v-pos.actief { background: var(--pos); color: #fff; border-color: var(--pos); box-shadow: 3px 3px 0 #1a6e3a; }
+.btn-val.v-neu { border-color: var(--neu); }
+.btn-val.v-neu.actief { background: var(--neu); border-color: var(--neu); box-shadow: 3px 3px 0 #a07208; }
+.btn-val.v-neg { border-color: var(--neg); }
+.btn-val.v-neg.actief { background: var(--neg); color: #fff; border-color: var(--neg); box-shadow: 3px 3px 0 #8e1c1c; }
+.btn-val.v-reset { border-color: #aaa; color: #888; }
+.btn-val.v-reset.actief { background: #e0ddd5; box-shadow: 3px 3px 0 #999; }
+
+/* Nav knoppen */
+.enkel-nav {
+  display: flex; gap: 10px; align-items: center; justify-content: center;
+}
+.btn-nav {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 800;
+  border: 2.5px solid var(--ink); border-radius: var(--radius);
+  padding: 9px 20px; cursor: pointer; background: var(--bg);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.btn-nav:hover { background: var(--ink); color: #fff; }
+.btn-nav:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn-nav:disabled { opacity: .35; cursor: not-allowed; }
+
+.nav-positie {
+  font-size: 0.78rem; font-weight: 800;
+  color: var(--soft); min-width: 70px; text-align: center;
+}
+
+.keyboard-hint {
+  font-size: 0.67rem; color: #aaa;
+  margin-top: 14px;
+  line-height: 1.8;
+}
+.keyboard-hint kbd {
+  background: #e8e5dc; border: 1px solid #bbb; border-radius: 4px;
+  padding: 1px 5px; font-size: 0.63rem;
+}
+
+/* ══════════════════════════════════════════════════════════
+   GRID MODUS
+══════════════════════════════════════════════════════════ */
+#modus-grid {
+  padding: 14px 16px 60px;
+  display: none;
+}
+#modus-grid.actief { display: block; }
+
+.grid-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 5px;
+}
+.grid-item {
+  position: relative; cursor: pointer;
+  border: 3px solid #ccc; border-radius: 8px;
+  overflow: hidden; background: #fff;
+  aspect-ratio: 1;
+  transition: transform .12s, border-color .15s;
+}
+.grid-item:hover { transform: scale(1.06); z-index: 5; }
+.grid-item img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.grid-item.v-pos { border-color: var(--pos); background: var(--pos-light); }
+.grid-item.v-neu { border-color: var(--neu); background: var(--neu-light); }
+.grid-item.v-neg { border-color: var(--neg); background: var(--neg-light); }
+.grid-item.v-ovr { border-color: #7c5cbf; background: var(--ovr-light); }
+.grid-item .grid-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.6); color: #fff;
+  font-size: 0.52rem; font-weight: 700;
+  padding: 2px 3px; text-align: center;
+  opacity: 0; transition: opacity .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.grid-item:hover .grid-label { opacity: 1; }
+
+/* ── Export panel ──────────────────────────────────────────── */
+#export-panel {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff; border-top: 3px solid var(--ink);
+  padding: 16px 20px 20px;
+  z-index: 300;
+  display: none;
+  max-height: 55vh;
+  overflow-y: auto;
+  box-shadow: 0 -4px 0 var(--ink);
+}
+#export-panel.open { display: block; }
+#export-panel h3 {
+  font-size: 0.95rem; font-weight: 900;
+  margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;
+}
+#export-panel .uitleg {
+  font-size: 0.75rem; color: var(--soft);
+  margin-bottom: 10px; line-height: 1.5;
+}
+#export-panel textarea {
+  width: 100%; height: 160px;
+  font-family: monospace; font-size: 0.72rem;
+  border: 2px solid var(--ink); border-radius: var(--radius);
+  padding: 10px; background: #f8f5ee; resize: vertical;
+}
+.export-acties {
+  display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center;
+}
+.btn-kopieer {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem; font-weight: 800;
+  border: 2.5px solid var(--ink); border-radius: var(--radius);
+  padding: 8px 20px; cursor: pointer;
+  background: var(--accent); color: #fff;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.btn-kopieer.success { background: var(--pos); }
+.btn-sluiten {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem; font-weight: 700;
+  border: 2px solid #bbb; border-radius: var(--radius);
+  padding: 8px 16px; cursor: pointer; background: transparent; color: var(--soft);
+}
+.export-stats {
+  font-size: 0.72rem; color: var(--soft);
+  margin-left: auto; line-height: 1.5;
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--ink); color: #fff;
+  font-size: 0.82rem; font-weight: 700;
+  padding: 10px 18px; border-radius: var(--radius);
+  z-index: 500; opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+}
+.toast.toon { opacity: 1; transform: translateY(0); }
+
+/* ── Leeg scherm ───────────────────────────────────────────── */
+.leeg {
+  text-align: center; padding: 60px 20px;
+  font-size: 0.9rem; font-weight: 700; color: var(--soft);
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <h1>✏️ Valentie-editor</h1>
+  <span class="prive-badge">Privé</span>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <span class="progress-label" id="progressLabel">laden…</span>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <!-- Mode -->
+  <button class="mode-btn actief" id="btnEnkel" onclick="setModus('enkel')">Één voor één</button>
+  <button class="mode-btn" id="btnGrid" onclick="setModus('grid')">Grid-overzicht</button>
+  <span class="controls-sep">|</span>
+  <!-- Filters -->
+  <select id="filterCat" onchange="filterGewijzigd()">
+    <option value="alles">Alle categorieën</option>
+    <option value="overig">Overig (geen categorie)</option>
+  </select>
+  <select id="filterVal" onchange="filterGewijzigd()">
+    <option value="alles">Alle valenties</option>
+    <option value="positief">Positief</option>
+    <option value="neutraal">Neutraal</option>
+    <option value="negatief">Negatief</option>
+    <option value="handmatig">Handmatig ingesteld</option>
+    <option value="onbeoordeeld">Overig / onbeoordeeld</option>
+  </select>
+  <button class="reset-all-btn" onclick="resetAlles()">Wis alle overrides</button>
+  <button class="export-btn" onclick="toggleExport()">⬇ Exporteer overrides</button>
+</div>
+
+<!-- LEGENDE -->
+<div class="legende">
+  <div class="leg"><div class="leg-dot pos"></div> Positief</div>
+  <div class="leg"><div class="leg-dot neu"></div> Neutraal</div>
+  <div class="leg"><div class="leg-dot neg"></div> Negatief</div>
+  <div class="leg"><div class="leg-dot ovr"></div> Handmatig overschreven</div>
+  <div class="leg"><div class="leg-dot unk"></div> Geen valentie (overig)</div>
+</div>
+
+<!-- EÉN VOOR ÉÉN -->
+<section id="modus-enkel" class="actief">
+  <div class="enkel-teller" id="enkelTeller">…</div>
+
+  <div class="enkel-kaart" id="enkelKaart">
+    <img class="enkel-img" id="enkelImg" src="" alt="" loading="lazy">
+    <div class="enkel-emotion" id="enkelEmotion"></div>
+    <div class="enkel-meta" id="enkelMeta"></div>
+    <div class="enkel-basis-info" id="enkelBasisInfo"></div>
+    <div class="enkel-override-badge" id="enkelOverrideBadge" style="display:none">Handmatig ingesteld</div>
+  </div>
+
+  <div class="val-knoppen">
+    <button class="btn-val v-pos" id="btnPos" onclick="setValentie('positief')">
+      <span>😊</span><br>Positief<br><small style="font-size:.6rem;font-weight:700;opacity:.6">[1]</small>
+    </button>
+    <button class="btn-val v-neu" id="btnNeu" onclick="setValentie('neutraal')">
+      <span>😐</span><br>Neutraal<br><small style="font-size:.6rem;font-weight:700;opacity:.6">[2]</small>
+    </button>
+    <button class="btn-val v-neg" id="btnNeg" onclick="setValentie('negatief')">
+      <span>😟</span><br>Negatief<br><small style="font-size:.6rem;font-weight:700;opacity:.6">[3]</small>
+    </button>
+    <button class="btn-val v-reset" id="btnReset" onclick="resetValentie()">
+      ↺<br>Standaard<br><small style="font-size:.6rem;font-weight:700;opacity:.6">[0]</small>
+    </button>
+  </div>
+
+  <div class="enkel-nav">
+    <button class="btn-nav" id="btnVorige" onclick="navigeer(-1)">← Vorige</button>
+    <span class="nav-positie" id="navPositie"></span>
+    <button class="btn-nav" id="btnVolgende" onclick="navigeer(1)">Volgende →</button>
+  </div>
+
+  <div class="keyboard-hint">
+    <kbd>←</kbd> <kbd>→</kbd> navigeren &nbsp;·&nbsp;
+    <kbd>1</kbd> positief &nbsp;·&nbsp;
+    <kbd>2</kbd> neutraal &nbsp;·&nbsp;
+    <kbd>3</kbd> negatief &nbsp;·&nbsp;
+    <kbd>0</kbd> reset naar standaard &nbsp;·&nbsp;
+    <kbd>Space</kbd> volgende
+  </div>
+</section>
+
+<!-- GRID -->
+<section id="modus-grid">
+  <div class="grid-wrap" id="gridWrap"></div>
+  <div class="leeg" id="gridLeeg" style="display:none">Geen gezichtjes gevonden voor deze filter.</div>
+</section>
+
+<!-- EXPORT PANEL -->
+<div id="export-panel">
+  <h3>
+    Exporteer overrides
+    <button class="btn-sluiten" onclick="toggleExport()">✕ Sluiten</button>
+  </h3>
+  <p class="uitleg">Kopieer deze code en plak hem in <code>dagboek.html</code> vlak vóór de <code>getValence()</code> functie. Daarna herkent de app jouw handmatige valentie-instellingen.</p>
+  <textarea id="exportTekst" readonly></textarea>
+  <div class="export-acties">
+    <button class="btn-kopieer" id="btnKopieer" onclick="kopieerCode()">📋 Kopieer code</button>
+    <div class="export-stats" id="exportStats"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="faces-data.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════
+//  DATA & CONFIGURATIE
+// ════════════════════════════════════════════════════════════
+
+var CAT_VALENCE = {
+  blij:          'positief',
+  zelfverzekerd: 'positief',
+  rustig:        'positief',
+  speels:        'positief',
+  nieuwsgierig:  'neutraal',
+  uiterlijk:     'neutraal',
+  verward:       'neutraal',
+  onzeker:       'negatief',
+  ongemakkelijk: 'negatief',
+  boos:          'negatief',
+  bang:          'negatief',
+  verdrietig:    'negatief',
+  moe:           'negatief'
+};
+
+var LS_KEY = 'gevoelsatlas_valentie_overrides';
+
+// Laad overrides uit localStorage
+function laadOverrides() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+
+// Sla op
+function slaOpOverrides(overrides) {
+  localStorage.setItem(LS_KEY, JSON.stringify(overrides));
+}
+
+// Basis-valentie van een image (vanuit categorie)
+function basisValentie(img) {
+  return CAT_VALENCE[img.cat] || null;
+}
+
+// Actuele valentie (override heeft voorrang)
+function actueleValentie(img, overrides) {
+  if (overrides[img.filename]) return overrides[img.filename];
+  return basisValentie(img);
+}
+
+// ════════════════════════════════════════════════════════════
+//  STAAT
+// ════════════════════════════════════════════════════════════
+
+var overrides = laadOverrides();
+var gefilterd  = [];       // huidige gefilterde lijst (indices in IMAGES)
+var positieIdx = 0;        // index in gefilterd[]
+var modus      = 'enkel';  // 'enkel' | 'grid'
+
+// ════════════════════════════════════════════════════════════
+//  CATEGORIEËN FILTER VULLEN
+// ════════════════════════════════════════════════════════════
+
+function vulCatFilter() {
+  var cats = {};
+  IMAGES.forEach(function(img) { cats[img.cat] = true; });
+  var select = document.getElementById('filterCat');
+  Object.keys(cats).sort().forEach(function(c) {
+    if (c === 'overig') return; // al toegevoegd in HTML
+    var opt = document.createElement('option');
+    opt.value = c; opt.textContent = c.charAt(0).toUpperCase() + c.slice(1);
+    select.appendChild(opt);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  FILTER TOEPASSEN
+// ════════════════════════════════════════════════════════════
+
+function filterGewijzigd() {
+  var cat = document.getElementById('filterCat').value;
+  var val = document.getElementById('filterVal').value;
+
+  gefilterd = IMAGES.filter(function(img) {
+    // Categorie filter
+    if (cat !== 'alles' && img.cat !== cat) return false;
+
+    // Valentie filter
+    if (val === 'alles') return true;
+    if (val === 'handmatig') return !!overrides[img.filename];
+    if (val === 'onbeoordeeld') {
+      return !overrides[img.filename] && !basisValentie(img);
+    }
+    return actueleValentie(img, overrides) === val;
+  });
+
+  positieIdx = 0;
+
+  if (modus === 'enkel') {
+    renderEnkel();
+  } else {
+    renderGrid();
+  }
+  updateProgress();
+}
+
+// ════════════════════════════════════════════════════════════
+//  PROGRESS
+// ════════════════════════════════════════════════════════════
+
+function updateProgress() {
+  var total    = IMAGES.length;
+  var handmatig = Object.keys(overrides).length;
+  var pct = Math.round(handmatig / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent =
+    handmatig + ' handmatig van ' + total;
+
+  // teller in enkel-modus
+  var pos = 0, neu = 0, neg = 0;
+  IMAGES.forEach(function(img) {
+    var v = actueleValentie(img, overrides);
+    if (v === 'positief') pos++;
+    else if (v === 'neutraal') neu++;
+    else if (v === 'negatief') neg++;
+  });
+  document.getElementById('enkelTeller').innerHTML =
+    '<span class="enkel-teller-pos">😊 ' + pos + ' positief</span>' +
+    '<span class="enkel-teller-neu">😐 ' + neu + ' neutraal</span>' +
+    '<span class="enkel-teller-neg">😟 ' + neg + ' negatief</span>';
+}
+
+// ════════════════════════════════════════════════════════════
+//  MODUS
+// ════════════════════════════════════════════════════════════
+
+function setModus(m) {
+  modus = m;
+  document.getElementById('btnEnkel').classList.toggle('actief', m === 'enkel');
+  document.getElementById('btnGrid').classList.toggle('actief', m === 'grid');
+  document.getElementById('modus-enkel').classList.toggle('actief', m === 'enkel');
+  document.getElementById('modus-grid').classList.toggle('actief', m === 'grid');
+  if (m === 'grid') renderGrid();
+  if (m === 'enkel') renderEnkel();
+}
+
+// ════════════════════════════════════════════════════════════
+//  ÉÉN VOOR ÉÉN
+// ════════════════════════════════════════════════════════════
+
+function renderEnkel() {
+  if (gefilterd.length === 0) {
+    document.getElementById('enkelKaart').style.display = 'none';
+    document.getElementById('navPositie').textContent = '0 / 0';
+    document.getElementById('btnVorige').disabled = true;
+    document.getElementById('btnVolgende').disabled = true;
+    document.getElementById('val-knoppen') && null;
+    return;
+  }
+  document.getElementById('enkelKaart').style.display = '';
+
+  var img      = gefilterd[positieIdx];
+  var basis    = basisValentie(img);
+  var override = overrides[img.filename];
+  var actueel  = override || basis || null;
+
+  // Afbeelding
+  document.getElementById('enkelImg').src = img.url;
+  document.getElementById('enkelImg').alt = img.emotion;
+
+  // Tekst
+  document.getElementById('enkelEmotion').textContent = img.emotion;
+  document.getElementById('enkelMeta').textContent =
+    'categorie: ' + img.cat + '  ·  kleur: ' + img.color;
+
+  document.getElementById('enkelBasisInfo').textContent = basis
+    ? 'Standaard valentie (via categorie): ' + basis
+    : 'Geen standaard valentie — categorie "overig"';
+
+  var badge = document.getElementById('enkelOverrideBadge');
+  badge.style.display = override ? '' : 'none';
+
+  // Kaart kleur
+  var kaart = document.getElementById('enkelKaart');
+  kaart.className = 'enkel-kaart' + (actueel ? ' v-' + actueel : '') + (override ? ' v-ovr' : '');
+
+  // Knoppen
+  document.getElementById('btnPos').classList.toggle('actief', actueel === 'positief');
+  document.getElementById('btnNeu').classList.toggle('actief', actueel === 'neutraal');
+  document.getElementById('btnNeg').classList.toggle('actief', actueel === 'negatief');
+  document.getElementById('btnReset').classList.toggle('actief', !override);
+
+  // Navigatie
+  document.getElementById('navPositie').textContent = (positieIdx + 1) + ' / ' + gefilterd.length;
+  document.getElementById('btnVorige').disabled = positieIdx === 0;
+  document.getElementById('btnVolgende').disabled = positieIdx === gefilterd.length - 1;
+}
+
+function navigeer(stap) {
+  positieIdx = Math.max(0, Math.min(gefilterd.length - 1, positieIdx + stap));
+  renderEnkel();
+}
+
+function setValentie(v) {
+  if (gefilterd.length === 0) return;
+  var img = gefilterd[positieIdx];
+  var basis = basisValentie(img);
+
+  // Als de waarde al de basis-valentie is én geen override bestaat → geen override nodig
+  if (v === basis && !overrides[img.filename]) {
+    // al correct, toch doorgaan naar volgende
+    navigeer(1);
+    return;
+  }
+  // Als de waarde gelijk is aan de basis-valentie → override verwijderen (identiek aan standaard)
+  if (v === basis) {
+    delete overrides[img.filename];
+  } else {
+    overrides[img.filename] = v;
+  }
+  slaOpOverrides(overrides);
+  updateProgress();
+
+  // Automatisch naar volgende gaan
+  if (positieIdx < gefilterd.length - 1) {
+    positieIdx++;
+  }
+  renderEnkel();
+  // Her-filter als er een actieve filter is die dit item nu uitsluit
+  var filterVal = document.getElementById('filterVal').value;
+  if (filterVal !== 'alles') {
+    filterGewijzigd();
+  }
+}
+
+function resetValentie() {
+  if (gefilterd.length === 0) return;
+  var img = gefilterd[positieIdx];
+  delete overrides[img.filename];
+  slaOpOverrides(overrides);
+  updateProgress();
+  renderEnkel();
+  toonToast('Override verwijderd voor "' + img.emotion + '"');
+}
+
+// ════════════════════════════════════════════════════════════
+//  GRID
+// ════════════════════════════════════════════════════════════
+
+function renderGrid() {
+  var wrap = document.getElementById('gridWrap');
+  var leeg = document.getElementById('gridLeeg');
+  wrap.innerHTML = '';
+
+  if (gefilterd.length === 0) {
+    leeg.style.display = '';
+    return;
+  }
+  leeg.style.display = 'none';
+
+  var frag = document.createDocumentFragment();
+  gefilterd.forEach(function(img, idx) {
+    var actueel  = actueleValentie(img, overrides);
+    var override = !!overrides[img.filename];
+
+    var div = document.createElement('div');
+    div.className = 'grid-item' +
+      (override ? ' v-ovr' : (actueel ? ' v-' + actueel : ''));
+
+    div.innerHTML =
+      '<img src="' + img.url + '" alt="' + img.emotion + '" loading="lazy">' +
+      '<div class="grid-label">' + img.emotion + '</div>';
+
+    div.addEventListener('click', function() {
+      // Ga naar dit item in enkel-modus
+      positieIdx = idx;
+      setModus('enkel');
+    });
+    frag.appendChild(div);
+  });
+  wrap.appendChild(frag);
+}
+
+// ════════════════════════════════════════════════════════════
+//  RESET ALLES
+// ════════════════════════════════════════════════════════════
+
+function resetAlles() {
+  var n = Object.keys(overrides).length;
+  if (n === 0) { toonToast('Geen overrides om te verwijderen.'); return; }
+  if (!confirm('Weet je zeker dat je alle ' + n + ' handmatige overrides wilt verwijderen?')) return;
+  overrides = {};
+  slaOpOverrides(overrides);
+  updateProgress();
+  filterGewijzigd();
+  toonToast(n + ' overrides verwijderd.');
+}
+
+// ════════════════════════════════════════════════════════════
+//  EXPORT
+// ════════════════════════════════════════════════════════════
+
+function toggleExport() {
+  var panel = document.getElementById('export-panel');
+  var open  = panel.classList.toggle('open');
+  if (open) vulExport();
+}
+
+function vulExport() {
+  var keys = Object.keys(overrides);
+  var lines = keys.map(function(fn) {
+    return '  ' + JSON.stringify(fn) + ': ' + JSON.stringify(overrides[fn]) + ',';
+  });
+
+  var code = '// Handmatige valentie-overrides (gegenereerd door valentie-editor.html)\n' +
+    '// ' + keys.length + ' van ' + IMAGES.length + ' gezichtjes handmatig beoordeeld\n' +
+    '// Gegenereerd op ' + new Date().toLocaleDateString('nl-NL') + '\n\n' +
+    'var VALENCE_OVERRIDE_FILES = {\n' +
+    lines.join('\n') +
+    '\n};\n\n' +
+    '// Gebruik in getValence():\n' +
+    '// function getValentieVanImg(filename, emotion) {\n' +
+    '//   if (VALENCE_OVERRIDE_FILES[filename]) return VALENCE_OVERRIDE_FILES[filename];\n' +
+    '//   var cat = WORD_TO_CAT[emotion] || null;\n' +
+    '//   return cat ? (CAT_VALENCE[cat] || null) : null;\n' +
+    '// }';
+
+  document.getElementById('exportTekst').value = code;
+
+  // Stats
+  var pos = 0, neu = 0, neg = 0;
+  keys.forEach(function(fn) {
+    if (overrides[fn] === 'positief') pos++;
+    else if (overrides[fn] === 'neutraal') neu++;
+    else neg++;
+  });
+  document.getElementById('exportStats').innerHTML =
+    keys.length + ' overrides: ' +
+    pos + ' pos / ' + neu + ' neu / ' + neg + ' neg';
+}
+
+function kopieerCode() {
+  var ta = document.getElementById('exportTekst');
+  ta.select();
+  try {
+    navigator.clipboard.writeText(ta.value).then(function() {
+      var btn = document.getElementById('btnKopieer');
+      btn.textContent = '✓ Gekopieerd!';
+      btn.classList.add('success');
+      setTimeout(function() {
+        btn.textContent = '📋 Kopieer code';
+        btn.classList.remove('success');
+      }, 2500);
+    });
+  } catch(e) {
+    document.execCommand('copy');
+    toonToast('Gekopieerd!');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════════
+
+var toastTimer = null;
+function toonToast(tekst) {
+  var t = document.getElementById('toast');
+  t.textContent = tekst;
+  t.classList.add('toon');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.classList.remove('toon'); }, 2200);
+}
+
+// ════════════════════════════════════════════════════════════
+//  KEYBOARD
+// ════════════════════════════════════════════════════════════
+
+document.addEventListener('keydown', function(e) {
+  // Niet activeren als focus in een input zit
+  if (['INPUT','TEXTAREA','SELECT'].indexOf(e.target.tagName) !== -1) return;
+  if (modus !== 'enkel') return;
+
+  switch(e.key) {
+    case 'ArrowLeft':  e.preventDefault(); navigeer(-1); break;
+    case 'ArrowRight': e.preventDefault(); navigeer(1);  break;
+    case ' ':          e.preventDefault(); navigeer(1);  break;
+    case '1':          setValentie('positief'); break;
+    case '2':          setValentie('neutraal');  break;
+    case '3':          setValentie('negatief');  break;
+    case '0':          resetValentie();          break;
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+//  INITIALISATIE
+// ════════════════════════════════════════════════════════════
+
+(function init() {
+  if (typeof IMAGES === 'undefined') {
+    document.getElementById('modus-enkel').innerHTML =
+      '<div class="leeg">⚠️ faces-data.js kon niet geladen worden. Zorg dat dit bestand in dezelfde map staat.</div>';
+    return;
+  }
+
+  vulCatFilter();
+  filterGewijzigd();  // vult gefilterd[] met alle beelden
+  updateProgress();
+})();
+</script>
+</body>
+</html>
