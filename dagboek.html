@@ -269,12 +269,42 @@ nav {
 .backup-rij { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .btn-backup { background: var(--paper); border: var(--border); border-radius: var(--radius); box-shadow: 2px 2px 0 var(--ink); padding: 10px 18px; font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 800; color: var(--ink); cursor: pointer; transition: all 0.12s; letter-spacing: 0.02em; }
 .btn-backup:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.btn-backup.primair { background: var(--ink); color: white; }
+.btn-backup.primair:hover { background: var(--accent); border-color: var(--accent); }
+.backup-sub { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+.btn-backup-klein { background: none; border: none; font-family: 'Nunito', sans-serif; font-size: 0.72rem; font-weight: 700; color: var(--muted); cursor: pointer; padding: 4px 8px; transition: color 0.12s; text-decoration: underline; }
+.btn-backup-klein:hover { color: var(--ink); }
 .import-fb { display: none; max-width: 460px; margin: 14px auto 0; padding: 10px 14px; border-radius: var(--radius); font-size: 0.78rem; font-weight: 700; line-height: 1.5; border: 2px solid var(--ink); }
 .import-fb.show { display: block; }
 .import-fb.ok  { background: #DFF2D8; color: #2D5A1F; border-color: #2D5A1F; }
 .import-fb.err { background: #FCE2DA; color: #B0331A; border-color: #B0331A; }
 .btn-import-leeg { display: inline-block; margin-top: 18px; font-size: 0.75rem; font-weight: 700; color: var(--soft); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 4px 0; font-family: 'Nunito', sans-serif; }
 .btn-import-leeg:hover { color: var(--ink); }
+
+/* ── PRINT (Sla op als PDF) ──────────────────────────────────── */
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  nav, .nav-menu, .privacy-notice, .selectie-sectie,
+  .wolk-sectie, .backup-sectie, .bodem, footer,
+  .sessie-acties, .chip-solo { display: none !important; }
+
+  body { background: white; }
+  .page-header { padding: 16px 0 12px; text-align: center; break-after: avoid; }
+  .page-tag { color: #FF5C35; font-size: 0.6rem; }
+  .page-title { font-size: 2.4rem; }
+
+  .tijdlijn-sectie { max-width: 100%; padding: 0 12px 24px; }
+  .tijdlijn-label { font-size: 1.3rem; margin-bottom: 10px; display: block; }
+  .sessie-kaart { break-inside: avoid; box-shadow: none !important; border: 1.5px solid #111 !important; margin-bottom: 10px !important; opacity: 1 !important; filter: none !important; }
+  .sessie-body { display: block !important; }
+  .sessie-header { padding: 10px 14px; }
+  .sessie-face-mini { border: 1.5px solid #111; width: 30px; height: 30px; }
+  .sessie-grid { gap: 6px; margin-bottom: 10px; }
+  .sessie-chosen { box-shadow: none; border: 1.5px solid #111; }
+  .sessie-chosen img { border-bottom: 1.5px solid #111; }
+  .sessie-notitie { background: #FFD93D; padding: 8px 10px; border-radius: 6px; margin-bottom: 10px; }
+  .sessie-aantekening-lbl { color: #FF5C35; }
+}
 
 /* ── BODEM ────────────────────────────────────────────────────── */
 .bodem { max-width: 680px; margin: 0 auto; padding: 8px 24px 64px; text-align: center; }
@@ -778,10 +808,23 @@ function exporteerDagboek() {
     exportedAt: new Date().toISOString(),
     sessies: sessies
   };
-  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var json = JSON.stringify(payload, null, 2);
   var d = new Date();
   var datum = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   var filename = 'gevoelsatlas-dagboek-' + datum + '.json';
+
+  /* Mobiel: gebruik share-sheet → "Bewaar in Bestanden" */
+  var isMobiel = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                 (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+  var file = new File([json], filename, { type: 'application/json' });
+  if (isMobiel && navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: 'Mijn GevoelsAtlas dagboek — back-up' })
+      .then(function() { toonImportFb('ok', '✓ Kies "Bewaar in Bestanden" om het op te slaan.'); })
+      .catch(function(e) { if (e.name !== 'AbortError') toonImportFb('err', 'Delen mislukt — probeer het opnieuw.'); });
+    return;
+  }
+  /* Desktop: directe download */
+  var blob = new Blob([json], { type: 'application/json' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
@@ -789,7 +832,19 @@ function exporteerDagboek() {
   a.click();
   document.body.removeChild(a);
   setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
-  toonImportFb('ok', '✓ Bestand opgeslagen — bewaar het op een veilige plek (bijv. e-mail naar jezelf).');
+  toonImportFb('ok', '✓ Bestand opgeslagen — bewaar het op een veilige plek.');
+}
+
+function printDagboek() {
+  /* Klap alle sessiekaarten open zodat ze zichtbaar zijn in de PDF */
+  var kaarten = document.querySelectorAll('.sessie-kaart');
+  kaarten.forEach(function(k) { k.classList.add('open'); });
+  window.print();
+  /* Na het printen terugzetten */
+  window.addEventListener('afterprint', function handler() {
+    kaarten.forEach(function(k) { k.classList.remove('open'); });
+    window.removeEventListener('afterprint', handler);
+  });
 }
 
 function valideerSessie(s) {
@@ -846,30 +901,49 @@ function bouwBackupSectie() {
 
   var titel = document.createElement('div');
   titel.className = 'backup-titel';
-  titel.textContent = 'Bewaar een kopie';
+  titel.textContent = 'Bewaar je dagboek';
   sectie.appendChild(titel);
 
   var uitleg = document.createElement('div');
   uitleg.className = 'backup-uitleg';
-  uitleg.textContent = 'Je dagboek staat alleen op dit apparaat. Maak af en toe een kopie, zodat je niets kwijtraakt als je browser wist of van apparaat wisselt.';
+  uitleg.textContent = 'Sla je sessies op als PDF om ze te bewaren of te delen. Of maak een back-up zodat je ze op een ander apparaat terug kunt zetten.';
   sectie.appendChild(uitleg);
 
+  /* Primaire knop: PDF/afdrukken */
   var rij = document.createElement('div');
   rij.className = 'backup-rij';
 
+  var pdfBtn = document.createElement('button');
+  pdfBtn.className = 'btn-backup primair';
+  pdfBtn.textContent = '⎙ Sla op als PDF / Afdrukken';
+  pdfBtn.addEventListener('click', printDagboek);
+  rij.appendChild(pdfBtn);
+  sectie.appendChild(rij);
+
+  /* Kleinere knoppen: back-up bewaren / terugzetten */
+  var sub = document.createElement('div');
+  sub.className = 'backup-sub';
+
   var dlBtn = document.createElement('button');
-  dlBtn.className = 'btn-backup';
-  dlBtn.textContent = '↓ Download mijn dagboek';
+  dlBtn.className = 'btn-backup-klein';
+  dlBtn.textContent = '↓ Back-up bewaren';
+  dlBtn.title = 'Sla een back-up op als bestand — handig om het dagboek later terug te zetten op dit of een ander apparaat';
   dlBtn.addEventListener('click', exporteerDagboek);
-  rij.appendChild(dlBtn);
+  sub.appendChild(dlBtn);
+
+  var scheidng = document.createElement('span');
+  scheidng.style.cssText = 'color:var(--muted);font-size:0.72rem;line-height:2';
+  scheidng.textContent = '·';
+  sub.appendChild(scheidng);
 
   var imBtn = document.createElement('button');
-  imBtn.className = 'btn-backup';
-  imBtn.textContent = '↑ Importeer dagboek';
+  imBtn.className = 'btn-backup-klein';
+  imBtn.textContent = '↑ Back-up terugzetten';
+  imBtn.title = 'Laad een eerder opgeslagen back-up — sessies worden samengevoegd';
   imBtn.addEventListener('click', function() { document.getElementById('importInput').click(); });
-  rij.appendChild(imBtn);
+  sub.appendChild(imBtn);
 
-  sectie.appendChild(rij);
+  sectie.appendChild(sub);
 
   var fb = document.createElement('div');
   fb.className = 'import-fb';
