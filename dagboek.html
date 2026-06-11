@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mijn GevoelsDagboek</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
-<link rel="icon" type="image/jpeg" href="images/1258_groen_intelligent.jpg">
+<link rel="icon" type="image/webp" href="thumbs/1258_groen_intelligent.webp">
 <style>
 :root {
   --bg:     #F7F5EE;
@@ -567,6 +567,15 @@ function laadSessies() {
 function slaOpSessies(s) { localStorage.setItem('gevoelsatlas_dagboek', JSON.stringify(s)); }
 
 function isSelected(datum) { return selectedKeys[datum] !== false; }
+
+/* Kleine weergaves laden de lichte thumb-variant; werkt ook voor oude sessies
+   waarin de volle afbeeldings-URL is opgeslagen. */
+function naarThumb(url) {
+  if (url && url.indexOf('/images/') !== -1) {
+    return url.replace('/images/', '/thumbs/').replace(/\.jpg$/i, '.webp');
+  }
+  return url;
+}
 
 /* ── HANDMATIGE VALENTIE-OVERRIDES (bijgewerkt 3-5-2026) ────── */
 var VALENCE_OVERRIDE_FILES = {
@@ -1396,7 +1405,7 @@ function buildSelectieBalk(sessies) {
     sessie.stappen.forEach(function(s, si) {
       var img = document.createElement('img');
       img.className = 'chip-face';
-      img.src = s.url; img.alt = s.emotion;
+      img.src = naarThumb(s.url); img.alt = s.emotion;
       (si < 3 ? rij1 : rij2).appendChild(img);
     });
     faces.appendChild(rij1);
@@ -1495,7 +1504,7 @@ function vulScene(scene, sessies) {
 
     var img = document.createElement('img');
     img.className = 'bubble-img';
-    img.src   = f.url;
+    img.src   = naarThumb(f.url);
     img.alt   = f.emotion;
     img.title = f.emotion + (f.count > 1 ? ' (' + f.count + '×)' : '');
 
@@ -1535,7 +1544,7 @@ function buildTijdlijn(sessies) {
       '<div class="sessie-datum">' + formatDatum(sessie.datum) + '</div>' +
       '<div class="sessie-faces">' +
         sessie.stappen.map(function(s) {
-          return '<img class="sessie-face-mini" src="' + s.url + '" alt="' + s.emotion + '">';
+          return '<img class="sessie-face-mini" src="' + naarThumb(s.url) + '" alt="' + s.emotion + '">';
         }).join('') +
       '</div>';
     header.addEventListener('click', function() { kaart.classList.toggle('open'); });
@@ -1546,7 +1555,7 @@ function buildTijdlijn(sessies) {
     var grid = '<div class="sessie-grid">';
     sessie.stappen.forEach(function(s) {
       grid += '<div class="sessie-chosen">' +
-        '<img src="' + s.url + '" alt="' + s.emotion + '">' +
+        '<img src="' + naarThumb(s.url) + '" alt="' + s.emotion + '">' +
         '<div class="sessie-chosen-lbl">' + (LABEL_KORT[s.label] || s.label) + '</div>' +
         '<div class="sessie-chosen-emotion">' + s.emotion + '</div>' +
         '</div>';

@@ -1,4 +1,5 @@
 const BASE = 'https://www.gevoelsatlas.nl/images/';
+const BASE_THUMB = 'https://www.gevoelsatlas.nl/thumbs/';
 
 function fixLabel(s) {
   try { return decodeURIComponent(s).normalize('NFC'); } catch(e) { return s; }
@@ -83,6 +84,7 @@ const RAW = [["1395_blauw_stoer.jpg","blauw","stoer","overig"],["959_geel_monste
 const IMAGES = RAW.map(function(r) {
   var emotion = fixLabel(r[2]);
   var url     = BASE + fixFilename(r[0]);
+  var thumb   = BASE_THUMB + fixFilename(r[0]).replace(/\.jpg$/i, '.webp');
   var cat     = r[3] === 'overig' && WORD_TO_CAT[emotion] ? WORD_TO_CAT[emotion] : r[3];
-  return { filename: r[0], color: r[1], emotion: emotion, cat: cat, url: url };
+  return { filename: r[0], color: r[1], emotion: emotion, cat: cat, url: url, thumb: thumb };
 });

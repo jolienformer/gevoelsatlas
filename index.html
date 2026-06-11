@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="GevoelsAtlas">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/jpeg" href="images/1258_groen_intelligent.jpg">
+<link rel="icon" type="image/webp" href="thumbs/1258_groen_intelligent.webp">
 <style>
 /* ── TOKENS ─────────────────────────────────────────────────── */
 :root {
@@ -1046,8 +1046,8 @@ function renderGrid() {
   var visible  = shuffled.slice(0, limit);
   var html = '';
   visible.forEach(function(img) {
-    html += '<div class="img-card" onclick="selectImg(\'' + encodeURIComponent(img.filename) + '\')">';
-    html += '<img src="' + img.url + '" alt="' + img.emotion + '" loading="lazy">';
+    html += '<div class="img-card" data-fn="' + encodeURIComponent(img.filename) + '" onclick="selectImg(\'' + encodeURIComponent(img.filename) + '\')">';
+    html += '<img src="' + img.thumb + '" alt="' + img.emotion + '" loading="lazy">';
     html += '<div class="img-label">' + img.emotion + '</div>';
     html += '</div>';
   });
@@ -1093,13 +1093,8 @@ function selectImg(encodedFilename) {
   if (!img) { isTransitioning = false; return; }
 
   // Visuele flash op de kaart
-  var cards = document.querySelectorAll('.img-card');
-  cards.forEach(function(card) {
-    var cardImg = card.querySelector('img');
-    if (cardImg && cardImg.alt === img.emotion && cardImg.src.includes(img.filename)) {
-      card.classList.add('selecting');
-    }
-  });
+  var card = document.querySelector('.img-card[data-fn="' + encodedFilename + '"]');
+  if (card) card.classList.add('selecting');
 
   // Sla op in sessie (inclusief eventuele notitie)
   var note = document.getElementById('stepNoteInput').value.trim();
@@ -1151,7 +1146,7 @@ function showEndScreen() {
     var entry = sessionLog[i];
     if (entry) {
       html += '<div class="chosen-card">';
-      html += '<img src="' + entry.img.url + '" alt="' + entry.img.emotion + '">';
+      html += '<img src="' + entry.img.thumb + '" alt="' + entry.img.emotion + '">';
       html += '<div class="chosen-card-lbl">' + kortLabel(s.label) + '</div>';
       html += '<div class="chosen-card-emotion">' + entry.img.emotion + '</div>';
       if (entry.note) html += '<div class="chosen-card-note">' + entry.note + '</div>';
