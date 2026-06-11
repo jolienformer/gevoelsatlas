@@ -260,6 +260,7 @@ nav {
 }
 .step-note-toggle:hover { color: var(--ink); }
 .step-note-toggle.open  { color: var(--accent); }
+.step-skip { margin-left: 14px; }
 .step-note-area {
   display: none;
   margin: 8px 0 0;
@@ -478,10 +479,11 @@ nav {
   background: var(--bg);
   border: 2px dashed var(--muted);
   box-shadow: none;
-  display: flex; align-items: center; justify-content: center;
-  min-height: 80px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-height: 80px; padding: 4px;
 }
-.chosen-card.empty span { font-size: 1.4rem; color: var(--muted); }
+.chosen-card.empty .chosen-card-lbl { color: var(--muted); padding: 0; }
+.chosen-card.empty span { font-size: 0.52rem; font-weight: 700; color: var(--muted); font-style: italic; }
 
 /* Optionele velden */
 .end-fields {
@@ -799,7 +801,7 @@ nav {
   <div class="question-block">
     <div class="question-theme" id="questionTheme"></div>
     <div class="question-txt"  id="questionTxt"></div>
-    <button class="step-note-toggle" id="noteToggle" onclick="toggleStepNote()">✎ aantekening toevoegen</button>
+    <button class="step-note-toggle" id="noteToggle" onclick="toggleStepNote()">✎ aantekening toevoegen</button><button class="step-note-toggle step-skip" onclick="slaStapOver()">sla deze vraag over →</button>
     <div class="step-note-area" id="stepNoteArea">
       <textarea id="stepNoteInput" placeholder="Iets wat je wilt onthouden bij deze vraag…"></textarea>
     </div>
@@ -1110,6 +1112,18 @@ function selectImg(encodedFilename) {
   }, 220);
 }
 
+/* ── STAP OVERSLAAN ─────────────────────────────────────────── */
+function slaStapOver() {
+  if (isTransitioning) return;
+  isTransitioning = true;
+  sessionLog[currentStep] = undefined; // ook bij teruggaan: keuze vervalt
+  if (currentStep < STEPS.length - 1) {
+    showStepOverlay(currentStep + 1);
+  } else {
+    showEndScreen();
+  }
+}
+
 /* ── STAP-OVERGANG OVERLAY ──────────────────────────────────── */
 function showStepOverlay(nextStep) {
   var nextLabel = STEPS[nextStep].theme;
@@ -1152,10 +1166,19 @@ function showEndScreen() {
       if (entry.note) html += '<div class="chosen-card-note">' + entry.note + '</div>';
       html += '</div>';
     } else {
-      html += '<div class="chosen-card empty"><span>—</span></div>';
+      html += '<div class="chosen-card empty">';
+      html += '<div class="chosen-card-lbl">' + kortLabel(s.label) + '</div>';
+      html += '<span>overgeslagen</span>';
+      html += '</div>';
     }
   });
   document.getElementById('chosenGrid').innerHTML = html;
+
+  /* Alles overgeslagen? Dan valt er niets te bewaren of te delen */
+  var heeftKeuzes = sessionLog.some(function(e) { return !!e; });
+  document.getElementById('btnDagboek').style.display = heeftKeuzes ? '' : 'none';
+  document.getElementById('btnDeel').style.display    = heeftKeuzes ? '' : 'none';
+
   isTransitioning = false;
 }
 
@@ -1363,6 +1386,14 @@ async function deelAlsAfbeelding() {
         emotion = emotion.slice(0, -2) + '…';
       }
       ctx.fillText(emotion, cx + CARD_W / 2, yCards + CARD_W + 30);
+    } else {
+      /* overgeslagen stap: alleen label + vermelding, in gedempt grijs */
+      ctx.fillStyle = '#BBBBBB';
+      ctx.font = 'bold 15px "Amatic SC", cursive';
+      ctx.textAlign = 'center';
+      ctx.fillText('overgeslagen', cx + CARD_W / 2, yCards + CARD_W / 2 + 5);
+      ctx.font = 'bold 8px Nunito, sans-serif';
+      ctx.fillText(kortLabel(s.label).toUpperCase(), cx + CARD_W / 2, yCards + CARD_W + 13);
     }
   });
 
@@ -1444,7 +1475,10 @@ function exportPDF() {
       html += '<div class="pv-card-emotion">' + entry.img.emotion + '</div>';
       html += '</div>';
     } else {
-      html += '<div class="pv-card" style="min-height:80px"></div>';
+      html += '<div class="pv-card" style="min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;">';
+      html += '<div class="pv-card-lbl" style="color:#BBBBBB">' + kortLabel(s.label) + '</div>';
+      html += '<div style="font-size:0.55rem;font-style:italic;color:#BBBBBB;font-weight:700">overgeslagen</div>';
+      html += '</div>';
     }
   });
   html += '</div>';
