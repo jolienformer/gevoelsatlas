@@ -877,6 +877,13 @@ nav {
 const LABEL_KORT = { 'Vanbinnen': 'Binnen', 'School/werk': 'School' };
 function kortLabel(lbl) { return LABEL_KORT[lbl] || lbl; }
 
+/* Ingetypte tekst (notities, naam) altijd escapen voor innerHTML */
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
 /* ── STAPPEN ────────────────────────────────────────────────── */
 const STEPS = [
   { label: 'Nu',          theme: 'Hoe voel jij je?',     question: 'Wat past bij hoe jij je nu voelt?' },
@@ -1174,7 +1181,7 @@ function showEndScreen() {
       html += '<img src="' + entry.img.thumb + '" alt="' + entry.img.emotion + '">';
       html += '<div class="chosen-card-lbl">' + kortLabel(s.label) + '</div>';
       html += '<div class="chosen-card-emotion">' + entry.img.emotion + '</div>';
-      if (entry.note) html += '<div class="chosen-card-note">' + entry.note + '</div>';
+      if (entry.note) html += '<div class="chosen-card-note">' + escapeHtml(entry.note) + '</div>';
       html += '</div>';
     } else {
       html += '<div class="chosen-card empty">';
@@ -1473,7 +1480,7 @@ function exportPDF() {
   html += '<div class="pv-title">Gevoels<em>Atlas</em></div>';
   html += '<div class="pv-date">een momentopname · ' + d + '</div>';
   html += '</div>';
-  if (name) html += '<div class="pv-name">' + name + '</div>';
+  if (name) html += '<div class="pv-name">' + escapeHtml(name) + '</div>';
 
   // 5 gezichtjes
   html += '<div class="pv-grid">';
@@ -1501,7 +1508,7 @@ function exportPDF() {
     html += '<div class="pv-note-lbl">Aantekeningen</div>';
     stapNotes.forEach(function(s, idx) {
       var entry = sessionLog[STEPS.indexOf(s)];
-      html += '<div class="pv-note-txt" style="margin-bottom:4px"><strong style="color:#FF5C35;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.07em">' + s.label + '</strong> ' + entry.note + '</div>';
+      html += '<div class="pv-note-txt" style="margin-bottom:4px"><strong style="color:#FF5C35;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.07em">' + s.label + '</strong> ' + escapeHtml(entry.note) + '</div>';
     });
     html += '</div>';
   }
@@ -1510,7 +1517,7 @@ function exportPDF() {
   if (note) {
     html += '<div class="pv-note-section">';
     html += '<div class="pv-note-lbl">Aantekening</div>';
-    html += '<div class="pv-note-txt">' + note + '</div>';
+    html += '<div class="pv-note-txt">' + escapeHtml(note) + '</div>';
     html += '</div>';
   }
 
@@ -1539,6 +1546,9 @@ function exportPDF() {
 
 /* ── START ──────────────────────────────────────────────────── */
 init();
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
 document.getElementById('hamburger').addEventListener('click', function(e) {
   e.stopPropagation();
   document.getElementById('navMenu').classList.toggle('open');

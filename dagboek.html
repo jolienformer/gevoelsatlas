@@ -588,6 +588,13 @@ function naarThumb(url) {
   return url;
 }
 
+/* Sessiedata kan via import van buiten komen; altijd escapen voor innerHTML */
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
 /* ── HANDMATIGE VALENTIE-OVERRIDES (bijgewerkt 3-5-2026) ────── */
 var VALENCE_OVERRIDE_FILES = {
   "959_geel_monsterlijk.jpg": "neutraal",
@@ -1555,7 +1562,7 @@ function buildTijdlijn(sessies) {
       '<div class="sessie-datum">' + formatDatum(sessie.datum) + '</div>' +
       '<div class="sessie-faces">' +
         sessie.stappen.map(function(s) {
-          return '<img class="sessie-face-mini" src="' + naarThumb(s.url) + '" alt="' + s.emotion + '">';
+          return '<img class="sessie-face-mini" src="' + escapeHtml(naarThumb(s.url)) + '" alt="' + escapeHtml(s.emotion) + '">';
         }).join('') +
       '</div>';
     header.addEventListener('click', function() { kaart.classList.toggle('open'); });
@@ -1566,9 +1573,9 @@ function buildTijdlijn(sessies) {
     var grid = '<div class="sessie-grid">';
     sessie.stappen.forEach(function(s) {
       grid += '<div class="sessie-chosen">' +
-        '<img src="' + naarThumb(s.url) + '" alt="' + s.emotion + '">' +
-        '<div class="sessie-chosen-lbl">' + (LABEL_KORT[s.label] || s.label) + '</div>' +
-        '<div class="sessie-chosen-emotion">' + s.emotion + '</div>' +
+        '<img src="' + escapeHtml(naarThumb(s.url)) + '" alt="' + escapeHtml(s.emotion) + '">' +
+        '<div class="sessie-chosen-lbl">' + escapeHtml(LABEL_KORT[s.label] || s.label) + '</div>' +
+        '<div class="sessie-chosen-emotion">' + escapeHtml(s.emotion) + '</div>' +
         '</div>';
     });
     grid += '</div>';
@@ -1580,14 +1587,14 @@ function buildTijdlijn(sessies) {
       aantekeningenHtml = '<div class="sessie-aantekeningen">' +
         stapNotes.map(function(s) {
           return '<div class="sessie-aantekening-rij">' +
-            '<span class="sessie-aantekening-lbl">' + s.label + '</span>' +
-            '<span class="sessie-aantekening-tekst">"' + s.note + '"</span>' +
+            '<span class="sessie-aantekening-lbl">' + escapeHtml(s.label) + '</span>' +
+            '<span class="sessie-aantekening-tekst">"' + escapeHtml(s.note) + '"</span>' +
             '</div>';
         }).join('') +
         '</div>';
     }
 
-    var notitie = sessie.notitie ? '<div class="sessie-notitie">"' + sessie.notitie + '"</div>' : '';
+    var notitie = sessie.notitie ? '<div class="sessie-notitie">"' + escapeHtml(sessie.notitie) + '"</div>' : '';
 
     var verwijderBtn = document.createElement('button');
     verwijderBtn.className = 'btn-verwijder';
@@ -1606,7 +1613,7 @@ function buildTijdlijn(sessies) {
       deelSessieCanvas(sessie, deelBtn);
     });
 
-    body.innerHTML = '<div class="sessie-body-datum">' + formatDatum(sessie.datum) + (sessie.naam ? ' · ' + sessie.naam : '') + '</div>' + grid + aantekeningenHtml + notitie;
+    body.innerHTML = '<div class="sessie-body-datum">' + formatDatum(sessie.datum) + (sessie.naam ? ' · ' + escapeHtml(sessie.naam) : '') + '</div>' + grid + aantekeningenHtml + notitie;
     var acties = document.createElement('div');
     acties.className = 'sessie-acties';
     acties.appendChild(deelBtn);
