@@ -250,10 +250,15 @@ nav {
   border: var(--border);
   box-shadow: 2px 2px 0 var(--ink);
   aspect-ratio: 1;
-  cursor: pointer;
   transition: transform 0.15s;
 }
 .face-item:hover { transform: scale(1.06) rotate(-1deg); }
+.face-open {
+  display: block; width: 100%; height: 100%;
+  padding: 0; border: none; background: none; cursor: pointer;
+  border-radius: calc(var(--radius) - 2px);
+}
+.face-open:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .face-item img {
   width: 100%; height: 100%;
   object-fit: cover; display: block;
@@ -372,6 +377,7 @@ nav {
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 .face-item:hover .fav-btn { opacity: 1; }
+.fav-btn:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
 .fav-btn.actief { opacity: 1; background: var(--accent); color: white; }
 
 .search-row {
@@ -714,18 +720,29 @@ function renderGrid() {
   filtered.forEach(function(face) {
     var item = document.createElement('div');
     item.className = 'face-item';
+    item.dataset.filename = face.filename;
+
+    var openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'face-open';
+    openBtn.setAttribute('aria-label', 'Bekijk: ' + face.emotion);
 
     var img = document.createElement('img');
     img.src = face.thumb;
-    img.alt = face.emotion;
+    img.alt = '';
     img.loading = 'lazy';
-    item.appendChild(img);
+    openBtn.appendChild(img);
+    openBtn.addEventListener('click', function() {
+      openLightbox(face);
+    });
+    item.appendChild(openBtn);
 
     var favBtn = document.createElement('button');
+    favBtn.type = 'button';
     favBtn.className = 'fav-btn' + (favorieten.has(face.filename) ? ' actief' : '');
     favBtn.textContent = favorieten.has(face.filename) ? '♥' : '♡';
     favBtn.title = favorieten.has(face.filename) ? 'Verwijder uit bewaard' : 'Bewaar';
-    favBtn.setAttribute('aria-label', favorieten.has(face.filename) ? 'Verwijder uit bewaard' : 'Bewaar');
+    favBtn.setAttribute('aria-label', (favorieten.has(face.filename) ? 'Verwijder uit bewaard: ' : 'Bewaar: ') + face.emotion);
     favBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       toggleFavoriet(face.filename, favBtn);
@@ -742,10 +759,6 @@ function renderGrid() {
         faceTimer = setTimeout(function() { hideTooltip(item); }, 200);
       });
     }
-    item.dataset.filename = face.filename;
-    item.addEventListener('click', function() {
-      openLightbox(face);
-    });
 
     grid.appendChild(item);
   });

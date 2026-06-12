@@ -112,6 +112,7 @@ nav {
   border-top-color: var(--accent);
   box-shadow: var(--shadow);
 }
+.sessie-chip:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .chip-datum {
   font-size: 0.58rem; font-weight: 900; color: var(--accent);
   text-transform: uppercase; letter-spacing: 0.06em;
@@ -170,11 +171,13 @@ nav {
 }
 .bubble-glow-wrap {
   width: 100%; height: 100%;
+  padding: 0; border: none; background: none;
   border-radius: 50%;
   transition: transform 0.18s;
   cursor: pointer;
 }
 .bubble-wrap:hover .bubble-glow-wrap { transform: scale(1.1); }
+.bubble-glow-wrap:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .bubble-label {
   position: absolute;
   bottom: -22px;
@@ -249,10 +252,12 @@ nav {
 }
 .sessie-kaart.gedempt { opacity: 0.35; }
 .sessie-header {
+  width: 100%; font: inherit; text-align: left; background: none; border: none;
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px; cursor: pointer; transition: background 0.1s;
 }
 .sessie-header:hover { background: #F0EDE4; }
+.sessie-header:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 .sessie-datum { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); white-space: nowrap; }
 .sessie-faces { display: flex; gap: 6px; flex: 1; justify-content: center; }
 .sessie-face-mini { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ink); flex-shrink: 0; }
@@ -453,7 +458,8 @@ footer a { color: var(--yellow); text-decoration: none; }
   position: relative;
 }
 .kal-cel.leeg-cel { pointer-events: none; }
-.kal-cel.heeft-sessie { cursor: pointer; }
+.kal-cel.heeft-sessie { cursor: pointer; padding: 0; border: none; background: none; font: inherit; }
+.kal-cel.heeft-sessie:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; border-radius: 4px; }
 .kal-cel.heeft-sessie:hover .kal-dot { transform: scale(1.15); }
 /* Dot — zelfde stijl als bubble-img in de wolk */
 .kal-dot {
@@ -1403,9 +1409,20 @@ function buildSelectieBalk(sessies) {
     var sel = isSelected(sessie.datum);
     var chip = document.createElement('div');
     chip.className = 'sessie-chip ' + (sel ? 'aangevinkt' : 'uitgevinkt');
+    chip.setAttribute('role', 'checkbox');
+    chip.setAttribute('tabindex', '0');
+    chip.setAttribute('aria-checked', sel ? 'true' : 'false');
+    chip.setAttribute('aria-label', 'Sessie ' + formatKort(sessie.datum) + ' meetellen in de wolk');
     chip.addEventListener('click', function() {
       selectedKeys[sessie.datum] = !isSelected(sessie.datum);
       render();
+    });
+    chip.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectedKeys[sessie.datum] = !isSelected(sessie.datum);
+        render();
+      }
     });
 
     /* Datum */
@@ -1516,22 +1533,23 @@ function vulScene(scene, sessies) {
     var fi = i % 8;
     wrap.style.animation = 'flt'+fi+' '+FLT_DUR[fi]+'s ease-in-out '+FLT_DEL[fi]+'s infinite';
 
-    var glowWrap = document.createElement('div');
+    var glowWrap = document.createElement('button');
+    glowWrap.type = 'button';
     glowWrap.className = 'bubble-glow-wrap glow-' + f.valence;
     glowWrap.style.animationDelay = (-i * 0.45) + 's';
+    glowWrap.setAttribute('aria-label', f.emotion + (f.count > 1 ? ', ' + f.count + ' keer' : ''));
 
     var img = document.createElement('img');
     img.className = 'bubble-img';
     img.src   = naarThumb(f.url);
-    img.alt   = f.emotion;
+    img.alt   = '';
     img.title = f.emotion + (f.count > 1 ? ' (' + f.count + '×)' : '');
 
     var label = document.createElement('span');
     label.className = 'bubble-label';
     label.textContent = f.emotion + (f.count > 1 ? ' ' + f.count + '×' : '');
 
-    wrap.style.cursor = 'pointer';
-    wrap.addEventListener('click', function() { openDbLightbox(f); });
+    glowWrap.addEventListener('click', function() { openDbLightbox(f); });
 
     glowWrap.appendChild(img);
     wrap.appendChild(glowWrap);
@@ -1556,8 +1574,11 @@ function buildTijdlijn(sessies) {
     kaart.className = 'sessie-kaart' + (!sel ? ' gedempt' : '');
     kaart.dataset.datum = sessie.datum ? sessie.datum.slice(0, 10) : '';
 
-    var header = document.createElement('div');
+    var header = document.createElement('button');
+    header.type = 'button';
     header.className = 'sessie-header';
+    header.setAttribute('aria-expanded', 'false');
+    header.setAttribute('aria-label', 'Sessie ' + formatDatum(sessie.datum) + ' openen of sluiten');
     header.innerHTML =
       '<div class="sessie-datum">' + formatDatum(sessie.datum) + '</div>' +
       '<div class="sessie-faces">' +
@@ -1565,7 +1586,10 @@ function buildTijdlijn(sessies) {
           return '<img class="sessie-face-mini" src="' + escapeHtml(naarThumb(s.url)) + '" alt="' + escapeHtml(s.emotion) + '">';
         }).join('') +
       '</div>';
-    header.addEventListener('click', function() { kaart.classList.toggle('open'); });
+    header.addEventListener('click', function() {
+      var open = kaart.classList.toggle('open');
+      header.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
 
     var body = document.createElement('div');
     body.className = 'sessie-body';
@@ -1868,10 +1892,12 @@ function buildKalender(sessies) {
       var vandaagKey = vandaag.getFullYear() + '-' + String(vandaag.getMonth()+1).padStart(2,'0') + '-' + String(vandaag.getDate()).padStart(2,'0');
       var isVandaag = (key === vandaagKey);
 
-      var cel = document.createElement('div');
+      var cel = document.createElement(data ? 'button' : 'div');
       cel.className = 'kal-cel' + (isVandaag ? ' kal-vandaag' : '');
 
       if (data) {
+        cel.type = 'button';
+        cel.setAttribute('aria-label', 'Sessie op ' + key + ', ga naar deze dag');
         cel.classList.add('heeft-sessie');
         var dot = document.createElement('div');
         var glowKlasse = data.gemiddelde >= 0.34 ? 'glow-pos' : data.gemiddelde <= -0.34 ? 'glow-neg' : 'glow-neu';

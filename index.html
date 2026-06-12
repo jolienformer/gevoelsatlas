@@ -335,6 +335,11 @@ nav {
 
 /* Image card */
 .img-card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  text-align: inherit;
   border-radius: 8px;
   overflow: hidden;
   border: var(--border);
@@ -345,6 +350,7 @@ nav {
   position: relative;
 }
 .img-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+.img-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .img-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
 .img-label {
   padding: 4px 7px 5px;
@@ -1066,10 +1072,10 @@ function renderGrid() {
   var visible  = shuffled.slice(0, limit);
   var html = '';
   visible.forEach(function(img) {
-    html += '<div class="img-card" data-fn="' + encodeURIComponent(img.filename) + '" onclick="selectImg(\'' + encodeURIComponent(img.filename) + '\')">';
-    html += '<img src="' + img.thumb + '" alt="' + img.emotion + '" loading="lazy">';
+    html += '<button type="button" class="img-card" data-fn="' + encodeURIComponent(img.filename) + '" onclick="selectImg(\'' + encodeURIComponent(img.filename) + '\')" aria-label="Kies: ' + escapeHtml(img.emotion) + '">';
+    html += '<img src="' + img.thumb + '" alt="" loading="lazy">';
     html += '<div class="img-label">' + img.emotion + '</div>';
-    html += '</div>';
+    html += '</button>';
   });
   document.getElementById('imgGrid').innerHTML = html;
 
